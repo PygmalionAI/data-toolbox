@@ -1,0 +1,8 @@
+/*.egg-info/
+**/__pycache__/
+
+/.pdm.toml
+/.venv/
+
+/data/*
+!/data/.keep

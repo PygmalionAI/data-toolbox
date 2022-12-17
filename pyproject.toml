@@ -1,0 +1,35 @@
+[tool.pdm]
+
+[project]
+name = "wAIfu"
+version = "0.1.0"
+description = "Code for the /wAIfu/ Collective project."
+authors = [
+    {name = "0x000011b", email = "0x000011b@waifu.club"},
+]
+requires-python = ">=3.10"
+license = {text = "AGPL-3.0-only"}
+dependencies = [
+    "ijson>=3.1.4",
+    "mashumaro>=3.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "yapf>=0.32.0",
+    "toml>=0.10.2",
+    "isort>=5.10.1",
+    "pylint>=2.15.8",
+    "mypy>=0.991",
+]
+
+[tool.setuptools]
+py-modules = ["waifu"]
+
+[tool.pdm.scripts]
+lint = {shell = "pylint --jobs 0 ./waifu/**/*.py"}
+stylecheck = "yapf --parallel --diff --recursive waifu"
+typecheck = "mypy waifu"
+
+[tool.yapf]
+based_on_style = "google"
