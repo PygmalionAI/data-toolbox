@@ -1,6 +1,6 @@
 # 11b's /wAIfu/ Toolbox
 
-**This is a copy of the original repo, found on [https://git.fuwafuwa.moe/waifu-collective/toolbox]. It will be updated side-by-side with this mirror on GitHub.**
+**This is a copy of the original repo, found at https://git.fuwafuwa.moe/waifu-collective/toolbox. It will be updated side-by-side with this mirror on GitHub.**
 
 **Note**: This is a _very_ early work-in-progress. Expect the unexpected.
 
