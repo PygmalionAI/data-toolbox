@@ -4,7 +4,7 @@ import typing as t
 class BaseModule:
     '''Base module class.'''
 
-    def __iter__(self):
+    def __iter__(self) -> t.Generator[str, None, None]:
         '''Implements the basic iterator interface.'''
         return self.generator()
 

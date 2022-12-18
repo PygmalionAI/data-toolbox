@@ -28,8 +28,9 @@ py-modules = ["waifu"]
 
 [tool.pdm.scripts]
 lint = {shell = "pylint --jobs 0 ./waifu/**/*.py"}
+importcheck = "isort --check --diff waifu"
 stylecheck = "yapf --parallel --diff --recursive waifu"
-typecheck = "mypy waifu"
+typecheck = "mypy --strict waifu"
 
 [tool.yapf]
 based_on_style = "google"

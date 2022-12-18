@@ -6,7 +6,7 @@ T = t.TypeVar("T")
 class BaseDataset(t.Generic[T]):
     '''Base dataset class.'''
 
-    def __iter__(self):
+    def __iter__(self) -> t.Generator[T, None, None]:
         '''Implements the basic iterator interface.'''
         return self.generator()
 
