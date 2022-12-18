@@ -87,7 +87,7 @@ I've gone ahead and, using [their example scripts](https://github.com/hpcaitech/
 If you don't want to mess with anything, all you need to do is put the built data file at `/training/data/train.json` and invoke [finetune.bash](/training/finetune.bash). To see metrics, you can use Tensorboard by visiting http://localhost:6006 after starting the server like this:
 
 ```bash
-tensorboard serve --port 6006 --logdir training/checkpoints/runs`
+tensorboard serve --port 6006 --logdir training/checkpoints/runs
 ```
 
 ## Running inference on the fine-tuned model
