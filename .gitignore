@@ -7,3 +7,5 @@
 
 /data/*
 !/data/.keep
+/training/data/*
+!/training/data/.keep

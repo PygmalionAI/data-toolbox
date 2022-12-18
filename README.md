@@ -80,4 +80,16 @@ Soldier: To the jail with you *hit court wizard*
 
 ## Fine-tuning a model
 
-To-do. I haven't documented this yet.
+Due to hardware limitations (read: lack of GPUs with massive amounts of VRAM), I need to make use of ColossalAI's optimizations to be able to fine-tune models. However, their example code for fine-tuning OPT lacks some important stuff. Notably: metric logging (so we can know what is going on) and checkpoint saving/loading.
+
+I've gone ahead and, using [their example scripts](https://github.com/hpcaitech/ColossalAI/tree/main/examples/language/opt) as a starting point, made a slightly adjusted version that's actually usable for real-world scenarios. All that stuff is inside the [training folder](/training/).
+
+If you don't want to mess with anything, all you need to do is put the built data file at `/training/data/train.json` and invoke [finetune.bash](/training/finetune.bash). To see metrics, you can use Tensorboard by visiting http://localhost:6006 after starting the server like this:
+
+```bash
+tensorboard serve --port 6006 --logdir training/checkpoints/runs`
+```
+
+## Running inference on the fine-tuned model
+
+To-do: write this up.
