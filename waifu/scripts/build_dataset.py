@@ -14,8 +14,9 @@ from waifu.modules import BaseModule
 # TODO(11b): Needs manual maintenance ot keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
+    "characterai_pdm:CharacterAiPDM",
     "kajiwoto_pdm:KajiwotoPDM",
-    "kajiwoto_vdm:KajiwotoVDM",
+    # "kajiwoto_vdm:KajiwotoVDM",
     "light_dialogue_vdm:LightDialogueVDM",
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
