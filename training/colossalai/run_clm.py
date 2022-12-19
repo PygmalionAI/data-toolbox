@@ -577,8 +577,8 @@ def main():
                 train_perplexity = math.exp(loss)
             except OverflowError:
                 train_perplexity = float("inf")
-            writer.add_scalar("Train/Perplexity (Step)", train_perplexity, step)
-            writer.add_scalar("Train/Loss (Step)", loss, step)
+            writer.add_scalar("Train/Perplexity (Step)", train_perplexity, global_step)
+            writer.add_scalar("Train/Loss (Step)", loss, global_step)
 
             if args.output_dir is not None and args.checkpointing_steps is not None:
                 if args.checkpointing_steps != "epoch" and completed_steps % int(args.checkpointing_steps) == 0:
