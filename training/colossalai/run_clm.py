@@ -55,12 +55,22 @@ from transformers import (
     AutoConfig,
     AutoTokenizer,
     GPT2Tokenizer,
-    OPTForCausalLM,
+    AutoModelForCausalLM,
     SchedulerType,
     default_data_collator,
     get_scheduler,
 )
 from transformers.utils.versions import require_version
+
+# Explanation: "AutoModelForCausalLM" will instantiate the proper subclass after
+# ColossalAI has attempted to do a bunch of meta-programming trickery, so it
+# crashes due to missing attributes. To work around that, we need to import the
+# subclass - even if we don't use it - so ColossalAI properly patches the inner
+# modules.
+from transformers import (
+    OPTForCausalLM,
+    BloomForCausalLM,
+)
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
@@ -373,11 +383,11 @@ def main():
         # we can not import it until huggingface fix it
         logger.info("Train a new model from scratch", ranks=[0])
         with ColoInitContext(device=init_dev):
-            model = OPTForCausalLM(config)
+            model = AutoModelForCausalLM(config)
     else:
         logger.info("Finetune a pre-trained model", ranks=[0])
         with ColoInitContext(device=init_dev):
-            model = OPTForCausalLM.from_pretrained(args.model_name_or_path,
+            model = AutoModelForCausalLM.from_pretrained(args.model_name_or_path,
                                                    from_tf=bool(".ckpt" in args.model_name_or_path),
                                                    config=config,
                                                    local_files_only=False)
@@ -577,8 +587,8 @@ def main():
                 train_perplexity = math.exp(loss)
             except OverflowError:
                 train_perplexity = float("inf")
-            writer.add_scalar("Train/Perplexity (Step)", train_perplexity, step)
-            writer.add_scalar("Train/Loss (Step)", loss, step)
+            writer.add_scalar("Train/Perplexity (Step)", train_perplexity, global_step)
+            writer.add_scalar("Train/Loss (Step)", loss, global_step)
 
             if args.output_dir is not None and args.checkpointing_steps is not None:
                 if args.checkpointing_steps != "epoch" and completed_steps % int(args.checkpointing_steps) == 0:
