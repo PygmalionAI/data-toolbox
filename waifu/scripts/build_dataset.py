@@ -74,6 +74,7 @@ def main() -> None:
                     print()
                 print("--- new episode ---")
                 print(episode)
+        sys.exit()
 
     #
     # Otherwise, proceed with the writing logic.
