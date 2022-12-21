@@ -21,12 +21,13 @@ For anyone who's interested in the actual details, here's a TL;DR version of the
 
 - We have all the tooling to build a dataset from various sources, fine-tune a pre-trained LM on that dataset, and then run inference on checkpoints saved during the fine-tune process.
   - All of that tooling can be found within this repository.
-- We have taken a small model, Meta's OPT-350m, and fine-tuned it on a small dataset we've built with the tooling described above.
+- We have taken a small model, Meta's OPT-350m, and fine-tuned it on a small dataset we've built with the tooling described above. We've released it as a tiny prototype.
+  - The model checkpoint is hosted on HuggingFace under [Pygmalion-AI/pygmalion-350m](https://huggingface.co/Pygmalion-AI/pygmalion-350m).
+  - **Note:** Inference should not be done on the regular HuggingFace web UI since we need to do some prompt trickery and response parsing. To play around with the model, [try out this notebook](https://colab.research.google.com/drive/1K55_MCagEDD9EmWhjCi3Bm66vJM88m6P?usp=sharing).
+- We have written a [userscript which can anonymize and dump saved CharacterAI chats](./extras/characterai-dumper/).
 
 ## Next Steps
 
-- We will release our tiny prototype model (which we're calling `pygmalion-350m`) to the public.
-  - This is _not_ to show off results (since they suck), but rather just to show we _are_ actually working on the project and we're capable of creating something.
-  - The model will likely be hosted on HuggingFace, and have a simple Gradio UI for inference.
-- We will release a browser userscript which allows CharacterAI users to dump their (anonymized) chat histories. We will then allow anyone to anonymously send us their dumps to be used as training data for the model.
-- Once we have enough data, we will move on to trying to fine-tune OPT-1.3B.
+- We will attempt to fine-tune OPT-1.3B. For that, we'll need:
+  - More hardware, which we'll probably rent out in the cloud;
+  - More high-quality data. For this, we are currently testing the CAI dumper userscript. Once we verify that it works correctly and does not leak sensitive info, we will allow people to anonymously send us their chat dumps to be used as training data for the 1.3B model.
