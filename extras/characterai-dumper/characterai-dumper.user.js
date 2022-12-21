@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://beta.character.ai/*
 // @grant       none
-// @version     1.1
+// @version     1.2
 // @author      0x000011b
 // @description Allows downloading saved chat messages from CharacterAI.
 // @downloadURL https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
@@ -11,9 +11,9 @@
 // ==/UserScript==
 
 const log = (firstArg, ...remainingArgs) =>
-  console.log(`[CharacterAI Dumper v1.1] ${firstArg}`, ...remainingArgs);
+  console.log(`[CharacterAI Dumper v1.2] ${firstArg}`, ...remainingArgs);
 log.error = (firstArg, ...remainingArgs) =>
-  console.error(`[CharacterAI Dumper v1.1] ${firstArg}`, ...remainingArgs);
+  console.error(`[CharacterAI Dumper v1.2] ${firstArg}`, ...remainingArgs);
 
 const CHARACTER_INFO_URL = "https://beta.character.ai/chat/character/info/";
 const CHARACTER_HISTORIES_URL =
@@ -95,15 +95,41 @@ const anonymizeHistories = (histories) => {
         // Now, since this is a bot message, there's a chance that the bot
         // uttered the user's name, so let's replace that inside the message
         // text.
-        for (const nameToReplace in namesToReplace) {
+        namesToReplace.forEach((nameToReplace) => {
+          if (!nameToReplace) {
+            return;
+          }
+
           const replacementRegex = new RegExp(
             "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
             "g"
           );
-          msg.text.replace(replacementRegex, "[NAME_IN_MESSAGE_REDACTED]");
-        }
+          msg.text = msg.text.replace(
+            replacementRegex,
+            "[NAME_IN_MESSAGE_REDACTED]"
+          );
+        });
       }
     }
+
+    // And just being extra paranoid: by the time we've gone through both user
+    // _and_ bot messages, we might've seen more names to redact, so let's go
+    // back to the first message and attempt to redact it again just in case we
+    // have new names.
+    namesToReplace.forEach((nameToReplace) => {
+      if (!nameToReplace) {
+        return;
+      }
+
+      const replacementRegex = new RegExp(
+        "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
+        "g"
+      );
+      history.msgs[0].text = history.msgs[0].text.replace(
+        replacementRegex,
+        "[NAME_IN_MESSAGE_REDACTED]"
+      );
+    });
   }
 
   // This was modified in-place, but we return it here for simplicity at the
