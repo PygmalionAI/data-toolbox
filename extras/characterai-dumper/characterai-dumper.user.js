@@ -184,7 +184,7 @@ const configureXHookIntercepts = () => {
       let characterIdentifier;
 
       if (res.finalUrl === CHARACTER_INFO_URL) {
-        characterIdentifier = data.character.name;
+        characterIdentifier = data.character.name.trim();
         data.character.user__username = "[BOT_CREATOR_NAME_REDACTED]";
 
         log(`Got character info for ${characterIdentifier}, caching...`);
@@ -194,7 +194,7 @@ const configureXHookIntercepts = () => {
         }
         characterToSavedDataMap[characterIdentifier].info = data;
       } else if (res.finalUrl === CHARACTER_HISTORIES_URL) {
-        characterIdentifier = data.histories[0].msgs[0].src.name;
+        characterIdentifier = data.histories[0].msgs[0].src.name.trim();
         log(`Got chat histories for ${characterIdentifier}, caching...`);
 
         if (!characterToSavedDataMap[characterIdentifier]) {
@@ -203,7 +203,7 @@ const configureXHookIntercepts = () => {
         characterToSavedDataMap[characterIdentifier].histories =
           anonymizeHistories(data);
       } else if (res.finalUrl === CHARACTER_EXTRA_INFO_URL) {
-        characterIdentifier = data.character.name;
+        characterIdentifier = data.character.name.trim();
         data.user__username = "[BOT_CREATOR_NAME_REDACTED]";
         data.character.user__username = "[BOT_CREATOR_NAME_REDACTED]";
 
