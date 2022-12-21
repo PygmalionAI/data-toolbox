@@ -3,28 +3,29 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://beta.character.ai/*
 // @grant       none
-// @version     1.2
+// @version     1.3
 // @author      0x000011b
-// @description Allows downloading saved chat messages from CharacterAI.
+// @description Allows downloading saved chat messages and character definitions from CharacterAI.
 // @downloadURL https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
 // @updateURL   https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
 // ==/UserScript==
 
 const log = (firstArg, ...remainingArgs) =>
-  console.log(`[CharacterAI Dumper v1.2] ${firstArg}`, ...remainingArgs);
+  console.log(`[CharacterAI Dumper v1.3] ${firstArg}`, ...remainingArgs);
 log.error = (firstArg, ...remainingArgs) =>
-  console.error(`[CharacterAI Dumper v1.2] ${firstArg}`, ...remainingArgs);
+  console.error(`[CharacterAI Dumper v1.3] ${firstArg}`, ...remainingArgs);
 
+// Endpoints to intercept.
 const CHARACTER_INFO_URL = "https://beta.character.ai/chat/character/info/";
+const CHARACTER_EXTRA_INFO_URL = "https://beta.character.ai/chat/character/";
 const CHARACTER_HISTORIES_URL =
   "https://beta.character.ai/chat/character/histories/";
 
+/** Maps a character's identifier to their basic info + chat histories. */
 const characterToSavedDataMap = {};
 
-//
-// Code to add download link to the page.
-//
-const addDownloadLinkFor = (dataString, filename) => {
+/** Creates the "Download" link on the "View Saved Chats" page. */
+const addDownloadLinkInSavedChats = (dataString, filename) => {
   // Don't create duplicate links.
   if (document.getElementById("injected-chat-dl-link")) {
     return;
@@ -48,13 +49,41 @@ const addDownloadLinkFor = (dataString, filename) => {
   }
 };
 
-//
-// Logic to remove personal data from the dumps.
-//
+/** Creates the "Download" link in the "Character Editor" page. */
+const addDownloadLinkInCharacterEditor = (
+  dataString,
+  filename,
+  characterName
+) => {
+  if (document.getElementById("injected-character-info-dl-link")) {
+    return;
+  }
+
+  const suspectedElements = document.querySelectorAll(
+    "div.p-0.m-1.mb-3.border.rounded.m-1"
+  );
+  for (const element of suspectedElements) {
+    if (!element.textContent.includes(characterName)) {
+      continue;
+    }
+
+    const dataBlob = new Blob([dataString], { type: "text/plain" });
+    const downloadLink = document.createElement("a");
+    downloadLink.id = "injected-character-info-dl-link";
+    downloadLink.textContent = "Download";
+    downloadLink.href = URL.createObjectURL(dataBlob);
+    downloadLink.download = filename;
+    downloadLink.style = "padding-left: 66px";
+    element.appendChild(downloadLink);
+  }
+};
+
+/** Escapes a string so it can be used inside a regex. */
 const escapeStringForRegExp = (stringToGoIntoTheRegex) => {
   return stringToGoIntoTheRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 
+/** Takes in chat histories and anonymizes them. */
 const anonymizeHistories = (histories) => {
   const namesToReplace = new Set();
 
@@ -137,16 +166,15 @@ const anonymizeHistories = (histories) => {
   return histories;
 };
 
-//
-// Request intercept and data handling logic.
-//
+/** Configures XHook to intercept the endpoints we care about. */
 const configureXHookIntercepts = () => {
   xhook.after((_req, res) => {
     try {
       const endpoint = res.finalUrl;
       if (
         endpoint !== CHARACTER_INFO_URL &&
-        endpoint !== CHARACTER_HISTORIES_URL
+        endpoint !== CHARACTER_HISTORIES_URL &&
+        endpoint !== CHARACTER_EXTRA_INFO_URL
       ) {
         // We don't care about other endpoints.
         return;
@@ -156,7 +184,9 @@ const configureXHookIntercepts = () => {
       let characterIdentifier;
 
       if (res.finalUrl === CHARACTER_INFO_URL) {
-        characterIdentifier = data.character.name;
+        characterIdentifier = data.character.name.trim();
+        data.character.user__username = "[BOT_CREATOR_NAME_REDACTED]";
+
         log(`Got character info for ${characterIdentifier}, caching...`);
 
         if (!characterToSavedDataMap[characterIdentifier]) {
@@ -164,7 +194,7 @@ const configureXHookIntercepts = () => {
         }
         characterToSavedDataMap[characterIdentifier].info = data;
       } else if (res.finalUrl === CHARACTER_HISTORIES_URL) {
-        characterIdentifier = data.histories[0].msgs[0].src.name;
+        characterIdentifier = data.histories[0].msgs[0].src.name.trim();
         log(`Got chat histories for ${characterIdentifier}, caching...`);
 
         if (!characterToSavedDataMap[characterIdentifier]) {
@@ -172,6 +202,30 @@ const configureXHookIntercepts = () => {
         }
         characterToSavedDataMap[characterIdentifier].histories =
           anonymizeHistories(data);
+      } else if (res.finalUrl === CHARACTER_EXTRA_INFO_URL) {
+        characterIdentifier = data.character.name.trim();
+        data.user__username = "[BOT_CREATOR_NAME_REDACTED]";
+        data.character.user__username = "[BOT_CREATOR_NAME_REDACTED]";
+
+        log(
+          `Got definitions for ${characterIdentifier}, creating download link.`
+        );
+
+        log("If it doesn't show up, here's the data:", JSON.stringify(data));
+
+        // The character editor returns all the info we want in a single
+        // request, so we can just create the button and return from this
+        // function already.
+        setTimeout(
+          () =>
+            addDownloadLinkInCharacterEditor(
+              JSON.stringify(data),
+              `${characterIdentifier} (Definitions).json`,
+              characterIdentifier
+            ),
+          2000
+        );
+        return;
       }
 
       const currentCharacter = characterToSavedDataMap[characterIdentifier];
@@ -191,7 +245,7 @@ const configureXHookIntercepts = () => {
         // so we wait a little while instead. Probably React re-render fuckery.
         setTimeout(
           () =>
-            addDownloadLinkFor(
+            addDownloadLinkInSavedChats(
               JSON.stringify(currentCharacter),
               `${characterIdentifier}.json`
             ),
