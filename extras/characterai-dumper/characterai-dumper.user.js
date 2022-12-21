@@ -3,17 +3,17 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://beta.character.ai/*
 // @grant       none
-// @version     1.0
+// @version     1.1
 // @author      0x000011b
 // @description Allows downloading saved chat messages from CharacterAI.
-// @downloadURL https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper-user.js
-// @updateURL   https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper-user.js
+// @downloadURL https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
+// @updateURL   https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
 // ==/UserScript==
 
 const log = (firstArg, ...remainingArgs) =>
-  console.log(`[CharacterAI Dumper v1.0] ${firstArg}`, ...remainingArgs);
+  console.log(`[CharacterAI Dumper v1.1] ${firstArg}`, ...remainingArgs);
 log.error = (firstArg, ...remainingArgs) =>
-  console.error(`[CharacterAI Dumper v1.0] ${firstArg}`, ...remainingArgs);
+  console.error(`[CharacterAI Dumper v1.1] ${firstArg}`, ...remainingArgs);
 
 const CHARACTER_INFO_URL = "https://beta.character.ai/chat/character/info/";
 const CHARACTER_HISTORIES_URL =
@@ -56,15 +56,21 @@ const escapeStringForRegExp = (stringToGoIntoTheRegex) => {
 };
 
 const anonymizeHistories = (histories) => {
-  let nameToReplace;
+  const namesToReplace = new Set();
 
   for (const history of histories.histories) {
     for (const msg of history.msgs) {
       if (msg.src.is_human) {
-        // First, save the user's name so we can replace it in the messages.
-        nameToReplace ||= msg.display_name;
+        // First, we save the original name so we can search for it and redact
+        // it in the messages.
+        namesToReplace.add(msg.src.user.username);
+        namesToReplace.add(msg.src.user.first_name);
+        namesToReplace.add(msg.src.user.account.name);
+        namesToReplace.add(msg.src.user.name);
+        namesToReplace.add(msg.src.name);
+        namesToReplace.add(msg.display_name);
 
-        // Need to anonymize `src`.
+        // Then, we anonymize `src` (since the source is the human).
         msg.src.user.username = "[USERNAME_REDACTED]";
         msg.src.user.first_name = "[FIRST_NAME_REDACTED]";
         msg.src.user.account.name = "[ACCOUNT_NAME_REDACTED]";
@@ -72,7 +78,12 @@ const anonymizeHistories = (histories) => {
         msg.src.name = "[NAME_REDACTED]";
         msg.display_name = "[DISPLAY_NAME_REDACTED]";
       } else {
-        nameToReplace ||= msg.tgt.name;
+        // Same logic as above.
+        namesToReplace.add(msg.tgt.user.username);
+        namesToReplace.add(msg.tgt.user.first_name);
+        namesToReplace.add(msg.tgt.user.account.name);
+        namesToReplace.add(msg.tgt.user.name);
+        namesToReplace.add(msg.tgt.name);
 
         // Need to anonymize `tgt`.
         msg.tgt.user.username = "[USERNAME_REDACTED]";
@@ -81,14 +92,16 @@ const anonymizeHistories = (histories) => {
         msg.tgt.user.name = "[NAME_REDACTED]";
         msg.tgt.name = "[NAME_REDACTED]";
 
-        // And since this is a bot message, there's a chance that the bot
+        // Now, since this is a bot message, there's a chance that the bot
         // uttered the user's name, so let's replace that inside the message
         // text.
-        const replacementRegex = new RegExp(
-          "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
-          "g"
-        );
-        msg.text.replace(replacementRegex, "[DISPLAY_NAME_REDACTED]");
+        for (const nameToReplace in namesToReplace) {
+          const replacementRegex = new RegExp(
+            "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
+            "g"
+          );
+          msg.text.replace(replacementRegex, "[NAME_IN_MESSAGE_REDACTED]");
+        }
       }
     }
   }
