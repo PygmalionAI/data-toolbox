@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://beta.character.ai/*
 // @grant       none
-// @version     1.3
+// @version     1.4
 // @author      0x000011b
 // @description Allows downloading saved chat messages and character definitions from CharacterAI.
 // @downloadURL https://git.fuwafuwa.moe/waifu-collective/toolbox/raw/branch/master/extras/characterai-dumper/characterai-dumper.user.js
@@ -11,9 +11,9 @@
 // ==/UserScript==
 
 const log = (firstArg, ...remainingArgs) =>
-  console.log(`[CharacterAI Dumper v1.3] ${firstArg}`, ...remainingArgs);
+  console.log(`[CharacterAI Dumper v1.4] ${firstArg}`, ...remainingArgs);
 log.error = (firstArg, ...remainingArgs) =>
-  console.error(`[CharacterAI Dumper v1.3] ${firstArg}`, ...remainingArgs);
+  console.error(`[CharacterAI Dumper v1.4] ${firstArg}`, ...remainingArgs);
 
 // Endpoints to intercept.
 const CHARACTER_INFO_URL = "https://beta.character.ai/chat/character/info/";
@@ -145,20 +145,22 @@ const anonymizeHistories = (histories) => {
     // _and_ bot messages, we might've seen more names to redact, so let's go
     // back to the first message and attempt to redact it again just in case we
     // have new names.
-    namesToReplace.forEach((nameToReplace) => {
-      if (!nameToReplace) {
-        return;
-      }
+    if (history.msgs.length) {
+      namesToReplace.forEach((nameToReplace) => {
+        if (!nameToReplace) {
+          return;
+        }
 
-      const replacementRegex = new RegExp(
-        "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
-        "g"
-      );
-      history.msgs[0].text = history.msgs[0].text.replace(
-        replacementRegex,
-        "[NAME_IN_MESSAGE_REDACTED]"
-      );
-    });
+        const replacementRegex = new RegExp(
+          "\\b" + escapeStringForRegExp(nameToReplace) + "\\b",
+          "g"
+        );
+        history.msgs[0].text = history.msgs[0].text.replace(
+          replacementRegex,
+          "[NAME_IN_MESSAGE_REDACTED]"
+        );
+      });
+    }
   }
 
   // This was modified in-place, but we return it here for simplicity at the

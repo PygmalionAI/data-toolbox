@@ -35,6 +35,8 @@ And you'll reach the page that should show the `Download` link.
 
 ## Changelog
 
+- **v1.4:**
+  - Fixed a bug where the `Download` link wouldn't show up for a given bot if you had a conversation with it where all of the messages were deleted.
 - **v1.3:**
   - Implemented support for downloading a character's definitions from the Character Editor page.
   - Fixed a bug where the `Download` link was not showing up on some bots that had trailing whitespace in their names (e.g. `2B `).
