@@ -1,7 +1,8 @@
 '''
 This module generates dialogue data from Discord dumps. Specifically, it:
 
-- Looks for a DHT database in `/data/discord/archive.dht` to parse
+- Looks for a DHT (https://github.com/chylex/Discord-History-Tracker) database
+  in `/data/discord/archive.dht` to parse
 - Builds a list of senders who meet certain criteria (enough messages sent,
   messages long enough), then
 - Attempts to find uninterruped conversations between them and another person in
