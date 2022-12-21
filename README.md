@@ -16,9 +16,9 @@ This repository is where I'm versioning all the code I've written to accomplish 
 
 In short, here's how it works:
 
-- We start off with raw datasets (see [/waifu/datasets/](/waifu/datasets/)).
+- We start off with raw datasets (see [/waifu/datasets/](./waifu/datasets/)).
   - These are basically classes reponsible for giving us raw data. They might, for example, download a `.zip` off the internet, unzip it, read a `.json` file from in there and then return its contents.
-- Modules then make use of these datasets ([/waifu/modules/](/waifu/modules/)).
+- Modules then make use of these datasets ([/waifu/modules/](./waifu/modules/)).
   - These are heavily inspired by the papers that introduced LaMDA and BlenderBot3 (and their relevant supporting papers as well).
   - In general, each module is responsible for using a dataset as an input, and processing that data down into text that will be used in the fine-tuning process.
 - A final data file is produced by concatenating the outputs of all the modules. This file is used as an input for the fine-tuning process.
@@ -27,7 +27,7 @@ Here's how I do that:
 
 ## Building the data file(s)
 
-The final data file is created with the [build_dataset.py](/waifu/scripts/build_dataset.py) script:
+The final data file is created with the [build_dataset.py](./waifu/scripts/build_dataset.py) script:
 
 ```
 $ ./waifu/scripts/build_dataset.py --help
@@ -82,9 +82,9 @@ Soldier: To the jail with you *hit court wizard*
 
 Due to hardware limitations (read: lack of GPUs with massive amounts of VRAM), I need to make use of ColossalAI's optimizations to be able to fine-tune models. However, their example code for fine-tuning OPT lacks some important stuff. Notably: metric logging (so we can know what is going on) and checkpoint saving/loading.
 
-I've gone ahead and, using [their example scripts](https://github.com/hpcaitech/ColossalAI/tree/main/examples/language/opt) as a starting point, made a slightly adjusted version that's actually usable for real-world scenarios. All that stuff is inside the [training folder](/training/).
+I've gone ahead and, using [their example scripts](https://github.com/hpcaitech/ColossalAI/tree/main/examples/language/opt) as a starting point, made a slightly adjusted version that's actually usable for real-world scenarios. All that stuff is inside the [training folder](./training/).
 
-If you don't want to mess with anything, all you need to do is put the built data file at `/training/data/train.json` and invoke [finetune.bash](/training/finetune.bash). To see metrics, you can use Tensorboard by visiting http://localhost:6006 after starting the server like this:
+If you don't want to mess with anything, all you need to do is put the built data file at `/training/data/train.json` and invoke [finetune.bash](./training/finetune.bash). To see metrics, you can use Tensorboard by visiting http://localhost:6006 after starting the server like this:
 
 ```bash
 tensorboard serve --port 6006 --logdir training/checkpoints/runs
