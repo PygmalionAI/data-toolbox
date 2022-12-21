@@ -1,9 +1,9 @@
 import json
+import logging
 import os
+import re
 import typing as t
 from dataclasses import dataclass
-import re
-import logging
 
 from waifu.datasets import BaseDataset
 from waifu.utils.dataset import get_data_path

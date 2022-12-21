@@ -3,11 +3,11 @@ import argparse
 import hashlib
 import importlib
 import json
+import logging
 import os
 import subprocess
 import sys
 import typing as t
-import logging
 
 from waifu.modules import BaseModule
 
@@ -74,6 +74,7 @@ def main() -> None:
                     print()
                 print("--- new episode ---")
                 print(episode)
+        sys.exit()
 
     #
     # Otherwise, proceed with the writing logic.
