@@ -15,26 +15,26 @@ This userscript allows you to download your saved messages with any bot you've e
 - If you're a bot creator, you can also head over into the Character Editor to download a bot's definitions:
   ![Where to find the definitions download](./example-images/03.png)
 
----
+## Other notes
 
-**NOTE 1:** If you've never used the "Save and Start New Chat" feature, you won't have the "View Saved Chats" option shown in the first screenshot.
+- If you've never used the "Save and Start New Chat" feature, you won't have the "View Saved Chats" option shown in the first screenshot.
 
-That's fine, it just means you'll need to manually access the histories page by replacing the `/chat` path with `/histories` in the URL. For example, if you're at:
+  - That's fine, it just means you'll need to manually access the histories page by replacing the `/chat` path with `/histories` in the URL. For example, if you're at:
 
-https://beta.character.ai/chat?char={{BOT_ID_HERE}}
+    https://beta.character.ai/chat?char={{BOT_ID_HERE}}
 
-Just rewrite the URL so it reads:
+    Just rewrite the URL so it reads:
 
-https://beta.character.ai/histories?char={{BOT_ID_HERE}}
+    https://beta.character.ai/histories?char={{BOT_ID_HERE}}
 
-And you'll reach the page that should show the `Download` link.
+    And you'll reach the page that should show the `Download` link.
 
----
-
-**NOTE 2:** The script attempts to anonymize the dumped data (it scrubs known sensitive fields and attempts to replace any instances of your name within messages), but if you're paranoid, you should open the downloaded JSON and search for your username/email/display name just to make sure.
+- The script attempts to anonymize the dumped data (it scrubs known sensitive fields and attempts to replace any instances of your name within messages), but if you're paranoid, you should open the downloaded JSON and search for your username/email/display name just to make sure.
 
 ## Changelog
 
+- **v1.4:**
+  - Fixed a bug where the `Download` link wouldn't show up for a given bot if you had a conversation with it where all of the messages were deleted.
 - **v1.3:**
   - Implemented support for downloading a character's definitions from the Character Editor page.
   - Fixed a bug where the `Download` link was not showing up on some bots that had trailing whitespace in their names (e.g. `2B `).
