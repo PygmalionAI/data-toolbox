@@ -15,8 +15,11 @@ from waifu.modules import BaseModule
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
     "characterai_pdm:CharacterAiPDM",
-    "kajiwoto_pdm:KajiwotoPDM",
-    # "kajiwoto_vdm:KajiwotoVDM",
+    "discord_vdm:DiscordVDM",
+    # KajiwotoPDM has a bunch of garbage I need to filter, disabling in favor
+    # of the vanilla dialogue module for now.
+    # "kajiwoto_pdm:KajiwotoPDM",
+    "kajiwoto_vdm:KajiwotoVDM",
     "light_dialogue_pdm:LightDialoguePDM",
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
@@ -72,7 +75,8 @@ def main() -> None:
                 # Print a newline to visually separate different episodes.
                 if idx != 1:
                     print()
-                print("--- new episode ---")
+                print("---| New Episode |---")
+                print("---------------------")
                 print(episode)
         sys.exit()
 
