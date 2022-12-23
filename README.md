@@ -1,7 +1,5 @@
 # 11b's /wAIfu/ Toolbox
 
-**This is a copy of the original repo, found at https://git.fuwafuwa.moe/waifu-collective/toolbox. It will be updated side-by-side with this mirror on GitHub.**
-
 **Note**: This is a _very_ early work-in-progress. Expect the unexpected.
 
 ## Summary
@@ -18,10 +16,10 @@ This repository is where I'm versioning all the code I've written to accomplish 
 
 In short, here's how it works:
 
-- We start off with raw datasets (see [/waifu/datasets/](/waifu/datasets/)).
+- We start off with raw datasets (see [/waifu/datasets/](./waifu/datasets/)).
   - These are basically classes reponsible for giving us raw data. They might, for example, download a `.zip` off the internet, unzip it, read a `.json` file from in there and then return its contents.
-- Modules then make use of these datasets ([/waifu/modules/](/waifu/modules/)).
-  - These are heavily inspired by the papers that introduced [LaMDA](https://arxiv.org/pdf/2201.08239.pdf) and [BlenderBot3](https://arxiv.org/pdf/2208.03188.pdf) (and their relevant supporting papers as well).
+- Modules then make use of these datasets ([/waifu/modules/](./waifu/modules/)).
+  - These are heavily inspired by the papers that introduced LaMDA and BlenderBot3 (and their relevant supporting papers as well).
   - In general, each module is responsible for using a dataset as an input, and processing that data down into text that will be used in the fine-tuning process.
 - A final data file is produced by concatenating the outputs of all the modules. This file is used as an input for the fine-tuning process.
 
@@ -51,7 +49,7 @@ The default behavior is to write a file called `rev-{GIT_REVISION_HASH}-args{HAS
 The script also has an option to print some examples instead of writing to a file, for debugging/dev purposes. Example usage:
 
 ```bash
-$ ./waifu/scripts/build_dataset.py --print 1 --modules 'light_dialogue_vdm:LightDialogueVDM' # or -p 1 and -m ...
+$ ./waifu/scripts/build_dataset.py --print 1 --modules 'light_dialogue_pdm:LightDialoguePDM' # or -p 1 and -m ...
 ```
 
 Example output:
