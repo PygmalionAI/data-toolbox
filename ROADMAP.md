@@ -24,10 +24,10 @@ For anyone who's interested in the actual details, here's a TL;DR version of the
 - We have taken a small model, Meta's OPT-350m, and fine-tuned it on a small dataset we've built with the tooling described above. We've released it as a tiny prototype.
   - The model checkpoint is hosted on HuggingFace under [Pygmalion-AI/pygmalion-350m](https://huggingface.co/Pygmalion-AI/pygmalion-350m).
   - **Note:** Inference should not be done on the regular HuggingFace web UI since we need to do some prompt trickery and response parsing. To play around with the model, [try out this notebook](https://colab.research.google.com/drive/1K55_MCagEDD9EmWhjCi3Bm66vJM88m6P?usp=sharing).
-- We have written a [userscript which can anonymize and dump saved CharacterAI chats](./extras/characterai-dumper/).
+- We have written a [userscript which can anonymize and dump your CharacterAI chats](./extras/characterai-dumper/), and made [a website where you can upload them](https://dump.nopanda.io/) to be used as training data for future models. If you're interested in contributing, please read through [this Rentry](https://rentry.org/f8peb) for more information.
 
 ## Next Steps
 
 - We will attempt to fine-tune OPT-1.3B. For that, we'll need:
   - More hardware, which we'll probably rent out in the cloud;
-  - More high-quality data. For this, we are currently testing the CAI dumper userscript. Once we verify that it works correctly and does not leak sensitive info, we will allow people to anonymously send us their chat dumps to be used as training data for the 1.3B model.
+  - More high-quality data, which will hopefully be covered by the contributed CAI logs and some other good datasets we can get our hands on.
