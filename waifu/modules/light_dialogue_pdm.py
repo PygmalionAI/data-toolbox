@@ -1,22 +1,22 @@
 import typing as t
 
+from waifu.core.consts import PromptConstants
 from waifu.datasets.light_dialogue import LightDialogueDataset
 from waifu.modules import BaseModule
 from waifu.utils.strings import normalize_string, title_case
 
 
-class LightDialogueVDM(BaseModule):
-    '''Vanilla Dialogue Module based on the LIGHT dialogue dataset.'''
+class LightDialoguePDM(BaseModule):
+    '''Persona Dialogue Module based on the LIGHT dataset.'''
 
     def generator(self) -> t.Generator[str, None, None]:
         for episode in LightDialogueDataset():
-            # TODO(11b): Context and persona don't belong in a vanilla dialogue
-            # module.
+            # TODO(11b): Scenario doesn't belong in a persona dialog module.
             context_message = f"Context: {episode.context[0]}\n"
 
             persona_message = ""
             for agent in episode.agents:
-                persona_message += f"{title_case(agent.name)}'s Description: {agent.persona}\n"
+                persona_message += f"{PromptConstants.pdm_prefix_for(title_case(agent.name))}: {agent.persona}\n"
 
             episode_messages: t.List[str] = [context_message, persona_message]
             turn_count = len(episode.speech)
@@ -30,9 +30,13 @@ class LightDialogueVDM(BaseModule):
 
                 # If there was an action performed in that turn, add it to the
                 # string.
-                action = episode.action[idx]
-                if action is not None:
-                    message += f" *{action}*"
+                #
+                # NOTE(11b): Disabled for now. Adding the action like this
+                # generates grammatically incorrect sentences.
+
+                # action = episode.action[idx]
+                # if action is not None:
+                #     message += f" *{action}*"
 
                 # If there was an emote in that turn, add it to the string.
                 emote = episode.emote[idx]
