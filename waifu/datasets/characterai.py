@@ -1,10 +1,13 @@
 import json
+import logging
 import os
 import typing as t
 from dataclasses import dataclass
 
 from waifu.datasets import BaseDataset
 from waifu.utils.dataset import get_data_path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -96,7 +99,10 @@ def _available_json_data() -> t.Generator[dict[str, t.Any], None, None]:
         folder_path = os.path.join(dataset_path, folder)
         for json_file_path in _enumerate_json_files(folder_path):
             with open(json_file_path, "r", encoding="utf-8") as json_file:
-                yield json.load(json_file)
+                try:
+                    yield json.load(json_file)
+                except json.decoder.JSONDecodeError as ex:
+                    logger.error("Failed to parse %s: %s", json_file_path, ex)
 
 
 def _bot_info_from_dict(info_dict: dict[str, t.Any]) -> CaiBotInfo:
