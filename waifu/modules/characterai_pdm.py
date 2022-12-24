@@ -62,14 +62,12 @@ class CharacterAiPDM(BaseModule):
             # Now, start adding messages and break episodes apart if they get
             # too big.
             turns = base_turns.copy()
-            for idx, raw_message in enumerate(chat.messages):
-                # First message is always the bot (since it must send a
-                # greeting), and next up is always the user.
-                if idx % 2 == 0:
-                    # TODO(11b): Handle `[NAME_IN_MESSAGE_REDACTED]`.
-                    message = f"{chat.bot.name}: {raw_message}"
+            for raw_message in chat.messages:
+                if raw_message.is_human:
+                    message = f"{PromptConstants.USER_PREFIX}: {raw_message.text}"
                 else:
-                    message = f"{PromptConstants.USER_PREFIX}: {raw_message}"
+                    # TODO(11b): Handle `[NAME_IN_MESSAGE_REDACTED]`.
+                    message = f"{chat.bot.name}: {raw_message.text}"
                 turns.append(message)
 
                 # Splitting logic.
