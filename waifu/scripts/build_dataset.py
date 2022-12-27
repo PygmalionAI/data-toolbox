@@ -43,6 +43,13 @@ def main() -> None:
         type=int,
         help="If given, print this many episodes instead of writing to a file.")
 
+    parser.add_argument(
+        "-s",
+        "--skip",
+        type=int,
+        help="If given, skip over this many episodes before printing."
+    )
+
     parser.add_argument("-v",
                         "--verbose",
                         action="store_true",
@@ -58,6 +65,8 @@ def main() -> None:
     # Sanity check.
     if args.output_name and args.print:
         raise Exception("--output-name and --print are mutually exclusive.")
+    if args.skip and not args.print:
+        raise Exception("--skip can only be used in conjunction with --print.")
 
     modules = _import_modules_from_string(args.modules)
 
@@ -66,8 +75,13 @@ def main() -> None:
     #
     if args.print:
         idx = 0
+        episodes_to_skip = args.skip if args.skip is not None else None
         for module in modules:
             for episode in module():
+                if episodes_to_skip:
+                    episodes_to_skip -= 1
+                    continue
+
                 idx += 1
                 if idx > args.print:
                     sys.exit()
