@@ -10,6 +10,7 @@ import sys
 import typing as t
 
 from waifu.modules import BaseModule
+from waifu.utils.strings import contains_suspect_unicode
 
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
@@ -118,6 +119,8 @@ def main() -> None:
         # file.
         for module in modules:
             for episode in module():
+                if contains_suspect_unicode(episode):
+                    print(f"Found suspect unicode contents in `{episode}`")
                 json_line = json.dumps({"text": episode})
                 output_file.write(f"{json_line}\n")
 

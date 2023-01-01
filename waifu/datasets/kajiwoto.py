@@ -12,6 +12,9 @@ from waifu.utils.dataset import get_data_path
 # The regex used to find message variants (e.g.: `%{Hi|Hello} there!`)
 KAJIWOTO_VARIANT_REGEX = re.compile(r'%{(.+?)}')
 
+# These bots shouldn't be a part of the final dataset, for whatever reason.
+BLACKLISTED_BOT_IDS = set(["WvqA"])
+
 logger = logging.getLogger(__name__)
 
 
@@ -260,6 +263,10 @@ def _enumerate_kajiwoto_json_files() -> list[str]:
 
         if item.endswith("_metadata.json"):
             # Don't want to list metadata files here.
+            continue
+
+        if item.replace(".json", "") in BLACKLISTED_BOT_IDS:
+            # Don't want blacklisted bots being included.
             continue
 
         item_path = os.path.join(dataset_path, item)

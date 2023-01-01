@@ -2,6 +2,7 @@
 
 # Some of this is pasta from Meta's ParlAI. See:
 # https://github.com/facebookresearch/ParlAI/blob/main/parlai/utils/strings.py
+import regex
 
 
 def normalize_string(text: str, version: int = 1) -> str:
@@ -54,9 +55,18 @@ def title_case(string: str) -> str:
 
 def uppercase(string: str) -> str:
     '''
-    Make the first character of the string uppercase, if the string is non-empty.
+    Makes the first character of the string uppercase, if the string is
+    non-empty.
     '''
     if len(string) == 0:
         return string
     else:
         return string[0].upper() + string[1:]
+
+
+def contains_suspect_unicode(string: str) -> bool:
+    '''
+    Returns whether the given string seems to have suspect Unicode trickery
+    (e.g.: Zalgo text).
+    '''
+    return regex.search(r"\pM{3,}", string) is not None
