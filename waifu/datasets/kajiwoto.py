@@ -4,8 +4,8 @@ import os
 import re
 import typing as t
 from dataclasses import dataclass
-from waifu.core.consts import PromptConstants
 
+from waifu.core.consts import PromptConstants
 from waifu.datasets import BaseDataset
 from waifu.utils.dataset import get_data_path
 

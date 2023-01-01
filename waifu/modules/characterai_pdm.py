@@ -143,8 +143,8 @@ def _calculate_similarity_scores(bot_turns: list[str]) -> t.Any:
     This is a roundabout way to try and _possibly_ detect the post-1.1 CAI
     looping behavior so we can handle it during the data preprocessing.
     '''
-    from sklearn.metrics.pairwise import cosine_similarity
     from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
 
     vectorizer = CountVectorizer()
     x = vectorizer.fit_transform(bot_turns)

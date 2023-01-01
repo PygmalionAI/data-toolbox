@@ -48,8 +48,7 @@ def main() -> None:
         "-s",
         "--skip",
         type=int,
-        help="If given, skip over this many episodes before printing."
-    )
+        help="If given, skip over this many episodes before printing.")
 
     parser.add_argument("-v",
                         "--verbose",

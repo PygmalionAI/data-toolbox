@@ -4,7 +4,6 @@ from waifu.core.consts import PromptConstants
 from waifu.datasets.kajiwoto import (KajiwotoDataset, generate_variants_for,
                                      replace_special_tokens_in)
 from waifu.modules import BaseModule
-from waifu.modules.kajiwoto_vdm import BOT_PREFIX
 from waifu.utils.strings import uppercase
 
 
@@ -29,7 +28,7 @@ class KajiwotoPDM(BaseModule):
                                                               " ").replace(
                                                                   "  ", " ")
             turns.append(
-                f"{PromptConstants.pdm_prefix_for(BOT_PREFIX)}: {description_string}\n{persona_string}"
+                f"{PromptConstants.pdm_prefix_for(PromptConstants.BOT_TOKEN)}: {description_string}\n{persona_string}"
             )
 
             # Empty turn to have a line break separating description/persona
@@ -39,7 +38,8 @@ class KajiwotoPDM(BaseModule):
             for turn in episode:
                 turns.append(
                     f"{PromptConstants.USER_PREFIX}: {turn.user_message}")
-                turns.append(f"{BOT_PREFIX}: {turn.bot_response}")
+                turns.append(
+                    f"{PromptConstants.BOT_TOKEN}: {turn.bot_response}")
 
             string = "\n".join(turns)
             processed_string = replace_special_tokens_in(string)
