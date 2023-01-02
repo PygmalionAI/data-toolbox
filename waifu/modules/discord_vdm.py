@@ -23,6 +23,8 @@ from waifu.utils.dataset import get_data_path
 # Matches user mentions, channel links, emotes and maybe other stuff.
 SPECIAL_TOKENS_REGEX = re.compile(r"<[@:#].+?>")
 
+MINIMUM_EPISODE_LENGTH = 5
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,9 +47,10 @@ class DiscordVDM(BaseModule):
                 turns, last_message_id = episode_contents
 
                 # Discard short episodes.
-                if len(turns) < 8:
-                    logger.debug("Found short %s-turn episode, discarding.",
-                                 len(turns))
+                if len(turns) < MINIMUM_EPISODE_LENGTH:
+                    logger.debug(
+                        "Found short %s-turn episode (< %s), discarding.",
+                        len(turns), MINIMUM_EPISODE_LENGTH)
                     continue
 
                 # Discard conversations with overly short messages.
@@ -194,7 +197,8 @@ def _build_episode_turns(
             continue
 
         if _looks_like_ooc(cleaned_text):
-            # Self-explanatory.
+            logger.debug("Dropping what _seems_ to be OOC talk: `%s`",
+                         cleaned_text)
             continue
 
         # Get username.

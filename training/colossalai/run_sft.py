@@ -25,7 +25,6 @@ https://huggingface.co/models?filter=text-generation
 import datetime
 import math
 import os
-import re
 import signal
 import time
 from itertools import chain
@@ -74,6 +73,12 @@ from transformers import (
     OPTForCausalLM,
     GPTNeoXForCausalLM,
 )
+
+import re
+
+# haru SFT stuff
+from harubaru_convogpt.dataset import SFTDataset
+from harubaru_convogpt.sft import sft_forward
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
@@ -309,6 +314,7 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
+    '''
     logger.info("Start preparing dataset", ranks=[0])
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
@@ -351,6 +357,7 @@ def main():
                 **dataset_args,
             )
     logger.info("Dataset is prepared", ranks=[0])
+    '''
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -417,6 +424,7 @@ def main():
 
     logger.info(f'{model.__class__.__name__} has been created', ranks=[0])
 
+    '''
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     column_names = raw_datasets["train"].column_names
@@ -434,6 +442,7 @@ def main():
             load_from_cache_file=not args.overwrite_cache,
             desc="Running tokenizer on dataset",
         )
+    '''
 
     if args.block_size is None:
         block_size = tokenizer.model_max_length
@@ -448,6 +457,7 @@ def main():
                            f"({tokenizer.model_max_length}). Using block_size={tokenizer.model_max_length}.")
         block_size = min(args.block_size, tokenizer.model_max_length)
 
+    '''
     # Main data processing function that will concatenate all texts from our dataset and generate chunks of block_size.
     def group_texts(examples):
         # Concatenate all texts.
@@ -480,22 +490,50 @@ def main():
             load_from_cache_file=not args.overwrite_cache,
             desc=f"Grouping texts in chunks of {block_size}",
         )
+    '''
 
-    train_dataset = lm_datasets["train"]
-    eval_dataset = lm_datasets["validation"]
+    # train_dataset = lm_datasets["train"]
+    # eval_dataset = lm_datasets["validation"]
+
+    tokenizer.pad_token = tokenizer.eos_token
+    # tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
+    train_dataset = SFTDataset(args.train_file, tokenizer)
+    eval_dataset = SFTDataset(args.validation_file, tokenizer)
 
     # Log a few random samples from the training set:
     # for index in random.sample(range(len(train_dataset)), 3):
     #     logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
+    def collate_fn(batches):
+        input_ids = [
+            batch["input_ids"].squeeze(0) for batch in batches
+        ]
+        # padded_tokens = {"input_ids": input_ids}
+        padded_tokens = tokenizer.pad(
+            {"input_ids": input_ids}, return_tensors="pt", padding=True
+        )
+        start_positions = torch.stack(
+            [batch["start_positions"] for batch in batches]
+        )
+        end_positions = torch.stack(
+            [batch["end_positions"] for batch in batches]
+        )
+        return {
+            "input_ids": padded_tokens["input_ids"],
+            "attention_mask": padded_tokens["attention_mask"],
+            "start_positions": start_positions,
+            "end_positions": end_positions,
+        }
+
     # DataLoaders creation:
     train_dataloader = get_dataloader(train_dataset,
                                       shuffle=True,
                                       add_sampler=True,
-                                      collate_fn=default_data_collator,
+                                      collate_fn=collate_fn,
                                       batch_size=args.per_device_train_batch_size)
     eval_dataloader = DataLoader(eval_dataset,
-                                 collate_fn=default_data_collator,
+                                 collate_fn=collate_fn,
                                  batch_size=args.per_device_eval_batch_size)
     logger.info("Dataloaders have been created", ranks=[0])
 
@@ -568,6 +606,9 @@ def main():
     if args.resume_from_checkpoint is not None:
         step_from_checkpoint = int(re.findall(r"epoch_\d+_step_(\d+).pt", args.resume_from_checkpoint)[0])
 
+    # Add supervised finetuning forward method to model
+    model.sft_forward = sft_forward.__get__(model)
+
     for epoch in range(starting_epoch, args.num_train_epochs):
 
         if completed_steps >= args.max_train_steps:
@@ -579,7 +620,6 @@ def main():
                 completed_steps += 1
                 global_step += 1
                 progress_bar.update(1)
-                progress_bar.refresh()
 
                 # Apparently ColossalAI's checkpoint utilities don't work
                 # correctly for saving/restore the LR scheduler? So we "step" it
@@ -588,7 +628,13 @@ def main():
                 continue
 
             batch = {k: v.cuda() for k, v in batch.items()}
-            outputs = model(use_cache=False, **batch) # Caching is incompatible with gradient checkpointing.
+            # outputs = model.sft_forward(use_cache=False, **batch) # Caching is incompatible with gradient checkpointing.
+            outputs = model.sft_forward(
+                input_ids=batch["input_ids"],
+                attention_mask=batch["attention_mask"],
+                start_positions=batch["start_positions"],
+                end_positions=batch["end_positions"],
+            )
             loss = outputs['loss']
             optimizer.backward(loss)
 
@@ -617,14 +663,14 @@ def main():
                     save_checkpoint(checkpoint_path, epoch, model, optimizer, lr_scheduler)
                     logger.info(f"  Saved checkpoint to {checkpoint_path}!", ranks=[0])
 
-                    if completed_steps % (int(args.checkpointing_steps) * 8) == 0:
+                    if True and completed_steps % (int(args.checkpointing_steps) * 8) == 0:
                         # Evaluate every X checkpoints.
                         model.eval()
                         losses = []
                         for step, batch in enumerate(eval_dataloader):
                             with torch.no_grad():
                                 batch = {k: v.cuda() for k, v in batch.items()}
-                                outputs = model(**batch)
+                                outputs = model.sft_forward(**batch)
 
                         loss = outputs['loss'].unsqueeze(0)
                         losses.append(loss)
@@ -643,29 +689,30 @@ def main():
                 break
 
         # Evaluate per epoch.
-        model.eval()
-        losses = []
-        for step, batch in enumerate(eval_dataloader):
-            with torch.no_grad():
-                batch = {k: v.cuda() for k, v in batch.items()}
-                outputs = model(**batch)
+        if False:
+            model.eval()
+            losses = []
+            for step, batch in enumerate(eval_dataloader):
+                with torch.no_grad():
+                    batch = {k: v.cuda() for k, v in batch.items()}
+                    outputs = model(**batch)
 
-        loss = outputs['loss'].unsqueeze(0)
-        losses.append(loss)
+            loss = outputs['loss'].unsqueeze(0)
+            losses.append(loss)
 
-        losses = torch.cat(losses)
-        losses = losses[:len(eval_dataset)]
-        try:
-            eval_loss = torch.mean(losses)
-            perplexity = math.exp(eval_loss)
-        except OverflowError:
-            perplexity = float("inf")
+            losses = torch.cat(losses)
+            losses = losses[:len(eval_dataset)]
+            try:
+                eval_loss = torch.mean(losses)
+                perplexity = math.exp(eval_loss)
+            except OverflowError:
+                perplexity = float("inf")
 
-        logger.info(f"Epoch {epoch}: perplexity: {perplexity} eval_loss: {eval_loss}", ranks=[0])
-        # TODO(11b): This messes up the intra-epoch graphs. Apparently I need to
-        # read up on the Tensorboard docs to do this properly. Ignoring for now.
-        # writer.add_scalar("Eval/Loss (Global Step)", eval_loss, completed_steps)
-        # writer.add_scalar("Eval/Perplexity (Global Step)", perplexity, completed_steps)
+            logger.info(f"Epoch {epoch}: perplexity: {perplexity} eval_loss: {eval_loss}", ranks=[0])
+            # TODO(11b): This messes up the intra-epoch graphs. Apparently I need to
+            # read up on the Tensorboard docs to do this properly. Ignoring for now.
+            # writer.add_scalar("Eval/Loss (Global Step)", eval_loss, completed_steps)
+            # writer.add_scalar("Eval/Perplexity (Global Step)", perplexity, completed_steps)
 
         if args.output_dir is not None and args.checkpointing_steps == "epoch":
             checkpoint_path = f'{args.output_dir}/epoch_{epoch}_step_{completed_steps}.pt'

@@ -14,6 +14,10 @@ logger = logging.getLogger(__name__)
 # the user's input).
 MIN_EPISODE_LEN = 3
 
+# Discard episodes where the average similarity between the bot's messages is
+# higher than this value.
+EPISODE_SIMILARITY_THRESHOLD = 0.55
+
 #
 # So here's a quick rundown of what needs to happen. We have a limited context
 # window (of 2048 tokens, ATM) and for the Persona Dialogue Module (PDM), we
@@ -62,32 +66,53 @@ class CharacterAiPDM(BaseModule):
             # Now, start adding messages and break episodes apart if they get
             # too big.
             turns = base_turns.copy()
-            for idx, raw_message in enumerate(chat.messages):
-                # First message is always the bot (since it must send a
-                # greeting), and next up is always the user.
-                if idx % 2 == 0:
-                    # TODO(11b): Handle `[NAME_IN_MESSAGE_REDACTED]`.
-                    message = f"{chat.bot.name}: {raw_message}"
+            bot_messages: list[str] = []
+
+            for raw_message in chat.messages:
+                message_text = _process_message(raw_message.text)
+                if raw_message.is_human:
+                    message = f"{PromptConstants.USER_PREFIX}: {message_text}"
                 else:
-                    message = f"{PromptConstants.USER_PREFIX}: {raw_message}"
+                    message = f"{chat.bot.name}: {message_text}"
+                    bot_messages.append(message_text)
                 turns.append(message)
 
                 # Splitting logic.
                 cur_episode_len = sum([len(x.split()) for x in turns])
                 if cur_episode_len > PromptConstants.TARGET_WORD_COUNT_PER_EPISODE:
                     logger.debug(
-                        "Episode length went over TARGET_WORD_COUNT_PER_EPISODE, breaking apart."
-                    )
+                        "Episode length went over TARGET_WORD_COUNT_PER_EPISODE (%s > %s), breaking apart.",
+                        cur_episode_len,
+                        PromptConstants.TARGET_WORD_COUNT_PER_EPISODE)
+
+                    # Calculate similarity between sequential bot message pairs
+                    # within this episode, and drop it if it goes above the
+                    # defined threshold.
+                    similarity_score_matrix = _calculate_similarity_scores(
+                        bot_messages)
+                    average_similarity_score_for_episode = 0.0
+                    for score in similarity_score_matrix[0]:
+                        if score == 1:
+                            continue
+                        average_similarity_score_for_episode += score
+                        average_similarity_score_for_episode /= 2
 
                     # Adding the last message made the episode go over the
                     # target word count, so we return the episode without it...
                     removed_turn = turns.pop()
-                    yield "\n".join(turns)
+                    if average_similarity_score_for_episode <= EPISODE_SIMILARITY_THRESHOLD:
+                        yield "\n".join(turns)
+                    else:
+                        logger.debug(
+                            "Ignoring episode due to high similarity between messages (%s > %s)",
+                            average_similarity_score_for_episode,
+                            EPISODE_SIMILARITY_THRESHOLD)
 
                     # ...and start the next episode with the message we had to
                     # trim out from this one.
                     turns = base_turns.copy()
                     turns.append(removed_turn)
+                    bot_messages = []
 
 
 #
@@ -97,6 +122,36 @@ class CharacterAiPDM(BaseModule):
 EXAMPLE_CHAT_REGEX = re.compile(
     r"({{char}}|{{random_user_\d}}): (.+?)(?:END_OF_DIALOG)", re.DOTALL)
 RELAXED_EXAMPLE_CHAT_REGEX = re.compile(r"{{char}}: .+", re.DOTALL)
+EXCESSIVE_ELLIPSIS_REGEX = re.compile(r"\.{4,}")
+
+
+def _process_message(original_string: str) -> str:
+    '''
+    Processes a single message to clean it up and filter/replace the appropriate
+    special tokens.
+    '''
+    string = EXCESSIVE_ELLIPSIS_REGEX.sub("...", original_string)
+    string = string.replace("[NAME_IN_MESSAGE_REDACTED]",
+                            PromptConstants.USER_TOKEN)
+    return string.strip()
+
+
+def _calculate_similarity_scores(bot_turns: list[str]) -> t.Any:
+    '''
+    Calculates similarity scores between bot turns.
+
+    This is a roundabout way to try and _possibly_ detect the post-1.1 CAI
+    looping behavior so we can handle it during the data preprocessing.
+    '''
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+
+    vectorizer = CountVectorizer()
+    x = vectorizer.fit_transform(bot_turns)
+    arr = x.toarray()
+
+    sims = cosine_similarity(arr)
+    return sims
 
 
 def _parse_definitions_for(bot_name: str,

@@ -5,11 +5,15 @@ import re
 import typing as t
 from dataclasses import dataclass
 
+from waifu.core.consts import PromptConstants
 from waifu.datasets import BaseDataset
 from waifu.utils.dataset import get_data_path
 
 # The regex used to find message variants (e.g.: `%{Hi|Hello} there!`)
 KAJIWOTO_VARIANT_REGEX = re.compile(r'%{(.+?)}')
+
+# These bots shouldn't be a part of the final dataset, for whatever reason.
+BLACKLISTED_BOT_IDS = set(["WvqA"])
 
 logger = logging.getLogger(__name__)
 
@@ -156,10 +160,13 @@ def replace_special_tokens_in(string: str) -> str:
     Replaces known special tokens (e.g.: `%{name}`) with their expected
     equivalents.
     '''
+    string = string.replace("%{name}", PromptConstants.USER_TOKEN)
+    string = string.replace("%{kajiname}", PromptConstants.BOT_TOKEN)
+
     if (match := re.search(KAJIWOTO_VARIANT_REGEX, string)) is not None:
         special_token = match.groups()[0]
         if '|' not in special_token and special_token not in seen_special_tokens:
-            logger.debug("Unhandled Kajiwoto token: %s", special_token)
+            logger.warning("Unhandled Kajiwoto token: %s", special_token)
             seen_special_tokens.add(special_token)
 
     if (scene_match := re.search(r"#scene=(.+?)\b", string)) is not None:
@@ -168,9 +175,12 @@ def replace_special_tokens_in(string: str) -> str:
             logger.debug("Unhandled Kajiwoto scene: %s", seen_scene)
             seen_scenes.add(seen_scene)
 
-    # TODO: There's lots of these which I haven't handled at all. E.g.:
-    # %{pronoun} (before and after a dot, so careful with caps), %{name},
-    # %{kajiname}, #scene=SOMETHING, ...
+        # Drop the scene marker. Maybe we can use it for something useful, but
+        # I can't think of anything at the moment.
+        string = string.replace(f"#scene={seen_scene}", "").strip()
+
+    # TODO: There's a few of these which I haven't handled yet. E.g.:
+    # %{pronoun} (before and after a dot, so careful with caps).
     return string
 
 
@@ -253,6 +263,10 @@ def _enumerate_kajiwoto_json_files() -> list[str]:
 
         if item.endswith("_metadata.json"):
             # Don't want to list metadata files here.
+            continue
+
+        if item.replace(".json", "") in BLACKLISTED_BOT_IDS:
+            # Don't want blacklisted bots being included.
             continue
 
         item_path = os.path.join(dataset_path, item)

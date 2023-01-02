@@ -2,6 +2,8 @@
 
 **Note**: This is a _very_ early work-in-progress. Expect the unexpected.
 
+If you're interested in the project's current status, please take a look at the [ROADMAP](./ROADMAP.md) instead, or join the Matrix server for more frequent updates.
+
 ## Summary
 
 As of the moment I'm writing this, the roadmap for the project's prototype model is basically:

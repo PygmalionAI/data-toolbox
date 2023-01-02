@@ -29,9 +29,15 @@ class CaiBotInfo:
 
 
 @dataclass(frozen=True)
+class CaiMessage:
+    is_human: bool
+    text: str
+
+
+@dataclass(frozen=True)
 class CaiChat:
-    # First message is the bot's greeting, the one afterwards is the user.
-    messages: t.List[str]
+    # First message is always the bot's greeting.
+    messages: list[CaiMessage]
     bot: CaiBotInfo
 
 
@@ -119,11 +125,15 @@ def _bot_info_from_dict(info_dict: dict[str, t.Any]) -> CaiBotInfo:
     )
 
 
-def _messages_from_dict(msgs_dict: list[dict[str, t.Any]]) -> list[str]:
+def _messages_from_dict(msgs_dict: list[dict[str, t.Any]]) -> list[CaiMessage]:
     '''Builds an array of messages from an entry from the `histories` JSON.'''
-    messages: list[str] = []
+    messages: list[CaiMessage] = []
     for raw_message in msgs_dict:
-        messages.append(raw_message["text"])
+        message = CaiMessage(
+            text=raw_message["text"],
+            is_human=raw_message["src"]["is_human"],
+        )
+        messages.append(message)
     return messages
 
 

@@ -12,6 +12,8 @@ license = {text = "AGPL-3.0-only"}
 dependencies = [
     "ijson>=3.1.4",
     "mashumaro>=3.2",
+    "regex>=2022.10.31",
+    "scikit-learn>=1.2.0",
 ]
 
 [project.optional-dependencies]
