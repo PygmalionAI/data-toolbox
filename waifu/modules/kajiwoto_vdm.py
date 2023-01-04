@@ -9,7 +9,7 @@ from waifu.modules import BaseModule
 class KajiwotoVDM(BaseModule):
     '''A Vanilla Dialogue Module powered by the Kajiwoto dataset.'''
 
-    def generator(self) -> t.Generator[str, None, None]:
+    def generator(self) -> t.Generator[list[str], None, None]:
         dataset = KajiwotoDataset()
         for episode in dataset:
             turns: t.List[str] = []
@@ -23,4 +23,4 @@ class KajiwotoVDM(BaseModule):
             processed_string = replace_special_tokens_in(string)
 
             for generated_string in generate_variants_for(processed_string):
-                yield generated_string
+                yield generated_string.split("\n")

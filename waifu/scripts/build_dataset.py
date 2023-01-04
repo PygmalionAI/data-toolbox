@@ -5,10 +5,12 @@ import importlib
 import json
 import logging
 import os
+import random
 import subprocess
 import sys
 import typing as t
 
+from waifu.core.consts import PromptConstants
 from waifu.modules import BaseModule
 from waifu.utils.strings import contains_suspect_unicode
 
@@ -16,17 +18,19 @@ from waifu.utils.strings import contains_suspect_unicode
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
     "characterai_pdm:CharacterAiPDM",
-    "discord_vdm:DiscordVDM",
+    # "discord_vdm:DiscordVDM",
     # KajiwotoPDM has a bunch of garbage I need to filter, disabling in favor
     # of the vanilla dialogue module for now.
     # "kajiwoto_pdm:KajiwotoPDM",
-    "kajiwoto_vdm:KajiwotoVDM",
-    "light_dialogue_pdm:LightDialoguePDM",
+    # "kajiwoto_vdm:KajiwotoVDM",
+    # "light_dialogue_pdm:LightDialoguePDM",
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
 
 def main() -> None:
+    random.seed(42)
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o",
@@ -89,9 +93,11 @@ def main() -> None:
                 # Print a newline to visually separate different episodes.
                 if idx != 1:
                     print()
-                print("---| New Episode |---")
-                print("---------------------")
-                print(episode)
+
+                for ep in _episode_augmentations(episode):
+                    print("---| New Episode |---")
+                    print("---------------------")
+                    print("\n---\n".join(ep + [PromptConstants.EOS_TOKEN]))
         sys.exit()
 
     #
@@ -118,15 +124,68 @@ def main() -> None:
         # file.
         for module in modules:
             for episode in module():
-                if contains_suspect_unicode(episode):
-                    print(f"Found suspect unicode contents in `{episode}`")
-                json_line = json.dumps({"text": episode})
-                output_file.write(f"{json_line}\n")
+                text = "\n".join(episode)
+                if contains_suspect_unicode(text):
+                    print(
+                        f"Skipping. Found suspect unicode contents in `{text}`")
+                    continue
+
+                for augmented_episode in _episode_augmentations(episode):
+                    text = "\n".join(augmented_episode +
+                                     [PromptConstants.EOS_TOKEN])
+                    json_line = json.dumps({"text": text})
+                    output_file.write(f"{json_line}\n")
 
 
 #
 # Helpers and CLI entrypoint.
 #
+
+
+def _episode_augmentations(
+        episode: list[str]) -> t.Generator[list[str], None, None]:
+    '''
+    Generates augmented data for the given episode.
+
+    The first 1.3B model had wildly unpredictable performance at the start of
+    conversations, which I attributed to the fact that originally we always fed
+    the model entire episodes to train on, so there were no examples of freshly
+    started conversations, in a sense.
+
+    This function takes a complete episode and yields different permutations of
+    it in an attempt to provide that data (e.g. with/without persona, with only
+    X messages in the history, X+2, X+4 and so on).
+    '''
+    permutated_episode = []
+    offset_idx = 0
+
+    # Don't discard the original episode.
+    yield episode
+
+    for turn in episode:
+        if "'s Persona: " in turn or "Scenario: " in turn or PromptConstants.CHAT_START_TOKEN in turn:
+            permutated_episode.append(turn.strip())
+            offset_idx += 1
+            continue
+
+        while len(episode) > 1 + offset_idx:
+            permutated_episode.append(episode.pop(offset_idx))
+            permutated_episode.append(episode.pop(offset_idx))
+
+            # Yielding every single instance results in too much data
+            # repetition, so instead we take a random sample.
+            should_yield = random.randint(0, 100) < 25
+            if should_yield:
+                yield permutated_episode
+
+            # Also, yield a version with _just_ dialogue if we've been yielding
+            # with persona/scenario data this entire time.
+            if offset_idx == 0:
+                continue
+
+            should_yield = random.randint(0, 100) < 25
+            if should_yield:
+                yield permutated_episode[offset_idx:]
 
 
 def _get_git_revision_short_hash() -> str:

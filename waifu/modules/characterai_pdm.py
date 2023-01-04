@@ -39,7 +39,7 @@ EPISODE_SIMILARITY_THRESHOLD = 0.55
 class CharacterAiPDM(BaseModule):
     '''A Persona Dialogue Module powered by CharacterAI data.'''
 
-    def generator(self) -> t.Generator[str, None, None]:
+    def generator(self) -> t.Generator[list[str], None, None]:
         for chat in CharacterAiDataset():
             if len(chat.messages) < MIN_EPISODE_LEN:
                 logger.debug(
@@ -58,10 +58,10 @@ class CharacterAiPDM(BaseModule):
                     chat.bot.name, chat.bot.definitions)
                 base_turns.append(parsed_definitions)
 
-            # Add an empty turn to separate persona info from messages, if
+            # Add turn to separate persona info from messages, if
             # necessary.
             if len(base_turns) > 0:
-                base_turns.append("")
+                base_turns.append(PromptConstants.CHAT_START_TOKEN)
 
             # Now, start adding messages and break episodes apart if they get
             # too big.
@@ -101,7 +101,8 @@ class CharacterAiPDM(BaseModule):
                     # target word count, so we return the episode without it...
                     removed_turn = turns.pop()
                     if average_similarity_score_for_episode <= EPISODE_SIMILARITY_THRESHOLD:
-                        yield "\n".join(turns)
+                        # yield "\n".join(turns)
+                        yield turns
                     else:
                         logger.debug(
                             "Ignoring episode due to high similarity between messages (%s > %s)",

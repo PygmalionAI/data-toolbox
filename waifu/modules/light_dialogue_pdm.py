@@ -9,10 +9,10 @@ from waifu.utils.strings import normalize_string, title_case
 class LightDialoguePDM(BaseModule):
     '''Persona Dialogue Module based on the LIGHT dataset.'''
 
-    def generator(self) -> t.Generator[str, None, None]:
+    def generator(self) -> t.Generator[list[str], None, None]:
         for episode in LightDialogueDataset():
             # TODO(11b): Scenario doesn't belong in a persona dialog module.
-            context_message = f"Context: {episode.context[0]}\n"
+            context_message = f"Scenario: {episode.context[0]}\n"
 
             persona_message = ""
             for agent in episode.agents:
@@ -48,4 +48,4 @@ class LightDialoguePDM(BaseModule):
 
                 episode_messages.append(message)
 
-            yield "\n".join(episode_messages)
+            yield episode_messages

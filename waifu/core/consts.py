@@ -10,9 +10,16 @@ class PromptConstants:
     # Token to be replaced by the bot's name.
     BOT_TOKEN = "<BOT>"
 
+    # Should be kept in sync with the relevant model that will be trained. This
+    # is taken from EleutherAI's Pythia (so, GPT-NeoX).
+    EOS_TOKEN = "<|endoftext|>"
+
+    # Token to separate prompt trickery from actual dialogue.
+    CHAT_START_TOKEN = "<START>"
+
     # Global target word count. The word count is chosen in such a way that we
     # can fit all the required prompt trickery into the model's input, but still
-    # leave enough space for the user's input message and the infernce result.
+    # leave enough space for the user's input message and the inference result.
     TARGET_WORD_COUNT_PER_EPISODE = 1024
 
     @staticmethod

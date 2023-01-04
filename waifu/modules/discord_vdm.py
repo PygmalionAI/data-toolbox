@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class DiscordVDM(BaseModule):
     '''A Vanilla Dialogue Module powered by Discord dumps.'''
 
-    def generator(self) -> t.Generator[str, None, None]:
+    def generator(self) -> t.Generator[list[str], None, None]:
         root_data_path = get_data_path("discord")
         db_path = os.path.join(root_data_path, "archive.dht")
         db = sqlite3.connect(db_path)
@@ -62,7 +62,7 @@ class DiscordVDM(BaseModule):
                         avg)
                     continue
 
-                yield "\n".join(turns)
+                yield turns
 
 
 #
