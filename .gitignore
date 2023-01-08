@@ -10,7 +10,3 @@
 # Large/binary files.
 /data/*
 !/data/.keep
-/training/data/*
-!/training/data/.keep
-/training/checkpoints/
-*.pt
