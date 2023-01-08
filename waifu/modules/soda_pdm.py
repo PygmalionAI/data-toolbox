@@ -11,18 +11,23 @@ class SodaPDM(BaseModule):
     def generator(self) -> t.Generator[list[str], None, None]:
         for episode in SodaDataset():
             episode_messages = []
-            # Grab names of speakers in the conversation. This is the first and second speaker respectively
-            # We put bot name as the first speaker because the `literal` which acts as the persona talks about the first speaker.
-            bot_name = episode.speakers[0]
-            user_name = episode.speakers[1]
+            # NOTE(TG): We determine which order the speakers go on based on whether the relation is xAttr or not.
+            # This is because some speakers are more abstract concepts rather than concrete names,
+            # which would make them much more suitable as a bot 
+            if episode.relation == "xAttr":
+                bot_name = episode.speakers[0]
+                user_name = episode.speakers[1]
+            else:
+                user_name = episode.speakers[0]
+                bot_name = episode.speakers[1]
             
-            # First, we would want set the persona.
+            # First, we would want to set the persona.
             # However, the only acceptable description of a persona would be when episode.relation is "xAttr", since that directly describes
             # a person in the conversation.
             if episode.relation == "xAttr":
                 episode_messages.append(f"{PromptConstants.pdm_prefix_for(bot_name): {episode.literal}")
             
-            # First, set the scenario.
+            # Next, set the scenario.
             # Make sure to replace any instance of the person representing the user in the conversation with the user token
             replaced_narrative = episode.narrative.replace(user_name, PromptConstants.USER_TOKEN)
             scenario = f"Scenario: {replaced_narrative}"
