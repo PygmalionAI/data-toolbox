@@ -28,8 +28,7 @@ class SodaDataset(BaseDataset[SodaEpisode]):
         file_path = os.path.join(root_data_path, "test.parquet")
         df = pd.read_parquet(file_path)
 
-        # now "df" contains all of the SODA test split, you'd iterate over the relevant shit and `yield` an instance of `SodaEpisode`, which you still need to define.
-        # For example on CAI I have a CaiEpisode that has bot persona + bot and user messages
+        # Iterate through the test SODA dataset
         for i in df.index:
             yield SodaEpisode(narrative=df['narrative'][i], dialogue=df['dialogue'][i], speakers=df['speakers'][i])
         

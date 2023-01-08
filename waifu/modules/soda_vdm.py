@@ -28,8 +28,10 @@ class SodaVDM(BaseModule):
             # Looked pretty clean to me in the data. Fuck it, TODO: account for the possibility of that happening
             for i, utterance in enumerate(episode.dialogue):
                 # For now, just leave bot's name unreplaced.
-                # If the index in the dialogue is even, it's the user talking (index 0), if not, it's the bot
-                name = PromptConstants.USER_PREFIX if i % 2 == 0 else bot_name
+                if episode.speakers[i] == user_name:
+                    name = PromptConstants.USER_PREFIX
+                else:
+                    name = bot_name
                 episode_messages.append(f"{name}: {utterance.replace(user_name, PromptConstants.USER_TOKEN)}")
             
             yield episode_messages
