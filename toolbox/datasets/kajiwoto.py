@@ -5,9 +5,9 @@ import re
 import typing as t
 from dataclasses import dataclass
 
-from waifu.core.consts import PromptConstants
-from waifu.datasets import BaseDataset
-from waifu.utils.dataset import get_data_path
+from toolbox.core.consts import PromptConstants
+from toolbox.datasets import BaseDataset
+from toolbox.utils.dataset import get_data_path
 
 # The regex used to find message variants (e.g.: `%{Hi|Hello} there!`)
 KAJIWOTO_VARIANT_REGEX = re.compile(r'%{(.+?)}')

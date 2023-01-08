@@ -1,11 +1,11 @@
 [tool.pdm]
 
 [project]
-name = "wAIfu"
+name = "toolbox"
 version = "0.1.0"
-description = "Code for the /wAIfu/ Collective project."
+description = "Code for ingesting data from several sources, formatting it and creating a training dataset."
 authors = [
-    {name = "0x000011b", email = "0x000011b@waifu.club"},
+    {name = "0x000011b", email = "0x000011b@proton.me"},
 ]
 requires-python = ">=3.10"
 license = {text = "AGPL-3.0-only"}
@@ -31,13 +31,13 @@ debugging = [
 ]
 
 [tool.setuptools]
-py-modules = ["waifu"]
+py-modules = ["toolbox"]
 
 [tool.pdm.scripts]
-lint = {shell = "pylint --jobs 0 ./waifu/**/*.py"}
-importcheck = "isort --check --diff waifu"
-stylecheck = "yapf --parallel --diff --recursive waifu"
-typecheck = "mypy --strict waifu"
+lint = {shell = "pylint --jobs 0 ./toolbox/**/*.py"}
+importcheck = "isort --check --diff toolbox"
+stylecheck = "yapf --parallel --diff --recursive toolbox"
+typecheck = "mypy --strict toolbox"
 
 [tool.yapf]
 based_on_style = "google"

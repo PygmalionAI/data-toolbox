@@ -1,9 +1,9 @@
 import typing as t
 
-from waifu.core.consts import PromptConstants
-from waifu.datasets.light_dialogue import LightDialogueDataset
-from waifu.modules import BaseModule
-from waifu.utils.strings import normalize_string, title_case
+from toolbox.core.consts import PromptConstants
+from toolbox.datasets.light_dialogue import LightDialogueDataset
+from toolbox.modules import BaseModule
+from toolbox.utils.strings import normalize_string, title_case
 
 
 class LightDialoguePDM(BaseModule):

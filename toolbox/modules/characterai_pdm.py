@@ -2,9 +2,9 @@ import logging
 import re
 import typing as t
 
-from waifu.core.consts import PromptConstants
-from waifu.datasets.characterai import CharacterAiDataset
-from waifu.modules import BaseModule
+from toolbox.core.consts import PromptConstants
+from toolbox.datasets.characterai import CharacterAiDataset
+from toolbox.modules import BaseModule
 
 logger = logging.getLogger(__name__)
 

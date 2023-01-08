@@ -1,38 +1,27 @@
-# 11b's /wAIfu/ Toolbox
+# data-toolbox
 
-**Note**: This is a _very_ early work-in-progress. Expect the unexpected.
+This repository contains the implementation of our data munging code.
 
-If you're interested in the project's current status, please take a look at the [ROADMAP](./ROADMAP.md) instead, or join the Matrix server for more frequent updates.
+**Note:** Not very well documented at the moment. Still need to implement automatic downloading of data files and document how to install the project with PDM.
 
-## Summary
+## How does it work?
 
-As of the moment I'm writing this, the roadmap for the project's prototype model is basically:
+In short, it takes raw data from several different sources and parses it. From there, we can quickly experiment with different ways of formatting or augmenting the parsed data to generate a final representation, ready to be used as training data for our models.
 
-- Build a dataset
-- Fine-tune a pre-trained language model on that dataset
-- Play around, observe behavior and identify what's subpar
-- Adjust dataset accordingly as to try and address the relevant shortcomings
-- Repeat.
+The general data flow goes something like this:
 
-This repository is where I'm versioning all the code I've written to accomplish the above.
-
-In short, here's how it works:
-
-- We start off with raw datasets (see [/waifu/datasets/](./waifu/datasets/)).
+- We start off with raw datasets (see [./toolbox/datasets/](./toolbox/datasets/))
   - These are basically classes reponsible for giving us raw data. They might, for example, download a `.zip` off the internet, unzip it, read a `.json` file from in there and then return its contents.
-- Modules then make use of these datasets ([/waifu/modules/](./waifu/modules/)).
-  - These are heavily inspired by the papers that introduced LaMDA and BlenderBot3 (and their relevant supporting papers as well).
-  - In general, each module is responsible for using a dataset as an input, and processing that data down into text that will be used in the fine-tuning process.
-- A final data file is produced by concatenating the outputs of all the modules. This file is used as an input for the fine-tuning process.
+- Modules then make use of these datasets ([./toolbox/modules/](./toolbox/modules/))
+  - These are heavily inspired by the papers that introduced LaMDA and BlenderBot3 (and their relevant supporting papers)
+  - In general, each module is responsible for using a dataset as an input, and processing that data down into episodes, which will then be formatted into a proper dataset to be used in the fine-tuning process.
 
-Here's how I do that:
+## Building a training dataset
 
-## Building the data file(s)
-
-The final data file is created with the [build_dataset.py](./waifu/scripts/build_dataset.py) script:
+The final data file is created with the [build_dataset.py](./toolbox/scripts/build_dataset.py) script:
 
 ```
-$ ./waifu/scripts/build_dataset.py --help
+$ ./toolbox/scripts/build_dataset.py --help
 usage: build_dataset.py [-h] [-o OUTPUT_NAME] [-m MODULES] [-p PRINT] [-v]
 
 options:
@@ -51,14 +40,14 @@ The default behavior is to write a file called `rev-{GIT_REVISION_HASH}-args{HAS
 The script also has an option to print some examples instead of writing to a file, for debugging/dev purposes. Example usage:
 
 ```bash
-$ ./waifu/scripts/build_dataset.py --print 1 --modules 'light_dialogue_pdm:LightDialoguePDM' # or -p 1 and -m ...
+$ ./toolbox/scripts/build_dataset.py --print 1 --modules 'light_dialogue_pdm:LightDialoguePDM' # or -p 1 and -m ...
 ```
 
 Example output:
 
 ```
 --- new episode ---
-Context: You are in the Watchtower.
+Scenario: You are in the Watchtower.
 The tower is the largest section of the castle. It contains an observatory for nighttime scouting, but is also used by the wise men to study the stars. Armed
 guardsmen are always to be found keeping watch.
 There's an alarm horn here.
@@ -79,19 +68,3 @@ Soldier: Good idea, I agree, go do that *hug court wizard*
 Court Wizard: Get off of me, you fool! Who gave you permission to touch me! *hit soldier*
 Soldier: To the jail with you *hit court wizard*
 ```
-
-## Fine-tuning a model
-
-Due to hardware limitations (read: lack of GPUs with massive amounts of VRAM), I need to make use of ColossalAI's optimizations to be able to fine-tune models. However, their example code for fine-tuning OPT lacks some important stuff. Notably: metric logging (so we can know what is going on) and checkpoint saving/loading.
-
-I've gone ahead and, using [their example scripts](https://github.com/hpcaitech/ColossalAI/tree/main/examples/language/opt) as a starting point, made a slightly adjusted version that's actually usable for real-world scenarios. All that stuff is inside the [training folder](./training/).
-
-If you don't want to mess with anything, all you need to do is put the built data file at `/training/data/train.json` and invoke [finetune.bash](./training/finetune.bash). To see metrics, you can use Tensorboard by visiting http://localhost:6006 after starting the server like this:
-
-```bash
-tensorboard serve --port 6006 --logdir training/checkpoints/runs
-```
-
-## Running inference on the fine-tuned model
-
-To-do: write this up.

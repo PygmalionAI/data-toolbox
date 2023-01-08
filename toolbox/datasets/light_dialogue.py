@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 import mashumaro
 
-from waifu.datasets import BaseDataset
-from waifu.utils.dataset import get_data_path
+from toolbox.datasets import BaseDataset
+from toolbox.utils.dataset import get_data_path
 
 
 @dataclass(frozen=True)

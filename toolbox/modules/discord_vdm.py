@@ -17,8 +17,8 @@ import re
 import sqlite3
 import typing as t
 
-from waifu.modules import BaseModule
-from waifu.utils.dataset import get_data_path
+from toolbox.modules import BaseModule
+from toolbox.utils.dataset import get_data_path
 
 # Matches user mentions, channel links, emotes and maybe other stuff.
 SPECIAL_TOKENS_REGEX = re.compile(r"<[@:#].+?>")

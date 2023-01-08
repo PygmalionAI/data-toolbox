@@ -4,8 +4,8 @@ import os
 import typing as t
 from dataclasses import dataclass
 
-from waifu.datasets import BaseDataset
-from waifu.utils.dataset import get_data_path
+from toolbox.datasets import BaseDataset
+from toolbox.utils.dataset import get_data_path
 
 logger = logging.getLogger(__name__)
 

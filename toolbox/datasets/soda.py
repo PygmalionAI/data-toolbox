@@ -6,8 +6,9 @@ from dataclasses import dataclass
 import mashumaro
 import pandas as pd
 
-from waifu.datasets import BaseDataset
-from waifu.utils.dataset import get_data_path
+from toolbox.datasets import BaseDataset
+from toolbox.utils.dataset import get_data_path
+
 
 @dataclass(frozen=True)
 class SodaEpisode(mashumaro.DataClassDictMixin):
@@ -39,5 +40,3 @@ class SodaDataset(BaseDataset[SodaEpisode]):
                 relation=df['relation'][i],
                 literal=df['literal'][i]
             )
-        
-        

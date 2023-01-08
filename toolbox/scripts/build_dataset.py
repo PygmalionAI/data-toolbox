@@ -10,9 +10,9 @@ import subprocess
 import sys
 import typing as t
 
-from waifu.core.consts import PromptConstants
-from waifu.modules import BaseModule
-from waifu.utils.strings import contains_suspect_unicode
+from toolbox.core.consts import PromptConstants
+from toolbox.modules import BaseModule
+from toolbox.utils.strings import contains_suspect_unicode
 
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
@@ -66,7 +66,7 @@ def main() -> None:
         level=logging.DEBUG if args.verbose else logging.INFO,
     )
 
-    # Sanity check.
+    # Sanity checks.
     if args.output_name and args.print:
         raise Exception("--output-name and --print are mutually exclusive.")
     if args.skip and not args.print:
@@ -200,10 +200,10 @@ def _import_modules_from_string(string: str) -> t.List[t.Type[BaseModule]]:
     '''Imports all the module classes from the given, comma-separated string.'''
     modules: t.List[t.Type[BaseModule]] = []
     for module_and_class_name in string.split(","):
-        qualified_module_name = "waifu.modules"
+        qualified_module_name = "toolbox.modules"
         try:
             module_name, class_name = module_and_class_name.split(":")
-            qualified_module_name = f"waifu.modules.{module_name}"
+            qualified_module_name = f"toolbox.modules.{module_name}"
         except ValueError:
             class_name = module_and_class_name
 

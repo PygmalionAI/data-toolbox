@@ -1,10 +1,10 @@
 import typing as t
 
-from waifu.core.consts import PromptConstants
-from waifu.datasets.kajiwoto import (KajiwotoDataset, generate_variants_for,
+from toolbox.core.consts import PromptConstants
+from toolbox.datasets.kajiwoto import (KajiwotoDataset, generate_variants_for,
                                      replace_special_tokens_in)
-from waifu.modules import BaseModule
-from waifu.utils.strings import uppercase
+from toolbox.modules import BaseModule
+from toolbox.utils.strings import uppercase
 
 
 class KajiwotoPDM(BaseModule):
