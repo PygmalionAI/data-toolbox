@@ -14,6 +14,8 @@ class SodaEpisode(mashumaro.DataClassDictMixin):
     narrative: str
     dialogue: t.List[str]
     speakers: t.List[str]
+    relation: str
+    literal: str
 
 class SodaDataset(BaseDataset[SodaEpisode]):
     '''
@@ -28,7 +30,7 @@ class SodaDataset(BaseDataset[SodaEpisode]):
         file_path = os.path.join(root_data_path, "test.parquet")
         df = pd.read_parquet(file_path)
 
-        # Iterate through the test SODA dataset
+        # Iterate through the test part of the SODA dataset
         for i in df.index:
             yield SodaEpisode(narrative=df['narrative'][i], dialogue=df['dialogue'][i], speakers=df['speakers'][i])
         

@@ -5,19 +5,25 @@ from waifu.datasets.soda import SodaDataset
 from waifu.modules import BaseModule
 
 
-class SodaVDM(BaseModule):
-    '''Vanilla Dialogue Module based on the SODA dataset.'''
+class SodaPDM(BaseModule):
+    '''Persona Dialogue Module based on the SODA dataset.'''
 
     def generator(self) -> t.Generator[list[str], None, None]:
         for episode in SodaDataset():
             episode_messages = []
-            # Grab names to be replaced by <USER> and <BOT>. This is the first and second speaker respectively
-            # I'm assuming based on looking through dataset that it will always be user-bot-user-bot pattern.
-            user_name = episode.speakers[0]
-            bot_name = episode.speakers[1]
+            # Grab names of speakers in the conversation. This is the first and second speaker respectively
+            # We put bot name as the first speaker because the `literal` which acts as the persona talks about the first speaker.
+            bot_name = episode.speakers[0]
+            user_name = episode.speakers[1]
+            
+            # First, we would want set the persona.
+            # However, the only acceptable description of a persona would be when episode.relation is "xAttr", since that directly describes
+            # a person in the conversation.
+            if episode.relation == "xAttr":
+                episode_messages.append(f"{PromptConstants.pdm_prefix_for(bot_name): {episode.literal}")
             
             # First, set the scenario.
-            # Make sure to replace any instance of first person in conversation with user token
+            # Make sure to replace any instance of the person representing the user in the conversation with the user token
             replaced_narrative = episode.narrative.replace(user_name, PromptConstants.USER_TOKEN)
             scenario = f"Scenario: {replaced_narrative}"
             episode_messages.append(scenario)
