@@ -120,6 +120,12 @@ def main() -> None:
         raise Exception(f"{output_filename} already exists, aborting.")
 
     with open(output_filename, "w", encoding="utf-8") as output_file:
+        # Keep track of episode hashes so we avoid duplicates.
+        seen_episode_hashes = set()
+
+        def _calculate_hash_for(text: str) -> str:
+            return hashlib.sha512(str(text).encode("utf-8")).hexdigest()
+
         # Iterate over each module sequentially, and write the data out into the
         # file.
         for module in modules:
@@ -133,8 +139,20 @@ def main() -> None:
                 for augmented_episode in _episode_augmentations(episode):
                     text = "\n".join(augmented_episode +
                                      [PromptConstants.EOS_TOKEN])
+
+                    # Skip over this episode if there's a hash collision.
+                    episode_hash = _calculate_hash_for(text)
+                    if episode_hash in seen_episode_hashes:
+                        # Too verbose. Consider using a logger and having this
+                        # under DEBUG level instead.
+                        # print(
+                        #     f"Skipping over possible duplicate episode: `{text}`"
+                        # )
+                        continue
+
                     json_line = json.dumps({"text": text})
                     output_file.write(f"{json_line}\n")
+                    seen_episode_hashes.add(episode_hash)
 
 
 #
