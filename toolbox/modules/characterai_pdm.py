@@ -1,4 +1,5 @@
 import logging
+import random
 import re
 import typing as t
 
@@ -85,6 +86,35 @@ class CharacterAiPDM(BaseModule):
                         cur_episode_len,
                         PromptConstants.TARGET_WORD_COUNT_PER_EPISODE)
 
+                    # Drop a % of episodes that have undesirable behaviors.
+                    if any([_seems_embarassed(x) for x in bot_messages]):
+                        should_skip = random.randint(0, 100) < 70
+                        if should_skip:
+                            for bot_message in bot_messages:
+                                if _seems_embarassed(bot_message):
+                                    logger.debug("Skipping over a tomato: `%s`",
+                                                 bot_message)
+                            turns = base_turns.copy()
+                            bot_messages = []
+                            continue
+
+                    if any([_has_stuttering(x) for x in bot_messages]):
+                        should_skip = random.randint(0, 100) < 50
+                        if should_skip:
+                            for bot_message in bot_messages:
+                                if _has_stuttering(bot_message):
+                                    logger.debug(
+                                        "Skipping over stuttering: `%s`",
+                                        bot_message)
+                            turns = base_turns.copy()
+                            bot_messages = []
+                            continue
+
+                    if len(bot_messages) < 2:
+                        turns = base_turns.copy()
+                        bot_messages = []
+                        continue
+
                     # Calculate similarity between sequential bot message pairs
                     # within this episode, and drop it if it goes above the
                     # defined threshold.
@@ -101,8 +131,7 @@ class CharacterAiPDM(BaseModule):
                     # target word count, so we return the episode without it...
                     removed_turn = turns.pop()
                     if average_similarity_score_for_episode <= EPISODE_SIMILARITY_THRESHOLD:
-                        # yield "\n".join(turns)
-                        yield turns
+                        yield [_replace_special_tokens(turn) for turn in turns]
                     else:
                         logger.debug(
                             "Ignoring episode due to high similarity between messages (%s > %s)",
@@ -114,6 +143,13 @@ class CharacterAiPDM(BaseModule):
                     turns = base_turns.copy()
                     turns.append(removed_turn)
                     bot_messages = []
+
+            # Episode was too small to break up, return as-is if it has at least
+            # a _little_ bit of data.
+            if len(turns) > 2:
+                # FIXME(11b): This bypasses all the checks above. Refactor so
+                # the code is structured properly and shares the checks.
+                yield [_replace_special_tokens(turn) for turn in turns]
 
 
 #
@@ -135,6 +171,55 @@ def _process_message(original_string: str) -> str:
     string = string.replace("[NAME_IN_MESSAGE_REDACTED]",
                             PromptConstants.USER_TOKEN)
     return string.strip()
+
+
+def _replace_special_tokens(original_string: str) -> str:
+    '''Replaces known special tokens for which we have equivalents for.'''
+    string = original_string.replace("{{user}}: ", "You: ")
+    string = string.replace("{{user}}", "<USER>")
+    return string
+
+
+def _seems_embarassed(utterance: str) -> bool:
+    '''Most advanced sentiment classification algorithm ever invented.'''
+    last_idx = -1
+    asterisk_idxs = []
+    while (last_idx := utterance.find("*", last_idx + 1)) != -1:
+        asterisk_idxs.append(last_idx)
+
+    while True:
+        if len(asterisk_idxs) < 2:
+            break
+
+        start_idx = asterisk_idxs.pop(0)
+        end_idx = asterisk_idxs.pop(0)
+        action = utterance[start_idx:end_idx].lower()
+
+        if any([
+                x in action for x in
+            ["blush", "like a tomato", "as a tomato", "embarass", "nervous"]
+        ]):
+            return True
+    return False
+
+
+def _has_stuttering(utterance: str) -> bool:
+    '''Tries to detect stuttering like "W-what?".'''
+    for word in utterance.split():
+        if "-" not in word:
+            continue
+
+        if len(word) < 4:
+            continue
+
+        if word[1] != "-":
+            continue
+
+        lowercased_word = word.lower()
+        if lowercased_word[0] == lowercased_word[2]:
+            return True
+
+    return False
 
 
 def _calculate_similarity_scores(bot_turns: list[str]) -> t.Any:
