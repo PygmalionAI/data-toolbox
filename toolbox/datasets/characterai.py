@@ -50,26 +50,32 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
         # Do a first run through all the files to load all the definitions and
         # descriptions.
         for data in _available_json_data():
-            if not _is_definition_data(data):
-                continue
+            try:
+                if not _is_definition_data(data):
+                    continue
 
-            bot_info = _bot_info_from_dict(data["character"])
-            bot_id_to_info_dict[bot_info.external_id] = bot_info
+                bot_info = _bot_info_from_dict(data["character"])
+                bot_id_to_info_dict[bot_info.external_id] = bot_info
+            except ValueError as ex:
+                logger.warning("Skipping over exception: %s", ex)
 
         # Now do a second pass, to actually handle chat histories/messages.
         for data in _available_json_data():
-            if _is_definition_data(data):
-                continue
+            try:
+                if _is_definition_data(data):
+                    continue
 
-            # Prefer grabbing bot info from a Character Editor dump, if it
-            # exists. Fall back to public data otherwise.
-            bot_id = data["info"]["character"]["external_id"]
-            bot_info = bot_id_to_info_dict.get(
-                bot_id, _bot_info_from_dict(data["info"]["character"]))
+                # Prefer grabbing bot info from a Character Editor dump, if it
+                # exists. Fall back to public data otherwise.
+                bot_id = data["info"]["character"]["external_id"]
+                bot_info = bot_id_to_info_dict.get(
+                    bot_id, _bot_info_from_dict(data["info"]["character"]))
 
-            for history_dict in data["histories"]["histories"]:
-                messages = _messages_from_dict(history_dict["msgs"])
-                yield CaiChat(bot=bot_info, messages=messages)
+                for history_dict in data["histories"]["histories"]:
+                    messages = _messages_from_dict(history_dict["msgs"])
+                    yield CaiChat(bot=bot_info, messages=messages)
+            except ValueError as ex:
+                logger.warning("Skipping over exception: %s", ex)
 
 
 #
@@ -157,5 +163,4 @@ def _is_definition_data(dict_from_json: dict[str, t.Any]) -> bool:
     elif keys == ["histories", "info"]:
         return False
     else:
-        print(dict_from_json)
         raise ValueError(f"Unexpected keys found in CAI dump JSON file: {keys}")
