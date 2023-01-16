@@ -131,7 +131,9 @@ class CharacterAiPDM(BaseModule):
                     # target word count, so we return the episode without it...
                     removed_turn = turns.pop()
                     if average_similarity_score_for_episode <= EPISODE_SIMILARITY_THRESHOLD:
-                        yield [_replace_special_tokens(turn) for turn in turns]
+                        processed_turns = [_replace_special_tokens(turn) for turn in turns]
+                        processed_turns = [re.sub(rf"\b{chat.bot.name}\b", "<BOT>", turn) for turn in processed_turns]
+                        yield processed_turns
                     else:
                         logger.debug(
                             "Ignoring episode due to high similarity between messages (%s > %s)",
@@ -149,7 +151,9 @@ class CharacterAiPDM(BaseModule):
             if len(turns) > 2:
                 # FIXME(11b): This bypasses all the checks above. Refactor so
                 # the code is structured properly and shares the checks.
-                yield [_replace_special_tokens(turn) for turn in turns]
+                processed_turns = [_replace_special_tokens(turn) for turn in turns]
+                processed_turns = [re.sub(rf"\b{chat.bot.name}\b", "<BOT>", turn) for turn in processed_turns]
+                yield processed_turns
 
 
 #
@@ -168,8 +172,14 @@ def _process_message(original_string: str) -> str:
     special tokens.
     '''
     string = EXCESSIVE_ELLIPSIS_REGEX.sub("...", original_string)
+
+    # TODO(11b): Improve this.
     string = string.replace("[NAME_IN_MESSAGE_REDACTED]",
                             PromptConstants.USER_TOKEN)
+    string = string.replace("[REDACTED]", PromptConstants.USER_TOKEN)
+    string = string.replace("[FIRST_NAME_REDACTED]", PromptConstants.USER_TOKEN)
+    string = string.replace("[USERNAME_REDACTED]", PromptConstants.USER_TOKEN)
+    string = string.replace("[NAME_REDACTED]", PromptConstants.USER_TOKEN)
     return string.strip()
 
 
