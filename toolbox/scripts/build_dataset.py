@@ -54,6 +54,12 @@ def main() -> None:
         type=int,
         help="If given, skip over this many episodes before printing.")
 
+    parser.add_argument(
+        "-u",
+        "--supervised",
+        action="store_true",
+        help="If passed, output data for supervised fine-tuning instead.")
+
     parser.add_argument("-v",
                         "--verbose",
                         action="store_true",
@@ -139,22 +145,56 @@ def main() -> None:
                     continue
 
                 for augmented_episode in _episode_augmentations(episode):
-                    total_episode_count += 1
-                    text = "\n".join(augmented_episode +
-                                     [PromptConstants.EOS_TOKEN])
+                    try:
+                        total_episode_count += 1
+                        text = "\n".join(augmented_episode +
+                                         [PromptConstants.EOS_TOKEN])
 
-                    # Skip over this episode if there's a hash collision.
-                    episode_hash = _calculate_hash_for(text)
-                    if episode_hash in seen_episode_hashes:
-                        dropped_episodes_due_to_hash_collision += 1
-                        continue
+                        # Skip over this episode if there's a hash collision.
+                        episode_hash = _calculate_hash_for(text)
+                        if episode_hash in seen_episode_hashes:
+                            dropped_episodes_due_to_hash_collision += 1
+                            continue
 
-                    json_line = json.dumps({"text": text})
-                    output_file.write(f"{json_line}\n")
-                    seen_episode_hashes.add(episode_hash)
+                        # TODO(11b): This code sucks. Refactor so we can share
+                        # the looping and augmentation logic with --print, and
+                        # use a logger to keep track of things happening.
+                        if args.supervised:
+                            offset_idx = 1
+                            while augmented_episode[-offset_idx].startswith(
+                                    "You: "):
+                                offset_idx += 1
+                                if offset_idx >= len(augmented_episode):
+                                    pass  # print("Skipping episode where user speaks last.")
 
+                            prompt = "\n".join(augmented_episode[:-offset_idx])
+                            response = augmented_episode[-offset_idx]
 
-        print(f"Dropped {dropped_episodes_due_to_hash_collision} seemingly duplicate episodes out of {total_episode_count} generated episodes.")
+                            separator_idx = response.find(": ")
+                            bot_name = response[:separator_idx]
+                            response = response.replace(f"{bot_name}:", "")
+                            prompt += f"\n{bot_name}:"
+
+                            if "<START>" in response:
+                                continue  # print("skipping start")
+
+                            json_line = json.dumps({
+                                "input": prompt,
+                                "output": response,
+                                "reward": 1.0
+                            })
+                        else:
+                            json_line = json.dumps({"text": text})
+
+                        output_file.write(f"{json_line}\n")
+                        seen_episode_hashes.add(episode_hash)
+                    except Exception as ex:
+                        print(f"Skipping episode:", ex)
+
+        print(
+            f"Dropped {dropped_episodes_due_to_hash_collision} seemingly duplicate episodes out of {total_episode_count} generated episodes."
+        )
+
 
 #
 # Helpers and CLI entrypoint.
