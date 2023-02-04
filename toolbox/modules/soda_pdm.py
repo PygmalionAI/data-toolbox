@@ -26,6 +26,8 @@ class SodaPDM(BaseModule):
             # a person in the conversation.
             if episode.relation == "xAttr":
                 episode_messages.append(f"{PromptConstants.pdm_prefix_for(bot_name)}: {episode.literal}")
+            else:
+                continue
 
             # Next, set the scenario.
             # Make sure to replace any instance of the person representing the user in the conversation with the user token
