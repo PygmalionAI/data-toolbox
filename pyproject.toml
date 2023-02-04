@@ -16,6 +16,7 @@ dependencies = [
     "scikit-learn>=1.2.0",
     "pandas>=1.5.2",
     "pyarrow>=10.0.1",
+    "langdetect>=1.0.9",
 ]
 
 [project.optional-dependencies]

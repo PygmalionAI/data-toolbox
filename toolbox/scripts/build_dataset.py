@@ -14,6 +14,8 @@ from toolbox.core.consts import PromptConstants
 from toolbox.modules import BaseModule
 from toolbox.utils.strings import contains_suspect_unicode
 
+import langdetect
+
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
@@ -134,6 +136,9 @@ def main() -> None:
         def _calculate_hash_for(text: str) -> str:
             return hashlib.sha512(str(text).encode("utf-8")).hexdigest()
 
+        # Enforce determinism in the language detection code.
+        langdetect.DetectorFactory.seed = 0
+
         # Iterate over each module sequentially, and write the data out into the
         # file.
         for module in modules:
@@ -142,6 +147,11 @@ def main() -> None:
                 if contains_suspect_unicode(text):
                     print(
                         f"Skipping. Found suspect unicode contents in `{text}`")
+                    continue
+
+                episode_lang = langdetect.detect(text)
+                if episode_lang != "en":
+                    print(f"Skipping non-English episode ({episode_lang})")
                     continue
 
                 for augmented_episode in _episode_augmentations(episode):

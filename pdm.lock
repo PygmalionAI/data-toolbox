@@ -48,6 +48,14 @@ requires_python = ">=3.7"
 summary = "Lightweight pipelining with Python functions"
 
 [[package]]
+name = "langdetect"
+version = "1.0.9"
+summary = "Language detection library ported from Google's language-detection."
+dependencies = [
+    "six",
+]
+
+[[package]]
 name = "lazy-object-proxy"
 version = "1.8.0"
 requires_python = ">=3.7"
@@ -254,7 +262,7 @@ summary = "A formatter for Python code."
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:aa0b9b7cd9f3e3c7efc158026b644f929570a80393a02eda7d8e3a46181bfc07"
+content_hash = "sha256:e7e20bd3ba63692a1f8dc25ca295e37d2cacd85b7d470e067dd852dab3e24001"
 
 [metadata.files]
 "astroid 2.12.13" = [
@@ -344,6 +352,10 @@ content_hash = "sha256:aa0b9b7cd9f3e3c7efc158026b644f929570a80393a02eda7d8e3a461
 "joblib 1.2.0" = [
     {url = "https://files.pythonhosted.org/packages/45/dd/a5435a6902d6315241c48a5343e6e6675b007e05d3738ed97a7a47864e53/joblib-1.2.0.tar.gz", hash = "sha256:e1cee4a79e4af22881164f218d4311f60074197fb707e082e803b61f6d137018"},
     {url = "https://files.pythonhosted.org/packages/91/d4/3b4c8e5a30604df4c7518c562d4bf0502f2fa29221459226e140cf846512/joblib-1.2.0-py3-none-any.whl", hash = "sha256:091138ed78f800342968c523bdde947e7a305b8594b910a0fea2ab83c3c6d385"},
+]
+"langdetect 1.0.9" = [
+    {url = "https://files.pythonhosted.org/packages/0e/72/a3add0e4eec4eb9e2569554f7c70f4a3c27712f40e3284d483e88094cc0e/langdetect-1.0.9.tar.gz", hash = "sha256:cbc1fef89f8d062739774bd51eda3da3274006b3661d199c2655f6b3f6d605a0"},
+    {url = "https://files.pythonhosted.org/packages/d0/04/31f2f175c475c0274a7fb20552e18c4f5b1ef04b211dd4d7301ca6bf4534/langdetect-1.0.9-py2-none-any.whl", hash = "sha256:7cbc0746252f19e76f77c0b1690aadf01963be835ef0cd4b56dddf2a8f1dfc2a"},
 ]
 "lazy-object-proxy 1.8.0" = [
     {url = "https://files.pythonhosted.org/packages/0a/68/5839136508651d813c1adce568e2f7417bb66083dc8d604a69d465ee53c0/lazy_object_proxy-1.8.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:6850e4aeca6d0df35bb06e05c8b934ff7c533734eb51d0ceb2d63696f1e6030c"},
