@@ -13,3 +13,12 @@ class Turn:
 class Episode:
     '''Can be thought of as an entire conversation.'''
     turns: list[Turn]
+    participant_personas: dict[str, str] = {}
+    world_scenario: str | None = None
+
+
+@dataclass(frozen=True)
+class SupervisedExample:
+    '''An example to be used in a supervised fine-tune.'''
+    prompt: str
+    response: str

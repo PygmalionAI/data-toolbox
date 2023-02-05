@@ -17,6 +17,7 @@ dependencies = [
     "pandas>=1.5.2",
     "pyarrow>=10.0.1",
     "langdetect>=1.0.9",
+    "tokenizers>=0.13.2",
 ]
 
 [project.optional-dependencies]
