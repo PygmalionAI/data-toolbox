@@ -1,26 +1,37 @@
 import typing as t
 
 from toolbox.core.consts import PromptConstants
+from toolbox.core.models import Episode, Turn
 from toolbox.datasets.kajiwoto import (KajiwotoDataset, generate_variants_for,
-                                     replace_special_tokens_in)
+                                       replace_special_tokens_in)
 from toolbox.modules import BaseModule
 
 
 class KajiwotoVDM(BaseModule):
     '''A Vanilla Dialogue Module powered by the Kajiwoto dataset.'''
 
-    def generator(self) -> t.Generator[list[str], None, None]:
+    def generator(self) -> t.Generator[Episode, None, None]:
         dataset = KajiwotoDataset()
         for episode in dataset:
-            turns: t.List[str] = []
+            turns: list[Turn] = []
             for turn in episode:
-                turns.append(
-                    f"{PromptConstants.USER_PREFIX}: {turn.user_message}")
-                turns.append(
-                    f"{PromptConstants.BOT_TOKEN}: {turn.bot_response}")
+                user_turn = Turn(
+                    utterance=turn.user_message,
+                    speaker=PromptConstants.USER_PREFIX,
+                )
+                bot_turn = Turn(
+                    utterance=replace_special_tokens_in(turn.bot_response),
+                    speaker=PromptConstants.USER_PREFIX,
+                )
 
-            string = "\n".join(turns)
-            processed_string = replace_special_tokens_in(string)
+                turns += [user_turn, bot_turn]
 
-            for generated_string in generate_variants_for(processed_string):
-                yield generated_string.split("\n")
+            bot_message_count = int(len(turns) / 2)
+            for i in range(0, bot_message_count, 2):
+                idx = i + 1
+                bot_turn = turns[idx]
+                for variant in generate_variants_for(bot_turn.utterance):
+                    augmented_turns = turns[:idx + 1].copy()
+                    augmented_turns[idx] = Turn(
+                        utterance=variant, speaker=PromptConstants.BOT_TOKEN)
+                    yield Episode(turns=augmented_turns)
