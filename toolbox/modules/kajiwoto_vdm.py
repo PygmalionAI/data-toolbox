@@ -18,10 +18,12 @@ class KajiwotoVDM(BaseModule):
                 user_turn = Turn(
                     utterance=turn.user_message,
                     speaker=PromptConstants.USER_PREFIX,
+                    human_speaker=True,
                 )
                 bot_turn = Turn(
                     utterance=replace_special_tokens_in(turn.bot_response),
-                    speaker=PromptConstants.USER_PREFIX,
+                    speaker=PromptConstants.BOT_TOKEN,
+                    human_speaker=False,
                 )
 
                 turns += [user_turn, bot_turn]
@@ -33,5 +35,8 @@ class KajiwotoVDM(BaseModule):
                 for variant in generate_variants_for(bot_turn.utterance):
                     augmented_turns = turns[:idx + 1].copy()
                     augmented_turns[idx] = Turn(
-                        utterance=variant, speaker=PromptConstants.BOT_TOKEN)
+                        utterance=variant,
+                        speaker=PromptConstants.BOT_TOKEN,
+                        human_speaker=False,
+                    )
                     yield Episode(turns=augmented_turns)
