@@ -102,10 +102,15 @@ def main() -> None:
                 if idx != 1:
                     print()
 
-                for ep in _episode_augmentations(episode):
-                    print("---| New Episode |---")
-                    print("---------------------")
-                    print("\n---\n".join(ep + [PromptConstants.EOS_TOKEN]))
+                print("---| New Episode |---")
+                print("---------------------")
+                for turn in episode.turns:
+                    print(f"{turn.speaker}: {turn.utterance}")
+
+                # for ep in _episode_augmentations(episode):
+                #     print("---| New Episode |---")
+                #     print("---------------------")
+                #     print("\n---\n".join(ep + [PromptConstants.EOS_TOKEN]))
         sys.exit()
 
     #
