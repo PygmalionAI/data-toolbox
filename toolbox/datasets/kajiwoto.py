@@ -166,8 +166,11 @@ def replace_special_tokens_in(string: str) -> str:
     if (match := re.search(KAJIWOTO_VARIANT_REGEX, string)) is not None:
         special_token = match.groups()[0]
         if '|' not in special_token and special_token not in seen_special_tokens:
-            logger.warning("Unhandled Kajiwoto token: %s", special_token)
+            logger.debug("Unhandled Kajiwoto token: %s", special_token)
             seen_special_tokens.add(special_token)
+
+            # Can't do anything useful with those tokens, drop them.
+            string = string.replace("%{" + special_token + "}", "").strip()
 
     if (scene_match := re.search(r"#scene=(.+?)\b", string)) is not None:
         seen_scene = scene_match.groups()[0]
