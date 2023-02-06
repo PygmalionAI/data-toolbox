@@ -39,7 +39,9 @@ py-modules = ["toolbox"]
 [tool.pdm.scripts]
 lint = {shell = "pylint --jobs 0 ./toolbox/**/*.py"}
 importcheck = "isort --check --diff toolbox"
+importfix = "isort toolbox"
 stylecheck = "yapf --parallel --diff --recursive toolbox"
+stylefix = "yapf --parallel --in-place --recursive toolbox"
 typecheck = "mypy --strict toolbox"
 
 [tool.yapf]
