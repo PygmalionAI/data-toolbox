@@ -200,8 +200,7 @@ def _iterate_through_examples(args: argparse.Namespace,
         kept = filter_keep_count[filter_name]
         total = dropped + kept
         LOG.info("%s: %i out of %i examples dropped (%f%%)", filter_name,
-                 dropped, total,
-                 round((dropped / total) * 100, 2))
+                 dropped, total, round((dropped / total) * 100, 2))
 
 
 def _get_git_revision_short_hash() -> str:
@@ -212,9 +211,8 @@ def _get_git_revision_short_hash() -> str:
                          "..")).decode("ascii").strip()
 
 
-def _import_from_string(
-        string: str,
-        qualifier_prefix: str = "toolbox.modules") -> t.List[t.Type[t.Any]]:
+def _import_from_string(string: str,
+                        qualifier_prefix: str) -> t.List[t.Type[t.Any]]:
     '''Imports all the classes from the given, comma-separated string.'''
     modules: t.List[t.Type[BaseModule | FilterCriteria]] = []
     for module_and_class_name in string.split(","):
