@@ -29,7 +29,10 @@ DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
 DEFAULT_FILTER_LIST = [
     "duplicate_filter:DuplicateFilter",
-    "language_filter:LanguageFilter",
+    # This is a whopping ~48% of total runtime when enabled, and it ends up
+    # filtering less than 3% of the episodes. I don't think this is worth the
+    # performance hit, so I'll disable it by default.
+    # "language_filter:LanguageFilter",
     "similarity_filter:SimilarityFilter",
     "suspect_unicode_filter:SuspectUnicodeFilter",
     "tomato_filter:TomatoFilter",

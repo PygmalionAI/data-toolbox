@@ -8,6 +8,13 @@ from toolbox.core.models import Episode, SupervisedExample, Turn
 
 LOG = logging.getLogger(__name__)
 
+# NOTE: When processing episodes down into training examples, tokenizing text to
+# get an accurate token count is a massive bottleneck (~49.5% of CPU time). We
+# can instead use an estimation instead if we're OK with dropping some examples
+# at training time.
+AVG_TOKEN_TO_WORD_RATIO = 1.7
+RETURN_ESTIMATION = True
+
 
 class SupervisedExampleGenerator:
     '''
@@ -125,4 +132,7 @@ class SupervisedExampleGenerator:
 
     def _tokenized_length(self, string: str) -> int:
         '''Returns the length of the given `string`, in tokens.'''
+        if RETURN_ESTIMATION:
+            word_count = len(string.split())
+            return round(word_count * AVG_TOKEN_TO_WORD_RATIO)
         return len(self.tokenizer.encode(string))
