@@ -1,6 +1,7 @@
 import typing as t
 
 from toolbox.core.consts import PromptConstants
+from toolbox.core.models import Episode, Turn
 from toolbox.datasets.light_dialogue import LightDialogueDataset
 from toolbox.modules import BaseModule
 from toolbox.utils.strings import normalize_string, title_case
@@ -9,16 +10,12 @@ from toolbox.utils.strings import normalize_string, title_case
 class LightDialoguePDM(BaseModule):
     '''Persona Dialogue Module based on the LIGHT dataset.'''
 
-    def generator(self) -> t.Generator[list[str], None, None]:
+    def generator(self) -> t.Generator[Episode, None, None]:
         for episode in LightDialogueDataset():
-            # TODO(11b): Scenario doesn't belong in a persona dialog module.
-            context_message = f"Scenario: {episode.context[0]}\n"
-
-            persona_message = ""
-            for agent in episode.agents:
-                persona_message += f"{PromptConstants.pdm_prefix_for(title_case(agent.name))}: {agent.persona}\n"
-
-            episode_messages: t.List[str] = [context_message, persona_message]
+            participant_personas = {
+                title_case(a.name): a.persona for a in episode.agents
+            }
+            turns: t.List[Turn] = []
             turn_count = len(episode.speech)
 
             for idx in range(turn_count):
@@ -43,9 +40,17 @@ class LightDialoguePDM(BaseModule):
                 if emote is not None:
                     message = f"*{emote}* {message}"
 
-                # Finally, prepend the turn character's name.
-                message = f"{character}: {message}"
+                turns.append(
+                    Turn(
+                        utterance=message,
+                        speaker=character,
+                        # With LIGHT, all turns are human speakers but for the
+                        # purposes of our code, only "bot" turns are used as
+                        # training data so we mark everything here as a bot
+                        # message so all messages are used as training
+                        # examples.
+                        human_speaker=False))
 
-                episode_messages.append(message)
-
-            yield episode_messages
+            yield Episode(turns=turns,
+                          participant_personas=participant_personas,
+                          world_scenario=episode.context[0])
