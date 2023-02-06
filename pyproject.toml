@@ -31,6 +31,7 @@ dev = [
 ]
 debugging = [
     "pdbpp>=0.10.3",
+    "scalene>=1.5.19",
 ]
 
 [tool.setuptools]
