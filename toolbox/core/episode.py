@@ -94,7 +94,7 @@ class SupervisedExampleGenerator:
                 example_len = self._tokenized_length(prompt +
                                                      last_turn.utterance)
                 if example_len > self.target_length:
-                    LOG.error(
+                    LOG.warning(
                         f"Generated an example too large ({example_len} > {self.target_length})"
                     )
 
