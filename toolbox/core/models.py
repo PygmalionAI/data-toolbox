@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -13,7 +13,7 @@ class Turn:
 class Episode:
     '''Can be thought of as an entire conversation.'''
     turns: list[Turn]
-    participant_personas: dict[str, str] = {}
+    participant_personas: dict[str, str] = field(default_factory=dict)
     world_scenario: str | None = None
 
 
