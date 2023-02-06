@@ -10,13 +10,13 @@ from toolbox.utils.dataset import get_data_path
 
 
 @dataclass(frozen=True)
-class LightDialogueAgent(mashumaro.DataClassDictMixin):
+class LightAgent(mashumaro.DataClassDictMixin):
     name: str
     persona: str
 
 
 @dataclass(frozen=True)
-class LightDialogueSetting(mashumaro.DataClassDictMixin):
+class LightSetting(mashumaro.DataClassDictMixin):
     name: str
     category: str
     description: str
@@ -24,9 +24,9 @@ class LightDialogueSetting(mashumaro.DataClassDictMixin):
 
 
 @dataclass(frozen=True)
-class LightDialogueEpisode(mashumaro.DataClassDictMixin):
-    agents: t.List[LightDialogueAgent]
-    setting: LightDialogueSetting
+class LightEpisode(mashumaro.DataClassDictMixin):
+    agents: t.List[LightAgent]
+    setting: LightSetting
     character: t.List[str]
     context: t.List[str]
     room_objects: t.List[t.List[str]]
@@ -40,7 +40,7 @@ class LightDialogueEpisode(mashumaro.DataClassDictMixin):
     action: t.List[str]
 
 
-class LightDialogueDataset(BaseDataset[LightDialogueEpisode]):
+class LightDataset(BaseDataset[LightEpisode]):
     '''
     LIGHT: Learning in Interactive Games with Humans and Text
 
@@ -51,11 +51,11 @@ class LightDialogueDataset(BaseDataset[LightDialogueEpisode]):
     https://parl.ai/projects/light/
     '''
 
-    def generator(self) -> t.Generator[LightDialogueEpisode, None, None]:
+    def generator(self) -> t.Generator[LightEpisode, None, None]:
         root_data_path = get_data_path("light_dialogue")
         light_data_path = os.path.join(root_data_path, "light_data.pkl")
 
         with open(light_data_path, "rb") as light_data_file:
             light_data = pickle.load(light_data_file)
             for episode in light_data:
-                yield LightDialogueEpisode.from_dict(episode)
+                yield LightEpisode.from_dict(episode)

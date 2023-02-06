@@ -1,17 +1,16 @@
 import typing as t
 
-from toolbox.core.consts import PromptConstants
 from toolbox.core.models import Episode, Turn
-from toolbox.datasets.light_dialogue import LightDialogueDataset
+from toolbox.datasets.light import LightDataset
 from toolbox.modules import BaseModule
 from toolbox.utils.strings import normalize_string, title_case
 
 
-class LightDialoguePDM(BaseModule):
+class LightPDM(BaseModule):
     '''Persona Dialogue Module based on the LIGHT dataset.'''
 
     def generator(self) -> t.Generator[Episode, None, None]:
-        for episode in LightDialogueDataset():
+        for episode in LightDataset():
             participant_personas = {
                 title_case(a.name): a.persona for a in episode.agents
             }

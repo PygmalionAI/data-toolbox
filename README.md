@@ -40,7 +40,7 @@ The default behavior is to write a file called `rev-{GIT_REVISION_HASH}-args{HAS
 The script also has an option to print some examples instead of writing to a file, for debugging/dev purposes. Example usage:
 
 ```bash
-$ ./toolbox/scripts/build_dataset.py --print 1 --modules 'light_dialogue_pdm:LightDialoguePDM' # or -p 1 and -m ...
+$ ./toolbox/scripts/build_dataset.py --print 1 --modules 'light_dialogue_pdm:LightPDM' # or -p 1 and -m ...
 ```
 
 Example output:

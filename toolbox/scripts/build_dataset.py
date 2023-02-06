@@ -26,7 +26,7 @@ DEFAULT_MODULE_LIST = [
     # of the vanilla dialogue module for now.
     # "kajiwoto_pdm:KajiwotoPDM",
     # "kajiwoto_vdm:KajiwotoVDM",
-    # "light_dialogue_pdm:LightDialoguePDM",
+    # "light_dialogue_pdm:LightPDM",
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
