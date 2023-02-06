@@ -1,11 +1,11 @@
-from calendar import c
 import logging
 import typing as t
+from calendar import c
 
 import tokenizers
 
-from toolbox.core.models import Episode, SupervisedExample, Turn
 from toolbox.core.consts import PromptConstants
+from toolbox.core.models import Episode, SupervisedExample, Turn
 
 LOG = logging.getLogger(__name__)
 

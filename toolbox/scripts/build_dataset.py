@@ -11,11 +11,11 @@ import subprocess
 import sys
 import typing as t
 
+from colors import color
+
 from toolbox.core.episode import SupervisedExampleGenerator
 from toolbox.core.filter_criteria import FilterCriteria
 from toolbox.modules import BaseModule
-
-from colors import color
 
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
