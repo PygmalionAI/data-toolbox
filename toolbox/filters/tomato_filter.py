@@ -13,8 +13,8 @@ class TomatoFilter(FilterCriteria):
 
     def __init__(self) -> None:
         # TODO(11b): Make these into tunable parameters.
-        self.embarassment_threshold = 0.3
-        self.stuttering_threshold = 0.5
+        self.embarassment_threshold = 0.7
+        self.stuttering_threshold = 0.7
 
         super().__init__()
 
@@ -37,7 +37,7 @@ class TomatoFilter(FilterCriteria):
             embarassment_ratio += 1.0 if _seems_embarassed(message) else 0.0
             embarassment_ratio /= 2
         if embarassment_ratio >= self.embarassment_threshold:
-            LOG.debug("Detected excessive stuttering (%s >= %s)",
+            LOG.debug("Detected excessive embarassment (%s >= %s)",
                       embarassment_ratio, self.embarassment_threshold)
             return False
 

@@ -17,7 +17,7 @@ class SimilarityFilter(FilterCriteria):
         super().__init__()
 
         # TODO(11b): Make this a tunable parameter.
-        self.similarity_threshold = 0.6
+        self.similarity_threshold = 0.75
         self.vectorizer = CountVectorizer()
 
     def keep(self, episode: Episode) -> bool:
