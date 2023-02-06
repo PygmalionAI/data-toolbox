@@ -25,13 +25,16 @@ class SodaPDM(BaseModule):
             # However, the only acceptable description of a persona would be when episode.relation is "xAttr", since that directly describes
             # a person in the conversation.
             if episode.relation == "xAttr":
-                episode_messages.append(f"{PromptConstants.pdm_prefix_for(bot_name)}: {episode.literal}")
+                episode_messages.append(
+                    f"{PromptConstants.pdm_prefix_for(bot_name)}: {episode.literal}"
+                )
             else:
                 continue
 
             # Next, set the scenario.
             # Make sure to replace any instance of the person representing the user in the conversation with the user token
-            replaced_narrative = episode.narrative.replace(user_name, PromptConstants.USER_TOKEN)
+            replaced_narrative = episode.narrative.replace(
+                user_name, PromptConstants.USER_TOKEN)
             scenario = f"Scenario: {replaced_narrative}"
             episode_messages.append(scenario)
             # Next, the start token
@@ -45,6 +48,8 @@ class SodaPDM(BaseModule):
                     name = PromptConstants.USER_PREFIX
                 else:
                     name = bot_name
-                episode_messages.append(f"{name}: {utterance.replace(user_name, PromptConstants.USER_TOKEN)}")
+                episode_messages.append(
+                    f"{name}: {utterance.replace(user_name, PromptConstants.USER_TOKEN)}"
+                )
 
             yield episode_messages

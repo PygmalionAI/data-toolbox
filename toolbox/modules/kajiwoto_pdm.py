@@ -2,7 +2,7 @@ import typing as t
 
 from toolbox.core.consts import PromptConstants
 from toolbox.datasets.kajiwoto import (KajiwotoDataset, generate_variants_for,
-                                     replace_special_tokens_in)
+                                       replace_special_tokens_in)
 from toolbox.modules import BaseModule
 from toolbox.utils.strings import uppercase
 

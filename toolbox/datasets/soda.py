@@ -18,6 +18,7 @@ class SodaEpisode(mashumaro.DataClassDictMixin):
     relation: str
     literal: str
 
+
 class SodaDataset(BaseDataset[SodaEpisode]):
     '''
     SODA: Million-scale Dialogue Distillation with Social Commonsense
@@ -33,10 +34,8 @@ class SodaDataset(BaseDataset[SodaEpisode]):
 
         # Iterate through the test part of the SODA dataset
         for i in df.index:
-            yield SodaEpisode(
-                narrative=df['narrative'][i],
-                dialogue=df['dialogue'][i],
-                speakers=df['speakers'][i],
-                relation=df['relation'][i],
-                literal=df['literal'][i]
-            )
+            yield SodaEpisode(narrative=df['narrative'][i],
+                              dialogue=df['dialogue'][i],
+                              speakers=df['speakers'][i],
+                              relation=df['relation'][i],
+                              literal=df['literal'][i])
