@@ -22,10 +22,7 @@ from toolbox.modules import BaseModule
 DEFAULT_MODULE_LIST = [
     "characterai_pdm:CharacterAiPDM",
     # "discord_vdm:DiscordVDM",
-    # KajiwotoPDM has a bunch of garbage I need to filter, disabling in favor
-    # of the vanilla dialogue module for now.
     # "kajiwoto_pdm:KajiwotoPDM",
-    # "kajiwoto_vdm:KajiwotoVDM",
     # "light_dialogue_pdm:LightPDM",
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
@@ -83,7 +80,7 @@ def main() -> None:
         raise Exception(f"{output_filename} already exists, aborting.")
 
     with open(output_filename, "w", encoding="utf-8") as output_file:
-        _iterate_through_examples(args, do_print=False, write_to=output_file)
+        _iterate_through_examples(args, write_to=output_file)
 
 
 #
