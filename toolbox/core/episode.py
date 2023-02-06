@@ -1,6 +1,5 @@
 import logging
 import typing as t
-from calendar import c
 
 import tokenizers
 
