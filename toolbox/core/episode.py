@@ -60,44 +60,6 @@ class SupervisedExampleGenerator:
         cur_turns: list[Turn] = []
 
         for turn in episode.turns:
-            last_turn = cur_turns[-1] if len(cur_turns) > 1 else None
-
-            # If we have enough turns and the last one is not from a human, we
-            # can yield a training example.
-            if last_turn and not last_turn.human_speaker:
-                # Collapse `cur_turns` down into text.
-                prompt = base_prompt
-                prompt += "\n".join(
-                    [f"{t.speaker}: {t.utterance}" for t in cur_turns[:-1]])
-
-                # Append response prefix into `cur_prompt`, and yield the
-                # example.
-                prompt += f"\n{last_turn.speaker}:"
-                trimmed_episode = Episode(
-                    turns=cur_turns,
-                    participant_personas=episode.participant_personas,
-                    world_scenario=episode.world_scenario,
-                )
-                example = SupervisedExample(prompt=prompt,
-                                            response=last_turn.utterance)
-
-                # NOTE: Needing to yield both the trimmed episode _and_ the
-                # formatted training example is a side-effect of bad modeling on
-                # my end. The filters expect episodes, but if we apply them on
-                # the non-trimmed episodes we lose out on way too much data, so
-                # we yield the trimmed version so we can run _those_ through the
-                # filters instead.
-                yield trimmed_episode, example
-
-                # Sanity check so I can catch this easier in case I break
-                # something.
-                example_len = self._tokenized_length(prompt +
-                                                     last_turn.utterance)
-                if example_len > self.target_length:
-                    LOG.warning(
-                        f"Generated an example too large ({example_len} > {self.target_length})"
-                    )
-
             if cur_len + self._turn_length(turn) > self.target_length:
                 # Can't add this turn into this context window. Take what we
                 # already have and yield it, then add this turn to the next
@@ -108,6 +70,55 @@ class SupervisedExampleGenerator:
                 # Turn fits! Add to current context window.
                 cur_turns.append(turn)
                 cur_len += self._turn_length(turn)
+
+            output = self._example_and_episode_from_data(
+                episode, cur_turns, base_prompt)
+            if output is None:
+                continue
+            yield output
+
+    def _example_and_episode_from_data(
+            self, original_episode: Episode, cur_turns: list[Turn],
+            base_prompt: str) -> None | t.Tuple[Episode, SupervisedExample]:
+        if len(cur_turns) < 2:
+            return None
+
+        # If we have enough turns and the last one is not from a human, we
+        # can yield a training example.
+        last_turn = cur_turns[-1]
+        if last_turn and not last_turn.human_speaker:
+            # Collapse `cur_turns` down into text.
+            prompt = base_prompt
+            prompt += "\n".join(
+                [f"{t.speaker}: {t.utterance}" for t in cur_turns[:-1]])
+
+            # Append response prefix into `cur_prompt`, and yield the
+            # example.
+            prompt += f"\n{last_turn.speaker}:"
+            trimmed_episode = Episode(
+                turns=cur_turns,
+                participant_personas=original_episode.participant_personas,
+                world_scenario=original_episode.world_scenario,
+            )
+            example = SupervisedExample(prompt=prompt,
+                                        response=last_turn.utterance)
+
+            # Sanity check so I can catch this easier in case I break
+            # something.
+            example_len = self._tokenized_length(prompt + last_turn.utterance)
+            if example_len > self.target_length:
+                LOG.warning(
+                    f"Generated an example too large ({example_len} > {self.target_length})"
+                )
+
+            # NOTE: Needing to yield both the trimmed episode _and_ the
+            # formatted training example is a side-effect of bad modeling on
+            # my end. The filters expect episodes, but if we apply them on
+            # the non-trimmed episodes we lose out on way too much data, so
+            # we yield the trimmed version so we can run _those_ through the
+            # filters instead.
+            return trimmed_episode, example
+        return None
 
     def _turn_length(self, turn: Turn) -> int:
         '''Returns the length of the given `turn`, in tokens.'''
