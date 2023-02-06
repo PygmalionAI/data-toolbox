@@ -2,6 +2,11 @@
 # It is not intended for manual editing.
 
 [[package]]
+name = "ansicolors"
+version = "1.1.8"
+summary = "ANSI colors for Python"
+
+[[package]]
 name = "astroid"
 version = "2.12.13"
 requires_python = ">=3.7.2"
@@ -270,9 +275,13 @@ summary = "A formatter for Python code."
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:06189444ebc65fadf35b1b9d6da3cac4f12316a6d3703ea5e08503b2b6768eb7"
+content_hash = "sha256:8535177cfb404cace2b24075f4e151ed6b112624eb9937bdf4859121443e803b"
 
 [metadata.files]
+"ansicolors 1.1.8" = [
+    {url = "https://files.pythonhosted.org/packages/53/18/a56e2fe47b259bb52201093a3a9d4a32014f9d85071ad07e9d60600890ca/ansicolors-1.1.8-py2.py3-none-any.whl", hash = "sha256:00d2dde5a675579325902536738dd27e4fac1fd68f773fe36c21044eb559e187"},
+    {url = "https://files.pythonhosted.org/packages/76/31/7faed52088732704523c259e24c26ce6f2f33fbeff2ff59274560c27628e/ansicolors-1.1.8.zip", hash = "sha256:99f94f5e3348a0bcd43c82e5fc4414013ccc19d70bd939ad71e0133ce9c372e0"},
+]
 "astroid 2.12.13" = [
     {url = "https://files.pythonhosted.org/packages/61/d0/e7cfca72ec7d6c5e0da725c003db99bb056e9b6c2f4ee6fae1145adf28a6/astroid-2.12.13.tar.gz", hash = "sha256:1493fe8bd3dfd73dc35bd53c9d5b6e49ead98497c47b2307662556a5692d29d7"},
     {url = "https://files.pythonhosted.org/packages/b1/61/42e075b7d29ed4d452d91cbaaca142710d50d04e68eb7161ce5807a00a30/astroid-2.12.13-py3-none-any.whl", hash = "sha256:10e0ad5f7b79c435179d0d0f0df69998c4eef4597534aae44910db060baeb907"},

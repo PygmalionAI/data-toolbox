@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import collections
 import hashlib
 import importlib
 import json
@@ -10,11 +11,11 @@ import subprocess
 import sys
 import typing as t
 
-from toolbox.core.consts import PromptConstants
+from toolbox.core.episode import SupervisedEpisodeProcessor
+from toolbox.core.filter_criteria import FilterCriteria
 from toolbox.modules import BaseModule
-from toolbox.utils.strings import contains_suspect_unicode
 
-import langdetect
+from colors import color
 
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
@@ -29,10 +30,68 @@ DEFAULT_MODULE_LIST = [
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
+DEFAULT_FILTER_LIST = [
+    "duplicate_filter:DuplicateFilter",
+    "language_filter:LanguageFilter",
+    "similarity_filter:SimilarityFilter",
+    "suspect_unicode_filter:SuspectUnicodeFilter",
+    "tomato_filter:TomatoFilter",
+]
+DEAFULT_FILTERS_STRING = ",".join(DEFAULT_FILTER_LIST)
+
+LOG = logging.getLogger(__name__)
+
 
 def main() -> None:
     random.seed(42)
 
+    args = _parse_args_from_argv()
+
+    logging.basicConfig(
+        format='[%(asctime)s] [%(levelname)s] %(message)s',
+        level=logging.DEBUG if args.verbose else logging.INFO,
+    )
+
+    # Sanity checks.
+    if args.output_name and args.print:
+        raise Exception("--output-name and --print are mutually exclusive.")
+    if args.skip and not args.print:
+        raise Exception("--skip can only be used in conjunction with --print.")
+
+    # If the print argument was specified, print and exit.
+    if args.print:
+        _iterate_through_examples(args, do_print=True)
+        sys.exit()
+
+    #
+    # Otherwise, proceed with the writing logic.
+    #
+
+    # If no output name is given, we build one from the current git revision
+    # plus a hash of the given arguments. That way, the same dataset should
+    # theoretically always have the same output name, which is helpful for
+    # reproducibility and bailing out early (e.g. if the file already exists).
+    if args.output_name is None:
+        args_hash = hashlib.sha256(str(args).encode("utf-8")).hexdigest()[:7]
+        output_name = f"rev-{_get_git_revision_short_hash()}-args-{args_hash}"
+    else:
+        output_name = args.output_name
+
+    # Open the output file.
+    output_filename = f"{output_name}.jsonl"
+    if os.path.exists(output_filename):
+        raise Exception(f"{output_filename} already exists, aborting.")
+
+    with open(output_filename, "w", encoding="utf-8") as output_file:
+        _iterate_through_examples(args, do_print=False, write_to=output_file)
+
+
+#
+# Helpers and CLI entrypoint.
+#
+
+
+def _parse_args_from_argv() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o",
@@ -67,199 +126,82 @@ def main() -> None:
                         action="store_true",
                         help="Enable verbose logging.")
 
-    args = parser.parse_args()
-
-    logging.basicConfig(
-        format='[%(asctime)s] [%(levelname)s] %(message)s',
-        level=logging.DEBUG if args.verbose else logging.INFO,
-    )
-
-    # Sanity checks.
-    if args.output_name and args.print:
-        raise Exception("--output-name and --print are mutually exclusive.")
-    if args.skip and not args.print:
-        raise Exception("--skip can only be used in conjunction with --print.")
-
-    modules = _import_modules_from_string(args.modules)
-
-    #
-    # If the print argument was specified, print and exit.
-    #
-    if args.print:
-        idx = 0
-        episodes_to_skip = args.skip if args.skip is not None else None
-        for module in modules:
-            for episode in module():
-                if episodes_to_skip:
-                    episodes_to_skip -= 1
-                    continue
-
-                idx += 1
-                if idx > args.print:
-                    sys.exit()
-
-                # Print a newline to visually separate different episodes.
-                if idx != 1:
-                    print()
-
-                print("---| New Episode |---")
-                print("---------------------")
-                for turn in episode.turns:
-                    print(f"{turn.speaker}: {turn.utterance}")
-
-                # for ep in _episode_augmentations(episode):
-                #     print("---| New Episode |---")
-                #     print("---------------------")
-                #     print("\n---\n".join(ep + [PromptConstants.EOS_TOKEN]))
-        sys.exit()
-
-    #
-    # Otherwise, proceed with the writing logic.
-    #
-
-    # If no output name is given, we build one from the current git revision
-    # plus a hash of the given arguments. That way, the same dataset should
-    # theoretically always have the same output name, which is helpful for
-    # reproducibility and bailing out early (e.g. if the file already exists).
-    if args.output_name is None:
-        args_hash = hashlib.sha256(str(args).encode("utf-8")).hexdigest()[:7]
-        output_name = f"rev-{_get_git_revision_short_hash()}-args-{args_hash}"
-    else:
-        output_name = args.output_name
-
-    # Open the output file.
-    output_filename = f"{output_name}.jsonl"
-    if os.path.exists(output_filename):
-        raise Exception(f"{output_filename} already exists, aborting.")
-
-    with open(output_filename, "w", encoding="utf-8") as output_file:
-        # Keep track of episode hashes so we avoid duplicates.
-        seen_episode_hashes = set()
-        dropped_episodes_due_to_hash_collision = 0
-        total_episode_count = 0
-
-        def _calculate_hash_for(text: str) -> str:
-            return hashlib.sha512(str(text).encode("utf-8")).hexdigest()
-
-        # Enforce determinism in the language detection code.
-        langdetect.DetectorFactory.seed = 0
-
-        # Iterate over each module sequentially, and write the data out into the
-        # file.
-        for module in modules:
-            for episode in module():
-                text = "\n".join(episode)
-                if contains_suspect_unicode(text):
-                    print(
-                        f"Skipping. Found suspect unicode contents in `{text}`")
-                    continue
-
-                episode_lang = langdetect.detect(text)
-                if episode_lang != "en":
-                    print(f"Skipping non-English episode ({episode_lang})")
-                    continue
-
-                for augmented_episode in _episode_augmentations(episode):
-                    try:
-                        total_episode_count += 1
-                        text = "\n".join(augmented_episode +
-                                         [PromptConstants.EOS_TOKEN])
-
-                        # Skip over this episode if there's a hash collision.
-                        episode_hash = _calculate_hash_for(text)
-                        if episode_hash in seen_episode_hashes:
-                            dropped_episodes_due_to_hash_collision += 1
-                            continue
-
-                        # TODO(11b): This code sucks. Refactor so we can share
-                        # the looping and augmentation logic with --print, and
-                        # use a logger to keep track of things happening.
-                        if args.supervised:
-                            offset_idx = 1
-                            while augmented_episode[-offset_idx].startswith(
-                                    "You: "):
-                                offset_idx += 1
-                                if offset_idx >= len(augmented_episode):
-                                    pass  # print("Skipping episode where user speaks last.")
-
-                            prompt = "\n".join(augmented_episode[:-offset_idx])
-                            response = augmented_episode[-offset_idx]
-
-                            separator_idx = response.find(": ")
-                            bot_name = response[:separator_idx]
-                            response = response.replace(f"{bot_name}:", "")
-                            prompt += f"\n{bot_name}:"
-
-                            if "<START>" in response:
-                                continue  # print("skipping start")
-
-                            json_line = json.dumps({
-                                "input": prompt,
-                                "output": response,
-                                "reward": 1.0
-                            })
-                        else:
-                            json_line = json.dumps({"text": text})
-
-                        output_file.write(f"{json_line}\n")
-                        seen_episode_hashes.add(episode_hash)
-                    except Exception as ex:
-                        print(f"Skipping episode:", ex)
-
-        print(
-            f"Dropped {dropped_episodes_due_to_hash_collision} seemingly duplicate episodes out of {total_episode_count} generated episodes."
-        )
+    return parser.parse_args()
 
 
-#
-# Helpers and CLI entrypoint.
-#
+def _iterate_through_examples(args: argparse.Namespace,
+                              do_print: bool = False,
+                              write_to: t.Any = None) -> None:
+    modules = _import_from_string(args.modules,
+                                  qualifier_prefix="toolbox.modules")
+    filters: list[FilterCriteria] = [
+        x() for x in _import_from_string(DEAFULT_FILTERS_STRING,
+                                         qualifier_prefix="toolbox.filters")
+    ]
+    filter_drop_count: dict[str, int] = collections.defaultdict(int)
+    filter_keep_count: dict[str, int] = collections.defaultdict(int)
+    processor = SupervisedEpisodeProcessor("PygmalionAI/pygmalion-6b", 2048)
 
-
-def _episode_augmentations(
-        episode: list[str]) -> t.Generator[list[str], None, None]:
-    '''
-    Generates augmented data for the given episode.
-
-    The first 1.3B model had wildly unpredictable performance at the start of
-    conversations, which I attributed to the fact that originally we always fed
-    the model entire episodes to train on, so there were no examples of freshly
-    started conversations, in a sense.
-
-    This function takes a complete episode and yields different permutations of
-    it in an attempt to provide that data (e.g. with/without persona, with only
-    X messages in the history, X+2, X+4 and so on).
-    '''
-    permutated_episode = []
-    offset_idx = 0
-
-    # Don't discard the original episode.
-    yield episode
-
-    for turn in episode:
-        if "'s Persona: " in turn or "Scenario: " in turn or PromptConstants.CHAT_START_TOKEN in turn:
-            permutated_episode.append(turn.strip())
-            offset_idx += 1
-            continue
-
-        while len(episode) > 1 + offset_idx:
-            permutated_episode.append(episode.pop(offset_idx))
-            permutated_episode.append(episode.pop(offset_idx))
-
-            # Yielding every single instance results in too much data
-            # repetition, so instead we take a random sample.
-            should_yield = random.randint(0, 100) < 25
-            if should_yield:
-                yield permutated_episode
-
-            # Also, yield a version with _just_ dialogue if we've been yielding
-            # with persona/scenario data this entire time.
-            if offset_idx == 0:
+    idx = 0
+    episodes_to_skip = args.skip if args.skip is not None else None
+    for module in modules:
+        for episode in module():
+            if episodes_to_skip:
+                episodes_to_skip -= 1
                 continue
 
-            should_yield = random.randint(0, 100) < 25
-            if should_yield:
-                yield permutated_episode[offset_idx:]
+            idx += 1
+            if args.print and idx > args.print:
+                sys.exit()
+
+            # Print a newline to visually separate different episodes.
+            if idx != 1 and do_print:
+                print()
+
+            if do_print:
+                print(color("---| New Episode", fg="yellow", style="bold"))
+
+            for episode, example in processor.process(episode):
+                idx += 1
+                for _filter in filters:
+                    filter_name = str(_filter.__class__.__name__)
+                    if _filter.keep(episode):
+                        filter_keep_count[filter_name] += 1
+                    else:
+                        filter_drop_count[filter_name] += 1
+                        LOG.debug("Dropping episode due to %s filter",
+                                  filter_name)
+
+                        if filter_name == "SimilarityFilter":
+                            uttrs = [x.utterance for x in episode.turns if not x.human_speaker]
+                            import pdb
+                            pdb.set_trace()
+                        continue
+
+                if do_print:
+                    print(color(" * Training Example:", fg="orange"))
+                    print(color(example.prompt, fg="gray"),
+                          color(example.response, fg="green"))
+
+                if write_to is not None:
+                    data = {
+                        "input": example.prompt,
+                        "output": example.response,
+                        "reward": 1.0
+                    } if args.supervised else {
+                        "text":
+                            f"{example.prompt.strip()} {example.response.strip()}"
+                    }
+                    line = json.dumps(data)
+                    write_to.write(f"{line}\n")
+
+    LOG.info("About to log filter statistics")
+    for filter_name, dropped in filter_drop_count.items():
+        kept = filter_keep_count[filter_name]
+        total = dropped + kept
+        LOG.info("%s: %i out of %i examples dropped (%f%%)", filter_name,
+                 dropped, total,
+                 round((dropped / total) * 100, 2))
 
 
 def _get_git_revision_short_hash() -> str:
@@ -270,14 +212,16 @@ def _get_git_revision_short_hash() -> str:
                          "..")).decode("ascii").strip()
 
 
-def _import_modules_from_string(string: str) -> t.List[t.Type[BaseModule]]:
-    '''Imports all the module classes from the given, comma-separated string.'''
-    modules: t.List[t.Type[BaseModule]] = []
+def _import_from_string(
+        string: str,
+        qualifier_prefix: str = "toolbox.modules") -> t.List[t.Type[t.Any]]:
+    '''Imports all the classes from the given, comma-separated string.'''
+    modules: t.List[t.Type[BaseModule | FilterCriteria]] = []
     for module_and_class_name in string.split(","):
-        qualified_module_name = "toolbox.modules"
+        qualified_module_name = qualifier_prefix
         try:
             module_name, class_name = module_and_class_name.split(":")
-            qualified_module_name = f"toolbox.modules.{module_name}"
+            qualified_module_name = f"{qualifier_prefix}.{module_name}"
         except ValueError:
             class_name = module_and_class_name
 

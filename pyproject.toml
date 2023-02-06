@@ -18,6 +18,7 @@ dependencies = [
     "pyarrow>=10.0.1",
     "langdetect>=1.0.9",
     "tokenizers>=0.13.2",
+    "ansicolors>=1.1.8",
 ]
 
 [project.optional-dependencies]

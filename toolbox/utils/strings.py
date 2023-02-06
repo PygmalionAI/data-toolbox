@@ -2,10 +2,9 @@
 
 # Some of this is pasta from Meta's ParlAI. See:
 # https://github.com/facebookresearch/ParlAI/blob/main/parlai/utils/strings.py
-import regex
 
 
-def normalize_string(text: str, version: int = 1) -> str:
+def normalize_string(text: str, add_trailing_period: bool = True) -> str:
     '''
     Standardize the capitalization and punctuation spacing of the input text.
     - Version 1: Fix sentence start casing and punctuation.
@@ -42,7 +41,7 @@ def normalize_string(text: str, version: int = 1) -> str:
     new_text = new_text.strip()
     new_text = new_text.replace('  ', ' ')
 
-    if version > 1 and new_text and new_text[-1] not in '!.?)"\'':
+    if add_trailing_period and new_text and new_text[-1] not in '!.?)"\'':
         new_text += '.'
 
     return new_text
@@ -62,11 +61,3 @@ def uppercase(string: str) -> str:
         return string
     else:
         return string[0].upper() + string[1:]
-
-
-def contains_suspect_unicode(string: str) -> bool:
-    '''
-    Returns whether the given string seems to have suspect Unicode trickery
-    (e.g.: Zalgo text).
-    '''
-    return regex.search(r"\pM{3,}", string) is not None
