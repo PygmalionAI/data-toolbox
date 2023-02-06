@@ -103,6 +103,11 @@ def _parse_args_from_argv() -> argparse.Namespace:
                         default=DEFAULT_MODULES_STRING,
                         help="List of modules to use, comma-separated.")
 
+    parser.add_argument("-f",
+                        "--filters",
+                        default=DEAFULT_FILTERS_STRING,
+                        help="List of filters to use, comma-separated.")
+
     parser.add_argument(
         "-p",
         "--print",
@@ -121,6 +126,21 @@ def _parse_args_from_argv() -> argparse.Namespace:
         action="store_true",
         help="If passed, output data for supervised fine-tuning instead.")
 
+    parser.add_argument(
+        "-t",
+        "--tokenizer-name",
+        default="PygmalionAI/pygmalion-6b",
+        help=
+        "Which tokenizer to use when calculating target length of training examples."
+    )
+
+    parser.add_argument(
+        "-l",
+        "--target-example-length",
+        default=2048,
+        type=int,
+        help="Target length (in tokens) for the training examples.")
+
     parser.add_argument("-v",
                         "--verbose",
                         action="store_true",
@@ -135,12 +155,13 @@ def _iterate_through_examples(args: argparse.Namespace,
     modules = _import_from_string(args.modules,
                                   qualifier_prefix="toolbox.modules")
     filters: list[FilterCriteria] = [
-        x() for x in _import_from_string(DEAFULT_FILTERS_STRING,
+        x() for x in _import_from_string(args.filters,
                                          qualifier_prefix="toolbox.filters")
     ]
     filter_drop_count: dict[str, int] = collections.defaultdict(int)
     filter_keep_count: dict[str, int] = collections.defaultdict(int)
-    processor = SupervisedEpisodeProcessor("PygmalionAI/pygmalion-6b", 2048)
+    processor = SupervisedExampleGenerator(args.tokenizer_name,
+                                           args.target_example_length)
 
     idx = 0
     episodes_to_skip = args.skip if args.skip is not None else None
@@ -171,11 +192,6 @@ def _iterate_through_examples(args: argparse.Namespace,
                         filter_drop_count[filter_name] += 1
                         LOG.debug("Dropping episode due to %s filter",
                                   filter_name)
-
-                        if filter_name == "SimilarityFilter":
-                            uttrs = [x.utterance for x in episode.turns if not x.human_speaker]
-                            import pdb
-                            pdb.set_trace()
                         continue
 
                 if do_print:
