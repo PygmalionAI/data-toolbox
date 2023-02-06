@@ -21,9 +21,10 @@ from toolbox.modules import BaseModule
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
     "characterai_pdm:CharacterAiPDM",
-    # "discord_vdm:DiscordVDM",
-    # "kajiwoto_pdm:KajiwotoPDM",
-    # "light_dialogue_pdm:LightPDM",
+    "discord_vdm:DiscordVDM",
+    "kajiwoto_pdm:KajiwotoPDM",
+    "light_dialogue_pdm:LightPDM",
+    "soda_pdm:SodaPDM"
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
