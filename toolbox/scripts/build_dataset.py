@@ -53,13 +53,13 @@ def main() -> None:
     )
 
     # Sanity checks.
-    if args.output_name and args.print:
+    if args.output_name and args.print is not None:
         raise Exception("--output-name and --print are mutually exclusive.")
-    if args.skip and not args.print:
+    if args.skip and args.print is None:
         raise Exception("--skip can only be used in conjunction with --print.")
 
     # If the print argument was specified, print and exit.
-    if args.print:
+    if args.print is not None:
         _iterate_through_examples(args, do_print=True)
         sys.exit()
 
@@ -171,10 +171,6 @@ def _iterate_through_examples(args: argparse.Namespace,
                 episodes_to_skip -= 1
                 continue
 
-            idx += 1
-            if args.print and idx > args.print:
-                sys.exit()
-
             # Print a newline to visually separate different episodes.
             if idx != 1 and do_print:
                 print()
@@ -184,6 +180,9 @@ def _iterate_through_examples(args: argparse.Namespace,
 
             for episode, example in processor.process(episode):
                 idx += 1
+                if args.print is not None and idx > args.print:
+                    sys.exit()
+
                 for _filter in filters:
                     filter_name = str(_filter.__class__.__name__)
                     if _filter.keep(episode):
@@ -195,7 +194,7 @@ def _iterate_through_examples(args: argparse.Namespace,
                         continue
 
                 if do_print:
-                    print(color(" * Training Example:", fg="orange"))
+                    print(color("   | Training Example:", fg="orange"))
                     print(color(example.prompt, fg="gray"),
                           color(example.response, fg="green"))
 
