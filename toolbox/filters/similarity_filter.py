@@ -21,11 +21,21 @@ class SimilarityFilter(FilterCriteria):
         self.vectorizer = CountVectorizer()
 
     def keep(self, episode: Episode) -> bool:
+        if len(episode.turns) < 2:
+            # Episode too short to care about looping/repetition, just keep it.
+            return True
+
         bot_messages = [
             turn.utterance for turn in episode.turns if not turn.human_speaker
         ]
 
-        similarity_matrix = self._calculate_similarity_scores(bot_messages)
+        try:
+            similarity_matrix = self._calculate_similarity_scores(bot_messages)
+        except ValueError:
+            # A message is likely comprised entirely of stop words, so sklearn
+            # blows up. Assume best-case scenario and assume messages are not
+            # similar to each other.
+            similarity_matrix = [[0]]
         average_similarity_for_episode = 0.0
         for score in similarity_matrix[0]:
             if score == 1:
