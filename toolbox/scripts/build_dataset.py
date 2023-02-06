@@ -11,7 +11,7 @@ import subprocess
 import sys
 import typing as t
 
-from toolbox.core.episode import SupervisedEpisodeProcessor
+from toolbox.core.episode import SupervisedExampleGenerator
 from toolbox.core.filter_criteria import FilterCriteria
 from toolbox.modules import BaseModule
 

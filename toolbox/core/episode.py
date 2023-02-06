@@ -10,7 +10,7 @@ from toolbox.core.consts import PromptConstants
 LOG = logging.getLogger(__name__)
 
 
-class SupervisedEpisodeProcessor:
+class SupervisedExampleGenerator:
     '''
     Processes an episode down to supervised training examples.
 
