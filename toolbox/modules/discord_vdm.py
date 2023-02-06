@@ -17,6 +17,7 @@ import re
 import sqlite3
 import typing as t
 
+from toolbox.core.models import Episode, Turn
 from toolbox.modules import BaseModule
 from toolbox.utils.dataset import get_data_path
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 class DiscordVDM(BaseModule):
     '''A Vanilla Dialogue Module powered by Discord dumps.'''
 
-    def generator(self) -> t.Generator[list[str], None, None]:
+    def generator(self) -> t.Generator[Episode, None, None]:
         root_data_path = get_data_path("discord")
         db_path = os.path.join(root_data_path, "archive.dht")
         db = sqlite3.connect(db_path)
@@ -54,7 +55,7 @@ class DiscordVDM(BaseModule):
                     continue
 
                 # Discard conversations with overly short messages.
-                lengths = [len(x) for x in turns]
+                lengths = [len(x.utterance) for x in turns]
                 avg = sum(lengths) / len(lengths)
                 if avg < 64:
                     logger.debug(
@@ -62,7 +63,7 @@ class DiscordVDM(BaseModule):
                         avg)
                     continue
 
-                yield turns
+                yield Episode(turns=turns)
 
 
 #
@@ -114,7 +115,7 @@ def _build_episode_turns(
         db: sqlite3.Connection,
         sender_id: int,
         start_after_message_id: int | None = None
-) -> tuple[list[str], int] | None:
+) -> tuple[list[Turn], int] | None:
     logger.debug("Building episode for sender_id %s, starting after message %s",
                  sender_id, start_after_message_id)
 
@@ -172,7 +173,7 @@ def _build_episode_turns(
     person_a_id = sender_id
     person_b_id = None
     last_message_id = -1
-    turns: list[str] = []
+    turns: list[Turn] = []
 
     while (row := res.fetchone()) is not None:
         last_message_id = row["message_id"]
@@ -208,9 +209,9 @@ def _build_episode_turns(
             "user_id": row["sender_id"]
         }).fetchone()["name"]
 
-        # Build up the string and add it to the episode.
-        turn_string = f"{username}: {cleaned_text}"
-        turns.append(turn_string)
+        # Add the turn to the episode.
+        turns.append(
+            Turn(utterance=cleaned_text, speaker=username, human_speaker=False))
 
     if len(turns) == 0:
         logger.debug(
