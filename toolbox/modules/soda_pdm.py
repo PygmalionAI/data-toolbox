@@ -19,7 +19,11 @@ class SodaPDM(BaseModule):
             bot_name = episode.speakers[0]
             user_name = episode.speakers[1]
             turns: list[Turn] = []
-            personas = {bot_name: episode.literal}
+            personas = {
+                bot_name:
+                    episode.literal.replace(user_name,
+                                            PromptConstants.USER_TOKEN)
+            }
 
             # Make sure to replace any instance of the person representing the
             # user in the conversation with the user token.
