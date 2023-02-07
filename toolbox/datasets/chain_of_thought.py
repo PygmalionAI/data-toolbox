@@ -27,8 +27,6 @@ class CoTDataset(BaseDataset[CoTEpisode]):
     def generator(self) -> t.Generator[CoTEpisode, None, None]:
         # Go through CoT files
         for data in _available_jsonl_data():
-            # Parse out options from the question.
-
             yield CoTDataset(
                 question=data['question'],
                 answer=data['answer'],
