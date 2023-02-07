@@ -42,7 +42,7 @@ class CoTPDM(BaseModule):
             
 
 # Construct many different variations of answers.
-AFFIRMATIVES = ["Yes.", "Yep.", "Mhm.", "Yes.", "Oh yeah.", "Yeah.", "Indeed.", "Correct."]
+AFFIRMATIVES = ["Yes.", "Yep.", "Mhm.", "Oh yeah.", "Yeah.", "Indeed.", "Correct."]
 NEGATIVES = ["No.", "Nope.", "Nah."]
 PUNCTUATIONS = [".", "!", "?"]
 
