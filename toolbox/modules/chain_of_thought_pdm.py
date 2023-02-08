@@ -77,17 +77,6 @@ def _construct_persona() -> str:
 def _construct_answer(answer: str, chain_of_thought: str) -> str:
     '''Constructs a unique utterance by the bot from an answer and chain of thought'''
 
-    # .capitalize() converts any letter that's not the first one to lower case
-    # This decapitalizes proper nouns, which isn't desired. Therefore,
-    # do manual string manipulation
-    def process_other_answer(sentence):
-        sentence = list(sentence)
-        sentence[0] = sentence[0].upper()
-        # Add a period if answer isn't already punctuated
-        if sentence[-1] not in PUNCTUATIONS:
-            sentence.append(".")
-        return "".join(sentence)
-
     # If answer is specifically "yes" or "no", add in a random stock answer from the
     # earlier defined lists
     full_answer = ""
@@ -97,9 +86,18 @@ def _construct_answer(answer: str, chain_of_thought: str) -> str:
         full_answer = random.choice(NEGATIVES)
     else:
         # Format other answer to make it a little cleaner
-        full_answer = process_other_answer(answer)
+        full_answer = _process_other_answer(answer)
 
     # Add chain of thought.
     full_answer += f" {chain_of_thought}"
 
     return full_answer
+
+
+def _process_other_answer(original_sentence: str) -> str:
+    sentence = list(original_sentence)
+    sentence[0] = sentence[0].upper()
+    # Add a period if answer isn't already punctuated
+    if sentence[-1] not in PUNCTUATIONS:
+        sentence.append(".")
+    return "".join(sentence)
