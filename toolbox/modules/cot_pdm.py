@@ -33,9 +33,7 @@ class CoTPDM(BaseModule):
             turns: list[Turn] = [human_turn, bot_turn]
             personas = {PromptConstants.BOT_TOKEN: bot_persona}
 
-            yield Episode(
-                turns=turns,
-                participant_personas=personas)
+            yield Episode(turns=turns, participant_personas=personas)
 
 
 # Construct many different variations of answers.

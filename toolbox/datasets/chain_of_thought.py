@@ -9,11 +9,13 @@ from toolbox.utils.dataset import get_data_path
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass(frozen=True)
 class CoTEpisode:
     question: str
     answer: str
     chain_of_thought: str
+
 
 class CoTDataset(BaseDataset[CoTEpisode]):
     '''
@@ -27,13 +29,13 @@ class CoTDataset(BaseDataset[CoTEpisode]):
     def generator(self) -> t.Generator[CoTEpisode, None, None]:
         # Go through CoT files
         for data in _available_jsonl_data():
-            yield CoTEpisode(
-                question=data['question'],
-                answer=data['answer'],
-                chain_of_thought=data['chain_of_thought']
-            )
+            yield CoTEpisode(question=data['question'],
+                             answer=data['answer'],
+                             chain_of_thought=data['chain_of_thought'])
+
 
 # Private helpers
+
 
 def _enumerate_jsonl_files(root_path: str) -> list[str]:
     '''Returns a list of files available in the given `root_path`.'''
@@ -50,6 +52,7 @@ def _enumerate_jsonl_files(root_path: str) -> list[str]:
         files.append(absolute_file_path)
 
     return files
+
 
 def _available_jsonl_data() -> t.Generator[dict[str, t.Any], None, None]:
     '''
