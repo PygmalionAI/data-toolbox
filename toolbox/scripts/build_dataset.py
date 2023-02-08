@@ -20,10 +20,8 @@ from toolbox.modules import BaseModule
 # TODO(11b): Needs manual maintenance to keep up-to-date. Consider doing some
 # metaprogramming trickery to build this list out instead.
 DEFAULT_MODULE_LIST = [
-    "characterai_pdm:CharacterAiPDM",
-    "discord_vdm:DiscordVDM",
-    "kajiwoto_pdm:KajiwotoPDM",
-    "light_dialogue_pdm:LightPDM",
+    "characterai_pdm:CharacterAiPDM", "discord_vdm:DiscordVDM",
+    "kajiwoto_pdm:KajiwotoPDM", "light_dialogue_pdm:LightPDM",
     "soda_pdm:SodaPDM"
 ]
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
