@@ -27,7 +27,7 @@ class CoTDataset(BaseDataset[CoTEpisode]):
     def generator(self) -> t.Generator[CoTEpisode, None, None]:
         # Go through CoT files
         for data in _available_jsonl_data():
-            yield CoTDataset(
+            yield CoTEpisode(
                 question=data['question'],
                 answer=data['answer'],
                 chain_of_thought=data['chain_of_thought']
@@ -48,7 +48,7 @@ def _enumerate_jsonl_files(root_path: str) -> list[str]:
 
         absolute_file_path = os.path.abspath(item_path)
         files.append(absolute_file_path)
-    
+
     return files
 
 def _available_jsonl_data() -> t.Generator[dict[str, t.Any], None, None]:
