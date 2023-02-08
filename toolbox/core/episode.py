@@ -96,7 +96,7 @@ class SupervisedExampleGenerator:
             # Collapse `cur_turns` down into text.
             prompt = base_prompt
             prompt += "\n".join(
-                [f"{t.speaker}: {t.utterance}" for t in cur_turns[:-1]])
+                [f"{t.speaker}: {t.utterance.strip()}" for t in cur_turns[:-1]])
 
             # Append response prefix into `cur_prompt`, and yield the
             # example.
@@ -107,11 +107,12 @@ class SupervisedExampleGenerator:
                 world_scenario=original_episode.world_scenario,
             )
             example = SupervisedExample(prompt=prompt,
-                                        response=last_turn.utterance)
+                                        response=last_turn.utterance.strip())
 
             # Sanity check so I can catch this easier in case I break
             # something.
-            example_len = self._tokenized_length(prompt + last_turn.utterance)
+            example_len = self._tokenized_length(prompt +
+                                                 last_turn.utterance.strip())
             if example_len > self.target_length:
                 LOG.warning(
                     f"Generated an example too large ({example_len} > {self.target_length})"
