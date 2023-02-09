@@ -28,7 +28,7 @@ class CoTDataset(BaseDataset[CoTEpisode]):
 
     def generator(self) -> t.Generator[CoTEpisode, None, None]:
         for path in enumerate_dataset_files("chain_of_thought",
-                                            file_extensions=[".jsonl"]):
+                                            file_extension=".jsonl"):
             with open(path, "r", encoding="utf-8") as file:
                 for line in file:
                     data = json.loads(line)

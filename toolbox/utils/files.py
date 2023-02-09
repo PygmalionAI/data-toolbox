@@ -6,20 +6,25 @@ from toolbox.utils.dataset import get_data_path
 LOG = logging.getLogger(__name__)
 
 
-def enumerate_dataset_files(datset_name: str,
-                            file_extensions: list[str]) -> list[str]:
+def enumerate_dataset_files(
+    datset_name: str,
+    file_extension: str,
+    subfolder: str | None = None,
+) -> list[str]:
     '''Returns a list of files available for the given dataset.'''
     dataset_path = get_data_path(dataset_name=datset_name)
-    items = os.listdir(dataset_path)
+    final_path = dataset_path if subfolder is None else os.path.join(
+        dataset_path, subfolder)
+    items = os.listdir(final_path)
 
     files: list[str] = []
     for item in items:
-        item_path = os.path.join(dataset_path, item)
+        item_path = os.path.join(final_path, item)
         if not os.path.isfile(item_path):
             # We don't care about folders.
             continue
 
-        if not any([item_path.endswith(ext) for ext in file_extensions]):
+        if not item_path.endswith(file_extension):
             # Ignore invalid file extensions.
             continue
 

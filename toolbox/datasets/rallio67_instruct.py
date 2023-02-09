@@ -23,7 +23,7 @@ class Rallio67InstructDataset(BaseDataset[InstructionExample]):
 
     def generator(self) -> t.Generator[InstructionExample, None, None]:
         for path in enumerate_dataset_files("rallio67",
-                                            file_extensions=[".jsonl"]):
+                                            file_extension=".jsonl"):
             with open(path, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 for entry in data:

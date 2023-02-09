@@ -19,8 +19,7 @@ class SafeR1Dataset(BaseDataset[InstructionExample]):
     '''Synthetically-generated instruction following dataset.'''
 
     def generator(self) -> t.Generator[InstructionExample, None, None]:
-        for path in enumerate_dataset_files("safe_r1",
-                                            file_extensions=[".jsonl"]):
+        for path in enumerate_dataset_files("safe_r1", file_extension=".jsonl"):
             with open(path, "r", encoding="utf-8") as file:
                 for line in file:
                     data = json.loads(line)
