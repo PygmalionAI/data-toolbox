@@ -9,7 +9,7 @@ from toolbox.modules import BaseModule
 
 LOG = logging.getLogger(__name__)
 
-MASK_CHARACTER_NAMES = False
+MASK_CHARACTER_NAMES = True
 
 
 class CharacterAiPDM(BaseModule):
