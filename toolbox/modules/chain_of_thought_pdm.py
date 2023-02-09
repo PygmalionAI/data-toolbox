@@ -1,3 +1,4 @@
+import logging
 import random
 import typing as t
 
@@ -5,6 +6,8 @@ from toolbox.core.consts import PromptConstants
 from toolbox.core.models import Episode, Turn
 from toolbox.datasets.chain_of_thought import CoTDataset
 from toolbox.modules import BaseModule
+
+LOG = logging.getLogger(__name__)
 
 
 class CoTPDM(BaseModule):
@@ -15,25 +18,41 @@ class CoTPDM(BaseModule):
     Therefore, we make a synthetic PDM consisting of somewhat randomly generated personas.
     '''
 
+    SYNTHETIC_PERSONAS = [
+        "Does their best to answer the user's questions",
+        "Explains their answers whenever they are asked a question",
+        "Logically reasons about their responses", "Intelligent", "Logical",
+        "Blunt and to the point", "Short, rational answers"
+    ]
+
     def generator(self) -> t.Generator[Episode, None, None]:
         for entry in CoTDataset():
-            # Format bot's answer and persona
-            bot_answer = _construct_answer(
-                answer=entry.answer, chain_of_thought=entry.chain_of_thought)
-            bot_persona = _construct_persona()
+            try:
+                # Format bot's answer and persona
+                bot_answer = _construct_answer(
+                    answer=entry.answer,
+                    chain_of_thought=entry.chain_of_thought)
+                bot_persona = self._generate_synthetic_persona_string()
 
-            # Write the human turn with the question
-            human_turn = Turn(utterance=entry.question,
-                              speaker=PromptConstants.USER_TOKEN,
-                              human_speaker=True)
-            # Then the bot's
-            bot_turn = Turn(utterance=bot_answer,
-                            speaker=PromptConstants.BOT_TOKEN,
-                            human_speaker=False)
-            turns: list[Turn] = [human_turn, bot_turn]
-            personas = {PromptConstants.BOT_TOKEN: bot_persona}
+                # Write the human turn with the question
+                human_turn = Turn(utterance=entry.question,
+                                  speaker=PromptConstants.USER_TOKEN,
+                                  human_speaker=True)
+                # Then the bot's
+                bot_turn = Turn(utterance=bot_answer,
+                                speaker=PromptConstants.BOT_TOKEN,
+                                human_speaker=False)
+                turns: list[Turn] = [human_turn, bot_turn]
+                personas = {PromptConstants.BOT_TOKEN: bot_persona}
 
-            yield Episode(turns=turns, participant_personas=personas)
+                yield Episode(turns=turns, participant_personas=personas)
+            except IndexError as ex:
+                LOG.error("Error constructing episode, skipping: %s", ex)
+
+    def _generate_synthetic_persona_string(self) -> str:
+        selected_personas = random.sample(self.SYNTHETIC_PERSONAS, 5)
+        random.shuffle(selected_personas)
+        return ". ".join(selected_personas) + "."
 
 
 # Construct many different variations of answers.
@@ -42,36 +61,6 @@ AFFIRMATIVES = [
 ]
 NEGATIVES = ["No.", "Nope.", "Nah."]
 PUNCTUATIONS = [".", "!", "?"]
-
-
-def _construct_persona() -> str:
-    '''Constructs a persona related to answering questions at random.'''
-    # Only allow this many traits in the persona description.
-    BOT = PromptConstants.BOT_TOKEN
-    MAX_TRAITS = 4
-    # Long list.
-    traits = [
-        f"{BOT} is wise", f"{BOT} is logical",
-        f"{BOT} thinks critically about things", "Intelligent", "Rational",
-        f"{BOT} explains their answers whenever they are asked a question",
-        "Critical thinker", f"{BOT} is intelligent", "Logical", "Wise",
-        f"{BOT} is a thinker", f"{BOT} often uses reason in their replies"
-    ]
-
-    # Construct persona string
-    selected_traits = []
-    for _ in range(MAX_TRAITS):
-        # 70% chance of adding another trait.
-        if random.random() > 0.3:
-            chosen_trait = random.choice(traits)
-            selected_traits.append(chosen_trait)
-            # Prevent duplicate traits from showing up
-            traits.remove(chosen_trait)
-
-    # Account for the rare case where 0 traits are added
-    traits_string = ". ".join(
-        selected_traits) if len(selected_traits) > 0 else ""
-    return traits_string
 
 
 def _construct_answer(answer: str, chain_of_thought: str) -> str:
