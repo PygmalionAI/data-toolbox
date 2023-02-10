@@ -1,4 +1,4 @@
-name: Pygmalion UI Front End - Build / Quality Control
+name: Pygmalion Data Toolbox - Quality Control
 
 permissions:
   # This is required for actions/checkout
