@@ -16,4 +16,6 @@ def get_data_path(dataset_name: t.Optional[str] = None) -> str:
     if dataset_name:
         components.append(dataset_name)
 
-    return os.path.join(*components)
+    path = os.path.join(*components)
+    os.makedirs(path, exist_ok=True)
+    return path
