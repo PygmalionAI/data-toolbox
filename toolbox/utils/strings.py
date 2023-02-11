@@ -61,3 +61,10 @@ def uppercase(string: str) -> str:
         return string
     else:
         return string[0].upper() + string[1:]
+
+def is_first_and_last_char(line: str, char_to_find: str) -> bool:
+    '''Detects whether a character is present as both the first and last character in a string'''
+    if line.lstrip()[0] == char_to_find and line.rstrip[-1] == char_to_find:
+        return True
+    else:
+        return False
