@@ -46,7 +46,12 @@ class VisualNovelPDM(BaseModule):
             # in the VNDB, grab their personas
             if scene.chars is not None:
                 for character in scene.chars.keys():
-                    personas[character] = _get_persona_for(scene.chars[character])
+                    # _get_persona_for takes in an int, but we have a string
+                    # Fix this.
+                    char_id = scene.chars[character]
+                    # Every id is "c[N]", where n is the actual ID
+                    char_id = int(char_id[1:])
+                    personas[character] = _get_persona_for(char_id)
                 yield Episode(
                     turns=turns,
                     participant_personas=personas
