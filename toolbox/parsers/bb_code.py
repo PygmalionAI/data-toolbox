@@ -53,7 +53,7 @@ class BBCtoMD:
             r"\\u00e9|\u00e9": "é",
             r"\\u00ab|\u00ab": "«",
             # Remove any remaining links, nonsense user tags, unicode whitespaces, et cetera
-            r"<a.+<\/a>|\[#pgcomm\]|-+\\n|-+\n|\\u012|\\u00a0|\[br\]| |<iframe.+>": '',
+            r"<a.+<\/a>|\[#pgcomm\]|-+\\n|-+\n|\\u012|\\u00a0|\[br\]| |<iframe.+>|&loz;": '',
         }
         self.parse_image = image_parser(cache_conn, img_model_name)
 
