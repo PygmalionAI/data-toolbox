@@ -5,6 +5,9 @@ enjim:
   # The max characters in a single statement from a human or bot before it's broken up.
   max_utterance_chars: 1500
 
+  # If there are more than this many chars in a single post, the entire thread is discarded.
+  cutoff_utterance_chars: 10000
+
   # Percentage of non-OP posts necessary for thread to be considered a valid multi-person roleplay.
   minimum_external_participation: 0.25
 
@@ -12,7 +15,7 @@ enjim:
   min_posts_cutoff: 10
 
   # The approximate number of characters the summarization model can handle at once.
-  summary_char_limit: 3400
+  summary_char_limit: 3000
 
   # Char limit for scenarios before summarizing.
   max_scenario_chars: 1000
@@ -23,22 +26,25 @@ enjim:
   # The image recognition model to use.
   img_recognition_model: "nlpconnect/vit-gpt2-image-captioning"
 
+  # The location of the initial cache file.
+  cache_db: 'https://files.catbox.moe/kow8f0.db'
+
   sources:
     secretworld:
       path: 'https://files.catbox.moe/XXXXXXX.db'
-      preset_id: 5359865
+      preset_id: '5359865'
       character_forums: ['1244856']
       roleplay_forums: ['1244866']
       other_forums: ['1244872']
     ESO:
       path: 'https://files.catbox.moe/XXXXXXX.db'
-      preset_id:
+      preset_id: '9324623'
       character_forums: [ '7284244', '7265336', '7265338' ]
       roleplay_forums: [ '1956980' ]
       other_forums: [ '1957130', '2273977', '6443584']
     GW2:
       path: 'https://files.catbox.moe/XXXXXXX.db'
-      preset_id:
+      preset_id: '2737230'
       character_forums: [ '2927425', '2927462', '2927458', '2927434', '2927444', '2927463', '2927468', '2927460', '2927457', '2927469', '2927459']
       roleplay_forums: [ '673041' ]
       other_forums: [ '2927474', '673031', '2927475' ]
