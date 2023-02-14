@@ -34,8 +34,8 @@ jobs:
     
       - name: Update PATH
         run: |
-          export PATH="{steps.setup_pdm.outputs.python-path}:$PATH" \ 
-          export PATH="{steps.setup_pdm.outputs.pdm-bin}:$PATH" \ 
+          export PATH="${{ steps.setup_pdm.outputs.python-path }}:$PATH" \ 
+          export PATH="${{ steps.setup_pdm.outputs.pdm-bin }}:$PATH" \ 
           echo $PATH
 
       - name: Install dependencies
