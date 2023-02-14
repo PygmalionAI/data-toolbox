@@ -32,14 +32,9 @@ jobs:
           cache: true
           cache-dependency-path: '**/pdm.lock'
     
-      - name: Update PATH
-        run: |
-          export PATH="${{ steps.setup_pdm.outputs.python-path }}:$PATH"
-          export PATH="${{ steps.setup_pdm.outputs.pdm-bin }}:$PATH"
-          echo $PATH
-
       - name: Install dependencies
-        run: pdm install
+        # Include Optional Dependencies from group 'dev' (lint / importcheck / stylecheck / typecheck)
+        run: pdm install -G dev
         
       - name: Lint
         if: success() || failure()
