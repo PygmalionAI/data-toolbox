@@ -1,0 +1,4 @@
+[default]
+region = ap-southeast-2
+output = json
+cli_pager=

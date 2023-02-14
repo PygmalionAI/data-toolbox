@@ -13,14 +13,15 @@ env:
   pdf-version: 2.4.5
 
 jobs:
-  dependencies:
-    name: Install Dependencies
+  qualitycontrol:
+    name: Lint / Import / Style / Type Checks
     runs-on: ubuntu-latest
     steps:    
       - name: Checkout Repo
         uses: actions/checkout@v3
 
       - name: Setup PDM
+        id: setup_pdm
         uses: pdm-project/setup-pdm@v3
         with:
           python-version: ${{  env.python-version  }}  # Version range or exact version of a Python version to use, the same as actions/setup-python
@@ -29,10 +30,14 @@ jobs:
           prerelease: false     # Allow prerelease versions to be installed
           enable-pep582: true  # Enable PEP 582 package loading globally
           cache: true
-          cache-dependency-path: |
-            ./pdm.lock
-            ./pdm.new.lock
+          cache-dependency-path: '**/pdm.lock'
     
+      - name: Update PATH
+        run: |
+          export PATH="${steps.setup_pdm.outputs.python-path}:$PATH" 
+          export PATH="${steps.setup_pdm.outputs.pdm-bin}:$PATH"
+          echo $PATH
+
       - name: Install dependencies
         run: pdm install
         
