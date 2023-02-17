@@ -56,7 +56,7 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
 
                 bot_info = _bot_info_from_dict(data["character"])
                 bot_id_to_info_dict[bot_info.external_id] = bot_info
-            except ValueError as ex:
+            except (AttributeError, KeyError, ValueError) as ex:
                 logger.warning("Skipping over exception: %s", ex)
 
         # Now do a second pass, to actually handle chat histories/messages.
@@ -74,7 +74,7 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
                 for history_dict in data["histories"]["histories"]:
                     messages = _messages_from_dict(history_dict["msgs"])
                     yield CaiChat(bot=bot_info, messages=messages)
-            except ValueError as ex:
+            except (AttributeError, KeyError, ValueError) as ex:
                 logger.warning("Skipping over exception: %s", ex)
 
 
@@ -124,7 +124,7 @@ def _bot_info_from_dict(info_dict: dict[str, t.Any]) -> CaiBotInfo:
         title=info_dict["title"],
         # This comes in as an empty string instead of `null` in the JSON when
         # it's not defined for some reason, so we cast to None here for clarity.
-        description=info_dict["description"] or None,
+        description=info_dict.get("description") or None,
         greeting=info_dict["greeting"],
         definitions=info_dict.get("definition"),
         external_id=info_dict["external_id"],
