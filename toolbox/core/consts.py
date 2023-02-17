@@ -4,6 +4,9 @@ class PromptConstants:
     # Prefix for user messages.
     USER_PREFIX = "You"
 
+    # Prefix for external knowledge grounding messages.
+    KNOWLEDGE_PREFIX = "Relevant Information"
+
     # Token to be replaced with the user's display name within bot messages.
     USER_TOKEN = "<USER>"
 
