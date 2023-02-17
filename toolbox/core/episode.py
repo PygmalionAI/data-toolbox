@@ -100,7 +100,7 @@ class SupervisedExampleGenerator:
 
             # Append response prefix into `cur_prompt`, and yield the
             # example.
-            prompt += f"\n{last_turn.speaker}:"
+            prompt += f"\n{last_turn.speaker}: "
             trimmed_episode = Episode(
                 turns=cur_turns,
                 participant_personas=original_episode.participant_personas,
