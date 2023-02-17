@@ -34,8 +34,9 @@ class ParlAiSdgtDataset(BaseDataset[SearchDialogueGenerationTeacherExample]):
         self
     ) -> t.Generator[SearchDialogueGenerationTeacherExample, None, None]:
         root_data_path = get_data_path("parlai")
-        json_file_path = os.path.join(
-            root_data_path, "SearchDialogueGenerationTeacher", "train.jsonl")
+        json_file_path = os.path.join(root_data_path,
+                                      "SearchDialogueGenerationTeacher",
+                                      "train.jsonl")
 
         with open(json_file_path, "r") as file:
             for line in file:
