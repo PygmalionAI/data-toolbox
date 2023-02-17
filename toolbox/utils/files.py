@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 from toolbox.utils.dataset import get_data_path
 
