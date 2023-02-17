@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import os
 import typing as t
 from dataclasses import dataclass
@@ -97,7 +98,19 @@ def _enumerate_json_files(root_path: str) -> list[str]:
         absolute_file_path = os.path.abspath(os.path.join(root_path, item))
         files.append(absolute_file_path)
 
-    return files
+    # Super nasty code to allow generation of CAI data with separate processes
+    # so I can speed it up. Pass the "SHARD" and "TOTAL_SHARDS" environment
+    # variables to operate on the different parts of the data.
+    if "SHARD" not in os.environ:
+        return files
+
+    TOTAL_SHARDS = int(os.environ.get("TOTAL_SHARDS", 10))
+    items_per_shard = math.floor(len(files) / TOTAL_SHARDS)
+
+    shard = int(os.environ["SHARD"])
+    file_range = (items_per_shard * shard, (items_per_shard * (shard + 1)) - 1)
+
+    return files[file_range[0]:file_range[1]]
 
 
 def _available_json_data() -> t.Generator[dict[str, t.Any], None, None]:
