@@ -1,0 +1,74 @@
+enjim:
+  # The maximum number of characters in a user's persona before it is summarized.
+  max_persona_chars: 1000
+
+  # The max characters in a single statement from a human or bot before it's broken up.
+  max_utterance_chars: 1500
+
+  # If there are more than this many chars in a single post, the entire thread is discarded.
+  cutoff_utterance_chars: 10000
+
+  # Percentage of non-OP posts necessary for thread to be considered a valid multi-person roleplay.
+  minimum_external_participation: 0.25
+
+  # The minimum number of posts in a thread.
+  min_posts_cutoff: 10
+
+  # The approximate number of characters the summarization model can handle at once.
+  summary_char_limit: 3000
+
+  # Char limit for scenarios before summarizing.
+  max_scenario_chars: 1000
+
+  # The Named Entity Recognition model to use. Used for figuring out which character a user is playing as.
+  ner_model: "Jean-Baptiste/roberta-large-ner-english"
+
+  # The image recognition model to use.
+  img_recognition_model: "nlpconnect/vit-gpt2-image-captioning"
+
+  # The location of the initial cache file.
+  cache_db: 'https://files.catbox.moe/kow8f0.db'
+
+  sources:
+    secretworld:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id: '5359865'
+      character_forums: ['1244856']
+      roleplay_forums: ['1244866']
+      other_forums: ['1244872']
+    ESO:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id: '9324623'
+      character_forums: [ '7284244', '7265336', '7265338' ]
+      roleplay_forums: [ '1956980' ]
+      other_forums: [ '1957130', '2273977', '6443584']
+    GW2:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id: '2737230'
+      character_forums: [ '2927425', '2927462', '2927458', '2927434', '2927444', '2927463', '2927468', '2927460', '2927457', '2927469', '2927459']
+      roleplay_forums: [ '673041' ]
+      other_forums: [ '2927474', '673031', '2927475' ]
+    SWTOR-Starforge:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id:
+      character_forums: [ '3282101' ]
+      roleplay_forums: [ '3282365', '3286053' ]
+      other_forums: [ '3282394', '3282102' ]
+    SWTOR-Malgus:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id:
+      character_forums: [ '8659181', '8775611', '9268554' ]
+      roleplay_forums: [ '9468751' ]
+      other_forums: [ '8656831', '8659204' ]
+    Star-Trek-Online:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id:
+      character_forums: [ '2115071', '2115080' ]
+      roleplay_forums: [ '2552224', '2115149' ]
+      other_forums: [ '1481092', '2002200', '7533699']
+    Aion:
+      path: 'https://files.catbox.moe/XXXXXXX.db'
+      preset_id: 16093153
+      character_forums: ['3246488', '3275437']
+      roleplay_forums: ['3246509']
+      other_forums: ['3246508', '3246501', '3246503']
