@@ -35,9 +35,6 @@ class LengthFilter(FilterCriteria):
         chance_to_drop = self._chance_to_drop(median_word_count)
 
         should_drop = chance_to_drop <= random_float
-        if should_drop and False:
-            import pdb
-            pdb.set_trace()
         return should_drop
 
     def _chance_to_drop(self, median_word_count: int) -> float:
