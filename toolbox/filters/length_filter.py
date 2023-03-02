@@ -17,7 +17,7 @@ class LengthFilter(FilterCriteria):
 
         # Anything below or at this threshold will have a 100% chance of being
         # dropped.
-        self.MINIMUM_MEDIAN_WORD_COUNT = 2
+        self.MINIMUM_MEDIAN_WORD_COUNT = 8
 
         super().__init__()
 
