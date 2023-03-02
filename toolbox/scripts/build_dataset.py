@@ -192,6 +192,7 @@ def _iterate_through_examples(args: argparse.Namespace,
                 if args.print is not None and idx > args.print:
                     sys.exit()
 
+                should_drop_episode = False
                 for _filter in filters:
                     filter_name = str(_filter.__class__.__name__)
                     if _filter.keep(episode):
@@ -200,7 +201,11 @@ def _iterate_through_examples(args: argparse.Namespace,
                         filter_drop_count[filter_name] += 1
                         LOG.debug("Dropping episode due to %s filter",
                                   filter_name)
-                        continue
+                        should_drop_episode = True
+                        break
+
+                if should_drop_episode:
+                    continue
 
                 if do_print:
                     print(color("   | Training Example:", fg="orange"))
