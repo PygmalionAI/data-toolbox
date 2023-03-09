@@ -1,0 +1,53 @@
+name: Pygmalion Data Toolbox - Quality Control
+
+permissions:
+  # This is required for actions/checkout
+  contents: read 
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:   
+
+env:
+  python-version: 3.11
+  pdf-version: 2.4.5
+
+jobs:
+  qualitycontrol:
+    name: Lint / Import / Style / Type Checks
+    runs-on: ubuntu-latest
+    steps:    
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup PDM
+        id: setup_pdm
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{  env.python-version  }}  # Version range or exact version of a Python version to use, the same as actions/setup-python
+          version: ${{  env.pdm-version  }}        # Version of PDM to install
+          architecture: x64    # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
+          prerelease: false     # Allow prerelease versions to be installed
+          enable-pep582: true  # Enable PEP 582 package loading globally
+          cache: true
+          cache-dependency-path: '**/pdm.lock'
+    
+      - name: Install dependencies
+        # Include Optional Dependencies from group 'dev' (lint / importcheck / stylecheck / typecheck)
+        run: pdm install -G dev
+        
+      - name: Lint
+        if: success() || failure()
+        run: pdm lint
+
+      - name: Import Check
+        if: success() || failure()
+        run: pdm importcheck
+
+      - name: Style Check
+        if: success() || failure()
+        run: pdm stylecheck
+
+      - name: Type Check
+        if: success() || failure()
+        run: pdm typecheck
