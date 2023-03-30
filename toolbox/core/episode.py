@@ -13,7 +13,6 @@ LOG = logging.getLogger(__name__)
 # can instead use an estimation instead if we're OK with dropping some examples
 # at training time.
 AVG_TOKEN_TO_WORD_RATIO = 1.7
-RETURN_ESTIMATION = True
 
 
 class SupervisedExampleGenerator:
@@ -25,7 +24,8 @@ class SupervisedExampleGenerator:
     window after being tokenized.
     '''
 
-    def __init__(self, tokenizer_name: str, target_length: int) -> None:
+    def __init__(self, tokenizer_name: str, target_length: int,
+                 use_real_token_counts: bool) -> None:
         '''
         :param tokenizer_name: The name of the tokenizer to feed to
             HuggingFace's `from_pretrained()`
@@ -34,6 +34,7 @@ class SupervisedExampleGenerator:
         self.tokenizer: tokenizers.Tokenizer = tokenizers.Tokenizer.from_pretrained(
             tokenizer_name)
         self.target_length = target_length
+        self.use_real_token_counts = use_real_token_counts
 
         super().__init__()
 
@@ -100,7 +101,7 @@ class SupervisedExampleGenerator:
 
             # Append response prefix into `cur_prompt`, and yield the
             # example.
-            prompt += f"\n{last_turn.speaker}:"
+            prompt += f"\n{last_turn.speaker}: "
             trimmed_episode = Episode(
                 turns=cur_turns,
                 participant_personas=original_episode.participant_personas,
@@ -133,7 +134,8 @@ class SupervisedExampleGenerator:
 
     def _tokenized_length(self, string: str) -> int:
         '''Returns the length of the given `string`, in tokens.'''
-        if RETURN_ESTIMATION:
-            word_count = len(string.split())
-            return round(word_count * AVG_TOKEN_TO_WORD_RATIO)
-        return len(self.tokenizer.encode(string))
+        if self.use_real_token_counts:
+            return len(self.tokenizer.encode(string))
+
+        word_count = len(string.split())
+        return round(word_count * AVG_TOKEN_TO_WORD_RATIO)

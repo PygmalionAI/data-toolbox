@@ -19,6 +19,8 @@ dependencies = [
     "langdetect>=1.0.9",
     "tokenizers>=0.13.2",
     "ansicolors>=1.1.8",
+    "markdownify>=0.11.6",
+    "html5lib>=1.1",
 ]
 
 [project.optional-dependencies]

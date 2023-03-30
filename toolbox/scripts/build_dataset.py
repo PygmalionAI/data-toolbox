@@ -27,14 +27,15 @@ DEFAULT_MODULE_LIST = [
 DEFAULT_MODULES_STRING = ",".join(DEFAULT_MODULE_LIST)
 
 DEFAULT_FILTER_LIST = [
+    "length_filter:LengthFilter",
     "duplicate_filter:DuplicateFilter",
+    "suspect_unicode_filter:SuspectUnicodeFilter",
+    "tomato_filter:TomatoFilter",
+    "similarity_filter:SimilarityFilter",
     # This is a whopping ~48% of total runtime when enabled, and it ends up
     # filtering less than 3% of the episodes. I don't think this is worth the
     # performance hit, so I'll disable it by default.
     # "language_filter:LanguageFilter",
-    "similarity_filter:SimilarityFilter",
-    "suspect_unicode_filter:SuspectUnicodeFilter",
-    "tomato_filter:TomatoFilter",
 ]
 DEAFULT_FILTERS_STRING = ",".join(DEFAULT_FILTER_LIST)
 
@@ -140,6 +141,14 @@ def _parse_args_from_argv() -> argparse.Namespace:
         type=int,
         help="Target length (in tokens) for the training examples.")
 
+    parser.add_argument(
+        "-r",
+        "--use-real-token-counts",
+        action="store_true",
+        help=
+        "Use real token counts instead of an approximation based on word count (aruond 3x slower)"
+    )
+
     parser.add_argument("-v",
                         "--verbose",
                         action="store_true",
@@ -160,7 +169,8 @@ def _iterate_through_examples(args: argparse.Namespace,
     filter_drop_count: dict[str, int] = collections.defaultdict(int)
     filter_keep_count: dict[str, int] = collections.defaultdict(int)
     processor = SupervisedExampleGenerator(args.tokenizer_name,
-                                           args.target_example_length)
+                                           args.target_example_length,
+                                           args.use_real_token_counts)
 
     idx = 0
     episodes_to_skip = args.skip if args.skip is not None else None
@@ -182,6 +192,7 @@ def _iterate_through_examples(args: argparse.Namespace,
                 if args.print is not None and idx > args.print:
                     sys.exit()
 
+                should_drop_episode = False
                 for _filter in filters:
                     filter_name = str(_filter.__class__.__name__)
                     if _filter.keep(episode):
@@ -190,7 +201,11 @@ def _iterate_through_examples(args: argparse.Namespace,
                         filter_drop_count[filter_name] += 1
                         LOG.debug("Dropping episode due to %s filter",
                                   filter_name)
-                        continue
+                        should_drop_episode = True
+                        break
+
+                if should_drop_episode:
+                    continue
 
                 if do_print:
                     print(color("   | Training Example:", fg="orange"))
@@ -215,6 +230,8 @@ def _iterate_through_examples(args: argparse.Namespace,
         total = dropped + kept
         LOG.info("%s: %i out of %i examples dropped (%f%%)", filter_name,
                  dropped, total, round((dropped / total) * 100, 2))
+
+    LOG.info("Finished!")
 
 
 def _get_git_revision_short_hash() -> str:
