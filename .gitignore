@@ -1,0 +1,12 @@
+# Cache files.
+/*.egg-info/
+**/__pycache__/
+/.mypy_cache/
+
+# Machine-specific stuff.
+/.pdm.toml
+/.venv/
+
+# Large/binary files.
+/data/*
+!/data/.keep
