@@ -38,7 +38,7 @@ class HumanRoleplayTask(BaseTask):
                     cleaned_message = OOC_REGEX.sub('', cleaned_message).strip()
 
                 turn = Turn(
-                    utterance=message.message,
+                    utterance=cleaned_message,
                     kind=TurnKind.USER if i % 2 == 0 else TurnKind.MODEL
                 )
                 turns.append(turn)
