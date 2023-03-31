@@ -22,7 +22,7 @@ class HumanRoleplayTask(BaseTask):
         for thread in RPDataset():
             # If thread is only 1 message long, cut it out
             if len(thread.messages) <= 1:
-                LOG.debug("Skipping thread with only one reply")
+                LOG.debug(f'Skipping thread "{thread.thread_name}" with only one message')
                 continue
 
             # System prompt
