@@ -47,7 +47,7 @@ class HumanRoleplayTask(BaseTask):
 
 OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
 
-# TODO(TG): Implement a function in to fully deal with HTTP in the data.
+# TODO(TG): Implement a function in to fully deal with HTML in the data.
 # We want to convert that to Markdown when applicable,
 # and remove it when not applicable.
 
