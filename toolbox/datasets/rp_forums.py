@@ -1,9 +1,7 @@
-import json
+import csv
 import logging
 import typing as t
 from dataclasses import dataclass
-
-import pandas as pd
 
 from toolbox.core.dataset import BaseDataset
 from toolbox.utils.files import enumerate_files_for
@@ -27,26 +25,29 @@ class RpForumsDataset(BaseDataset[RpThread]):
     '''Data from several different roleplay forums.'''
 
     def __iter__(self) -> t.Generator[RpThread, None, None]:
-        for path in enumerate_files_for(dataset_name="rp",
+        for path in enumerate_files_for(dataset_name="rp_forums",
                                         file_extension=".csv"):
-            df = pd.read_csv(path)
-            # Store a buffer of the previous thread
-            previous_thread = None
-            current_thread = None
-            messages = []
+            with open(path, "r") as file:
+                reader = csv.DictReader(file, delimiter=",")
 
-            for _, row in df.iterrows():
-                if row['thread_title'] != previous_thread:
-                    previous_thread = current_thread
-                    if len(messages) != 0:
-                        yield RpThread(messages=messages,
-                                       thread_name=previous_thread)
-                    messages = []
-                current_thread = row['thread_title']
+                # Store a buffer of the previous thread
+                previous_thread = None
+                current_thread = None
+                messages: list[RpMessage] = []
 
-                message = RpMessage(author=row['message_username'],
-                                    message=row['message'])
-                messages.append(message)
-                # Check for duplicate messages by same author, they indeed exist in the dataset
-                if len(set(messages)) != len(messages):
-                    messages = messages[:-1]
+                for row in reader:
+                    if row['thread_title'] != previous_thread:
+                        previous_thread = current_thread
+                        if len(messages) != 0:
+                            assert previous_thread is not None
+                            yield RpThread(messages=messages,
+                                           thread_name=previous_thread)
+                        messages = []
+                    current_thread = row['thread_title']
+
+                    message = RpMessage(author=row['message_username'],
+                                        message=row['message'])
+                    messages.append(message)
+                    # Check for duplicate messages by same author, they indeed exist in the dataset
+                    if len(set(messages)) != len(messages):
+                        messages = messages[:-1]
