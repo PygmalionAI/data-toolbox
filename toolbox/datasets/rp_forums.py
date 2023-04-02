@@ -23,8 +23,8 @@ class RpThread:
     thread_name: str
 
 
-class RpDataset(BaseDataset[RpThread]):
-    '''Loading roleplay datasets from .csv files.'''
+class RpForumsDataset(BaseDataset[RpThread]):
+    '''Data from several different roleplay forums.'''
 
     def __iter__(self) -> t.Generator[RpThread, None, None]:
         for path in enumerate_files_for(dataset_name="rp",
