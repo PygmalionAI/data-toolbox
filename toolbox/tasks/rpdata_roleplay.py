@@ -5,13 +5,15 @@ import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
-from toolbox.datasets.rp_data import RPDataset
+from toolbox.datasets.rp_data import RpDataset
 from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
+
 class HumanRoleplayTask(BaseTask):
     '''Task to generate an appropriate roleplay response given the last response(s).'''
+
     def __init__(self, keep_ooc: bool = False) -> None:
         # OOC might provide a certain "charm" to the bot which
         # we might want to keep.
@@ -19,10 +21,12 @@ class HumanRoleplayTask(BaseTask):
         super().__init__()
 
     def __iter__(self) -> t.Generator[Episode, None, None]:
-        for thread in RPDataset():
+        for thread in RpDataset():
             # If thread is only 1 message long, cut it out
             if len(thread.messages) <= 1:
-                LOG.debug(f'Skipping thread "{thread.thread_name}" with only one message')
+                LOG.debug(
+                    f'Skipping thread "{thread.thread_name}" with only one message'
+                )
                 continue
 
             # System prompt
@@ -37,13 +41,13 @@ class HumanRoleplayTask(BaseTask):
                 if not self.keep_ooc:
                     cleaned_message = OOC_REGEX.sub('', cleaned_message).strip()
 
-                turn = Turn(
-                    utterance=cleaned_message,
-                    kind=TurnKind.USER if i % 2 == 0 else TurnKind.MODEL
-                )
+                turn = Turn(utterance=cleaned_message,
+                            kind=TurnKind.USER if i %
+                            2 == 0 else TurnKind.MODEL)
                 turns.append(turn)
 
             yield Episode(turns=turns, identifier=f"rp-{thread.thread_name}")
+
 
 OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
 
