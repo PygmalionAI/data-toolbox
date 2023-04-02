@@ -2,6 +2,7 @@ import logging
 import random
 import re
 import typing as t
+from markdownify import markdownify
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
@@ -36,20 +37,135 @@ class RpForumsWritingTask(BaseTask):
             system_prompt = random.choice(SYSTEM_PROMPTS)
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
+            # TODO(11b): ^ incorporate the thread's title into the system
+            # prompt. Cut out anything between parenthesis or separated by `//`
+            # (usually denotes usernames of participants involved)
+
+            # TODO(11b): Consider anonymizing character names based on usernames
 
             # TODO(TG): Find a better way to gather authors.
             # This implementation only accounts for 2 authors doing back and forth
-            for i, message in enumerate(thread.messages):
-                cleaned_message = message.message
-                if not self.keep_ooc:
-                    cleaned_message = OOC_REGEX.sub('', cleaned_message).strip()
+            for message in thread.messages:
+                long_message = _clean_style(message.message)
 
-                turn = Turn(utterance=cleaned_message,
-                            kind=TurnKind.USER if i %
-                            2 == 0 else TurnKind.MODEL)
-                turns.append(turn)
+                # Add some variety so we can generate a synthetic prompt for
+                # controlling generation length down the line.
+                target_word_count = random.randint(60, 300)
+
+                for message in _split_message(
+                        long_message,
+                        target_word_count=target_word_count,
+                        delimiter="<br/><br/>"):
+                    cleaned_message = _clean_html(message)
+                    cleaned_message = str(markdownify(message))
+
+                    # Fix excessive spaces after converting to Markdown.
+                    cleaned_message = re.sub("\n{2,}", "\n", cleaned_message)
+
+                    if not self.keep_ooc:
+                        cleaned_message = OOC_REGEX.sub(
+                            '', cleaned_message).strip()
+
+                    # Label the utterance as a user utterance if it has any
+                    # unfixable style problems, so the message isn't "wasted"
+                    # but also doesn't get used as a training label. That way,
+                    # we avoid having the model learn any of the style problems.
+                    turn_kind = TurnKind.USER \
+                                if _has_unfixable_bad_style(cleaned_message) \
+                                else TurnKind.MODEL
+
+                    turn = Turn(utterance=cleaned_message, kind=turn_kind)
+                    turns.append(turn)
 
             yield Episode(turns=turns, identifier=f"rp-{thread.thread_name}")
+
+
+def _split_message(original_message: str, target_word_count: int,
+                   delimiter: str) -> list[str]:
+    '''
+    Splits a large message into smaller ones, respecting the given delimiter.
+    '''
+    messages = original_message.split(delimiter)
+    reconstructed_messages: list[str] = [messages[0]]
+
+    # For each split message, we see if we can merge it back up together with
+    # the next one while still staying under the target word count.
+    for message in messages[1:]:
+        last_message_word_count = len(reconstructed_messages[-1].split()) \
+            if len(reconstructed_messages) else 0
+        current_message_word_count = len(message.split())
+
+        if last_message_word_count + current_message_word_count > target_word_count:
+            # If we can't, we just add it as a separate message to start merging
+            # from scratch.
+            reconstructed_messages.append(message)
+        else:
+            # Otherwise, we merge it into the current message.
+            reconstructed_messages[-1] += delimiter + message
+
+    return reconstructed_messages
+
+
+def _clean_style(original_message: str) -> str:
+    '''Cleans up any style-related issues.'''
+    message = original_message
+    message = message.replace(" .. ", "... ")
+    message = message.replace(" ... ", "... ")
+    message = re.sub(r'\b(\.\.\.?)\b', '... ', message)
+
+    message = message.replace(" . ", ". ")
+    message = message.replace(" , ", ", ")
+
+    # Some forums have their pages incorrectly tagged as UTF-8, so we get
+    # garbage when decoding. Most common problem I've seen is bad quotation
+    # marks, so we paper over that here.
+    message = message.replace("â??", "'")
+    message = message.replace("â?", "'")
+
+    message = message.replace("", " ")
+
+    return message
+
+
+def _has_unfixable_bad_style(message: str) -> bool:
+    '''
+    Whether or not the message contains some style problem that we can't fix
+    reliably.
+    '''
+
+    # "Floating" quotation marks.
+    if re.search(r'\b " \b', message) is not None:
+        return True
+
+    # Quotation marks mushed together with text.
+    if re.search(r'\S"\S', message) is not None:
+        return True
+
+    return False
+
+
+def _clean_html(message: str) -> str:
+    '''Cleans up HTML tags we don't want from the given message.'''
+    cleaned_message = message
+
+    # Block quotes are not useful - we don't want the model quoting back the
+    # message we just sent.
+    cleaning_passes = 0
+    while "<blockquote" in cleaned_message:
+        assert cleaning_passes < 4, "Too many cleaning passes, giving up to avoid deadlocking"
+
+        start_idx = cleaned_message.find("<blockquote")
+        end_idx = cleaned_message.find("</blockquote>", start_idx)
+
+        if start_idx == -1 or end_idx == -1:
+            LOG.warning("Unbalanced block quote tags found, leaving as-is")
+            break
+
+        # 13 = len("</blockquote>")
+        cleaned_message = cleaned_message[:start_idx] + cleaned_message[
+            end_idx + 13:]
+
+    return cleaned_message
 
 
 OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
