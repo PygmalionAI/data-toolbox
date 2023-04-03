@@ -26,27 +26,48 @@ class RpForumsWritingTask(BaseTask):
 
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for thread in RpForumsDataset():
-            # If thread is only 1 message long, cut it out
-            if len(thread.messages) <= 1:
-                LOG.debug(
-                    f'Skipping thread "{thread.thread_name}" with only one message'
-                )
+            # These threads usually don't contain actual roleplaying.
+            if any([
+                    x in thread.thread_name.lower() for x in [
+                        "ooc", "o.o.c", "character sheet", "character profile",
+                        "character list", "character roster"
+                    ]
+            ]):
+                LOG.debug("Skipping `%s` due to thread name",
+                          thread.thread_name)
                 continue
+
+            if len(thread.messages) < 2:
+                LOG.debug('Skipping `%s` with only one message',
+                          thread.thread_name)
+                continue
+
+            # Build up a dictionary of usernames to replace for privacy reasons.
+            usernames = set([message.author for message in thread.messages])
+            username_substitutions: dict[str, str] = {}
+            for idx, username in enumerate(usernames):
+                username_substitutions[username] = "{{char_" + str(idx) + "}}"
 
             # System prompt
             system_prompt = random.choice(SYSTEM_PROMPTS)
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
             # TODO(11b): ^ incorporate the thread's title into the system
-            # prompt. Cut out anything between parenthesis or separated by `//`
-            # (usually denotes usernames of participants involved)
+            # prompt. Cut out anything between parenthesis, brackets or
+            # separated by `//` (usually denotes usernames of participants
+            # involved)
 
-            # TODO(11b): Consider anonymizing character names based on usernames
-
-            # TODO(TG): Find a better way to gather authors.
-            # This implementation only accounts for 2 authors doing back and forth
             for message in thread.messages:
-                long_message = _clean_style(message.message)
+                long_message = message.message
+
+                for username, substitution in username_substitutions.items():
+                    long_message = re.sub(rf"\b{re.escape(username)}\b",
+                                          substitution, long_message)
+                long_message = _clean_style(long_message)
+                long_message = _clean_html(long_message)
+                long_message = _clean_links(long_message)
+
+                assert "http://" not in long_message, "Failed to clean URLs properly."
 
                 # Add some variety so we can generate a synthetic prompt for
                 # controlling generation length down the line.
@@ -56,8 +77,8 @@ class RpForumsWritingTask(BaseTask):
                         long_message,
                         target_word_count=target_word_count,
                         delimiter="<br/><br/>"):
-                    cleaned_message = _clean_html(message)
                     cleaned_message = str(markdownify(message))
+                    cleaned_message = _clean_lines(cleaned_message)
 
                     # Fix excessive spaces after converting to Markdown.
                     cleaned_message = re.sub("\n{2,}", "\n", cleaned_message)
@@ -127,6 +148,27 @@ def _clean_style(original_message: str) -> str:
     return message
 
 
+def _clean_links(original_message: str) -> str:
+    '''Removes any links from the given message, due to privacy concerns.'''
+    return re.sub(r"https?:\/\/.+?(\s|$)", "", original_message)
+
+
+def _clean_lines(original_message: str) -> str:
+    lines: list[str] = []
+    for line in original_message.splitlines():
+        # Trailing whitespace is always useless.
+        line = line.rstrip()
+
+        # Sometimes, users start their messages with "RE: (thread title, which
+        # leaks usernames)" so we skip that here.
+        if line.startswith("RE: "):
+            continue
+
+        lines.append(line)
+
+    return "\n".join(lines)
+
+
 def _has_unfixable_bad_style(message: str) -> bool:
     '''
     Whether or not the message contains some style problem that we can't fix
@@ -141,29 +183,44 @@ def _has_unfixable_bad_style(message: str) -> bool:
     if re.search(r'\S"\S', message) is not None:
         return True
 
+    # Lowercase "I". Fixable, but a sign of low-quality writing so I'd rather
+    # not train the model on these.
+    if re.search(r"\bi('m|'ll)?\b", message) is not None:
+        return True
+
     return False
 
 
 def _clean_html(message: str) -> str:
     '''Cleans up HTML tags we don't want from the given message.'''
-    cleaned_message = message
+    cleaned_message = _clean_html_tag(message, "blockquote")
+    cleaned_message = _clean_html_tag(cleaned_message, "script")
 
-    # Block quotes are not useful - we don't want the model quoting back the
-    # message we just sent.
+    if "bbImageWrapper" in message:
+        # Images are a <div> with some JavaScript to lazy-load them, so we do
+        # this behind a guard to reduce false positives just in case.
+        cleaned_message = _clean_html_tag(cleaned_message, "div")
+
+    return cleaned_message
+
+
+def _clean_html_tag(message: str, tag: str) -> str:
+    '''Cleans the given HTML tag from the message.'''
+    cleaned_message = message
     cleaning_passes = 0
-    while "<blockquote" in cleaned_message:
+
+    while f"<{tag}" in cleaned_message:
         assert cleaning_passes < 4, "Too many cleaning passes, giving up to avoid deadlocking"
 
-        start_idx = cleaned_message.find("<blockquote")
-        end_idx = cleaned_message.find("</blockquote>", start_idx)
+        start_idx = cleaned_message.find(f"<{tag}")
+        end_idx = cleaned_message.find(f"</{tag}>", start_idx)
 
         if start_idx == -1 or end_idx == -1:
-            LOG.warning("Unbalanced block quote tags found, leaving as-is")
+            LOG.warning("Unbalanced tags found, leaving as-is")
             break
 
-        # 13 = len("</blockquote>")
         cleaned_message = cleaned_message[:start_idx] + cleaned_message[
-            end_idx + 13:]
+            end_idx + len(f"</{tag}>"):]
 
     return cleaned_message
 
