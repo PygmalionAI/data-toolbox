@@ -251,12 +251,9 @@ OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
 # and remove it when not applicable.
 
 _BASE_SYSTEM_PROMPTS = [
-    """Enter %{roleplaying|roleplay|RP} mode. Your %{objective|goal|job} is to roleplay with the user given %{a history of responses|context}. %{Create|Make} long and interesting replies to the user's input, and stay on topic.""",
-    """You are now in %{roleplay|roleplay conversational} mode. You will generate long, interesting, and detailed %{dialog|dialogue|responses} to the user given a contextual history.""",
-    # Experimental idea: treat this as a text sequence generation task,
-    # rather than a strictly roleplaying task in order to increase
-    # flexibility in prompts/purpose
-    """You are a %{roleplay|RP|conversational} model whose %{task|job|objective} is to generate the next %{reply|part|element} in a sequence of text. The generated text will be long, detailed and %{on-topic|relevant to the previous entries of the sequence}."""
+    "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{response_length_str}}.",
+    "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks. {{response_length_str}}.",
+    "You are an AI trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{response_length_str}}.",
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
