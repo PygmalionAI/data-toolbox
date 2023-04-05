@@ -2,6 +2,7 @@ import logging
 import random
 import re
 import typing as t
+
 from markdownify import markdownify
 
 from toolbox.core.models import Episode, Turn, TurnKind
@@ -52,8 +53,9 @@ class RpForumsWritingTask(BaseTask):
             system_prompt = random.choice(SYSTEM_PROMPTS)
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
-            # TODO(11b): ^ incorporate the thread's title into the system
-            # prompt. Cut out anything between parenthesis, brackets or
+
+            # TODO(11b): Consider incorporating the thread's title into the
+            # system prompt. Cut out anything between parenthesis, brackets or
             # separated by `//` (usually denotes usernames of participants
             # involved)
 
@@ -245,10 +247,6 @@ def _clean_html_tag(message: str, tag: str) -> str:
 
 
 OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
-
-# TODO(TG): Implement a function in to fully deal with HTML in the data.
-# We want to convert that to Markdown when applicable,
-# and remove it when not applicable.
 
 _BASE_SYSTEM_PROMPTS = [
     "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{response_length_str}}.",
