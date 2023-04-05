@@ -44,7 +44,7 @@ def _generate_variants_for(
             # after generating all possible variants.
             still_have_match = re.search(VARIANT_REGEX, variant) is not None
             if still_have_match:
-                for inner_variant in generate_variants_for(
+                for inner_variant in _generate_variants_for(
                         variant, start_counter_at=counter):
                     yield inner_variant
 
