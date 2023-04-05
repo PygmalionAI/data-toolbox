@@ -6,7 +6,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.soda import SodaDataset
-from toolbox.utils.prompts import generate_variants_for
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -79,5 +79,4 @@ The above is a %{conversation|chat} between {{participants}}. %{Summarize what h
 {{conversation}}"""
 ]
 
-USER_PROMPTS = operator.iconcat(
-    *[list(generate_variants_for(x)) for x in _BASE_USER_PROMPTS])
+USER_PROMPTS = generate_prompts(_BASE_USER_PROMPTS)

@@ -1,3 +1,4 @@
+import operator
 import re
 import typing as t
 
@@ -5,7 +6,7 @@ import typing as t
 VARIANT_REGEX = re.compile(r'%{(.+?)}')
 
 
-def generate_variants_for(
+def _generate_variants_for(
         string: str,
         max_generations: int | None = 16,
         start_counter_at: int = 0) -> t.Generator[str, None, None]:
@@ -60,3 +61,10 @@ def generate_variants_for(
                     break
     else:
         yield string
+
+def generate_prompts(system_prompts: list[str]) -> list[str]:
+    '''
+    Given a list of base system prompts,
+    this function generates a list of variants on these prompts using generate_variants_for
+    '''
+    return operator.iconcat(*[list(_generate_variants_for(x)) for x in system_prompts])

@@ -1,12 +1,11 @@
 import logging
-import operator
 import random
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.characterai import CharacterAiDataset
-from toolbox.utils.prompts import generate_variants_for
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -77,5 +76,4 @@ You shall reply to the user while staying in character. {{response_length_str}}.
 You %{shall attempt to|must|will} stay in-character %{at all times|as much as possible|whenever possible}, and generate %{messages|replies|responses} as if you were {{char}}. {{response_style_str}}. {{response_length_str}}.""",
 ]
 
-SYSTEM_PROMPTS = operator.iconcat(
-    *[list(generate_variants_for(x)) for x in _BASE_SYSTEM_PROMPTS])
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
