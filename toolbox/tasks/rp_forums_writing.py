@@ -79,6 +79,7 @@ class RpForumsWritingTask(BaseTask):
                         delimiter="<br/><br/>"):
                     cleaned_message = str(markdownify(message))
                     cleaned_message = _clean_lines(cleaned_message)
+                    cleaned_message = _fix_markdown(cleaned_message)
 
                     # Fix excessive spaces after converting to Markdown.
                     cleaned_message = re.sub("\n{2,}", "\n", cleaned_message)
@@ -189,6 +190,24 @@ def _has_unfixable_bad_style(message: str) -> bool:
         return True
 
     return False
+
+
+def _fix_markdown(original_message: str) -> str:
+    message = original_message
+
+    # Bold/italics sometimes doesn't have spaces around it after converting from
+    # HTML to Markdown for some reason.
+    message = re.sub(r"(\S)(\*\*\S+?\*\*)(\S)", "\\1 \\2 \\3", message)
+    message = re.sub(r"(\S)(\*\S+?\*)(\S)", "\\1 \\2 \\3", message)
+    message = re.sub(r"(\S)(__\S+?__)(\S)", "\\1 \\2 \\3", message)
+    message = re.sub(r"(\S)(_\S+?_)(\S)", "\\1 \\2 \\3", message)
+
+    # ...and this fix introduces some problems, so we clean them up.
+    message = message.replace("* !", "*!")
+    message = message.replace("* ?", "*?")
+    message = message.replace("* .", "*.")
+
+    return message
 
 
 def _clean_html(message: str) -> str:
