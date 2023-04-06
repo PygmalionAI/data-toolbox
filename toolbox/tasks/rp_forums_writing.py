@@ -7,7 +7,7 @@ from markdownify import markdownify
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
-from toolbox.datasets.rp_forums import RpForumsDataset
+from toolbox.datasets.rp_forums import RpForumsDataset, RpType
 from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
@@ -51,6 +51,10 @@ class RpForumsWritingTask(BaseTask):
 
             # System prompt
             system_prompt = random.choice(SYSTEM_PROMPTS)
+            content_type_prompt = random.choice(
+                CONTENT_TYPE_TO_PROMPTS[thread.content_type])
+            system_prompt = system_prompt.replace("{{content_type_str}}",
+                                                  content_type_prompt)
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
 
@@ -249,9 +253,27 @@ def _clean_html_tag(message: str, tag: str) -> str:
 OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
 
 _BASE_SYSTEM_PROMPTS = [
-    "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{response_length_str}}.",
-    "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks. {{response_length_str}}.",
-    "You are an AI trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{response_length_str}}.",
+    "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{content_type_str}}. {{response_length_str}}.",
+    "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks. {{content_type_str}}. {{response_length_str}}.",
+    "You are an AI trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{content_type_str}}. {{response_length_str}}.",
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
+
+SFW_PROMPTS = generate_prompts([
+    "%{Generations|Your writing|The generated response|Your reply|Generated replies} must %{be safe for work|be SFW|not include any adult themes|be safe for minors|not include 18+ content|not be 18+|not be NSFW}",
+])
+
+MIXED_SFW_NSFW_PROMPTS = generate_prompts([
+    "%{Generations|Your writing|The generated response|Your reply|Generated replies} %{may or may not include adult themes|may or may not be NSFW|can include adult themes}",
+])
+
+NSFW_PROMPTS = generate_prompts([
+    "%{Generations|Your writing|The generated response|Your reply|Generated replies} must %{be not safe for work|be NSFW|include adult themes|include erotic themes|include 18+ content}",
+])
+
+CONTENT_TYPE_TO_PROMPTS: dict[RpType, list[str]] = {
+    RpType.RP: SFW_PROMPTS,
+    RpType.ERP: NSFW_PROMPTS,
+    RpType.MIXED: MIXED_SFW_NSFW_PROMPTS,
+}

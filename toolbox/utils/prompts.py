@@ -61,6 +61,7 @@ def generate_variants_for(
     else:
         yield string
 
+
 def generate_prompts(system_prompts: list[str]) -> list[str]:
     '''
     Given a list of base system prompts,
