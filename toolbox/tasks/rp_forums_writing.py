@@ -46,8 +46,8 @@ class RpForumsWritingTask(BaseTask):
             # Build up a dictionary of usernames to replace for privacy reasons.
             usernames = set([message.author for message in thread.messages])
             username_substitutions: dict[str, str] = {}
-            for idx, username in enumerate(usernames):
-                username_substitutions[username] = "{{char_" + str(idx) + "}}"
+            for idx, name in enumerate(usernames):
+                username_substitutions[name] = "{{char_" + str(idx) + "}}"
 
             # System prompt
             system_prompt = random.choice(SYSTEM_PROMPTS)
@@ -58,17 +58,9 @@ class RpForumsWritingTask(BaseTask):
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
 
-            # TODO(11b): Consider incorporating the thread's title into the
-            # system prompt. Cut out anything between parenthesis, brackets or
-            # separated by `//` (usually denotes usernames of participants
-            # involved)
-
             for message in thread.messages:
                 long_message = message.message
 
-                for username, substitution in username_substitutions.items():
-                    long_message = re.sub(rf"\b{re.escape(username)}\b",
-                                          substitution, long_message)
                 long_message = _clean_style(long_message)
                 long_message = _clean_html(long_message)
                 long_message = _clean_links(long_message)
@@ -89,6 +81,13 @@ class RpForumsWritingTask(BaseTask):
 
                     # Fix excessive spaces after converting to Markdown.
                     cleaned_message = re.sub("\n{2,}", "\n", cleaned_message)
+
+                    # Username substitutions need to be done _after_ the HTML has
+                    # been converted into markdown, otherwise we get escape
+                    # characters messing things up.
+                    for name, substitution in username_substitutions.items():
+                        cleaned_message = re.sub(rf"\b{re.escape(name)}\b",
+                                                 substitution, cleaned_message)
 
                     if not self.keep_ooc:
                         cleaned_message = OOC_REGEX.sub(
