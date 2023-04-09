@@ -80,7 +80,7 @@ class RpForumsWritingTask(BaseTask):
                     cleaned_message = _fix_markdown(cleaned_message)
 
                     # Fix excessive spaces after converting to Markdown.
-                    cleaned_message = re.sub("\n{2,}", "\n", cleaned_message)
+                    cleaned_message = re.sub("\n{2,}", "\n\n", cleaned_message)
 
                     # Username substitutions need to be done _after_ the HTML has
                     # been converted into markdown, otherwise we get escape
@@ -167,7 +167,7 @@ def _clean_lines(original_message: str) -> str:
 
         # Sometimes, users start their messages with "RE: (thread title, which
         # leaks usernames)" so we skip that here.
-        if line.startswith("RE: "):
+        if line.startswith("RE: ") or line.startswith("**RE: "):
             continue
 
         lines.append(line)
