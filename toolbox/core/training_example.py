@@ -158,34 +158,56 @@ def _response_length_str_for(response: str) -> str:
     according to its length.
     '''
     word_count = len(response.split())
+    paragraph_count = response.count("\n\n") + 1
+
+    paragraph_count_str = random.choice([
+        f"It should contain {paragraph_count} paragraphs",
+        f"Use exactly {paragraph_count} paragraphs",
+        f"Write {paragraph_count} paragraphs",
+        f"Generate {paragraph_count} paragraphs",
+        f"Respond with {paragraph_count} paragraphs",
+    ])
 
     if word_count < 16:
-        return random.choice([
+        length_str = random.choice([
             "The generation should be short (less than 16 words)",
             "Be brief when generating the message (less than sixteen words)",
             "The generated reply should be small",
         ])
-    elif word_count < 32:
-        return random.choice([
-            "The generated reply should be of medium length (between 16 to 32 words)",
-            "The generated response should be slightly lengthy (at most 32 words)",
+    elif word_count < 48:
+        length_str = random.choice([
+            "The generated reply should be of medium length (between 16 to 48 words)",
+            "The generated response should be slightly lengthy (at most 48 words)",
             "The generated message should be on the medium side",
         ])
-    elif word_count < 64:
-        return random.choice([
-            "The new message will be of moderate-to-large length",
-            "The reply should be moderately-sized, tending towards a longer message (more than 32 words)",
-            "The generation should be of medium to medium-long length",
-        ])
     elif word_count < 96:
-        return random.choice([
+        length_str = random.choice([
             "The new message will be lengthy",
-            "The reply should be long, more than 64 words",
+            "The reply should be long, more than 48 words",
             "The generation should be long",
         ])
     else:
-        return random.choice([
+        length_str = random.choice([
             "The new message will be extremely lengthy",
             "The reply should be extremely long",
             "The generation should be very long",
         ])
+
+    # Lazy way of doing the following: if there's only a single paragraph,
+    # randomly decide whether to inject some wording about it only being a
+    # single paragraph's worth of generation. Otherwise, always mention
+    # paragraph count + generation length. Ugly code but it works and I'm
+    # rushing this a little.
+    if paragraph_count == 1:
+        return random.choice([
+            length_str, length_str, ". ".join([
+                length_str,
+                random.choice([
+                    f"It should contain a single paragraph",
+                    f"Write only one paragraph",
+                    f"Generate a single paragraph",
+                    f"Respond with an individual paragraph",
+                ])
+            ])
+        ])
+    return ". ".join([length_str, paragraph_count_str])

@@ -69,7 +69,7 @@ class RpForumsWritingTask(BaseTask):
 
                 # Add some variety so we can generate a synthetic prompt for
                 # controlling generation length down the line.
-                target_word_count = random.randint(60, 300)
+                target_word_count = random.randint(60, 600)
 
                 for message in _split_message(
                         long_message,
