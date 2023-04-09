@@ -7,7 +7,7 @@ VARIANT_REGEX = re.compile(r'%{(.+?)}')
 
 def generate_variants_for(
         string: str,
-        max_generations: int | None = 16,
+        max_generations: int | None = 64,
         start_counter_at: int = 0) -> t.Generator[str, None, None]:
     '''
     Given a string like "%{Hello|Hi} there{.|!}, this should yield:
@@ -60,3 +60,17 @@ def generate_variants_for(
                     break
     else:
         yield string
+
+
+def generate_prompts(system_prompts: list[str]) -> list[str]:
+    '''
+    Given a list of base system prompts,
+    this function generates a list of variants on these prompts using generate_variants_for
+    '''
+    unflattened_list = [list(generate_variants_for(x)) for x in system_prompts]
+
+    flattened_list: list[str] = []
+    for l in unflattened_list:
+        flattened_list += l
+
+    return flattened_list
