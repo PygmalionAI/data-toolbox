@@ -2,6 +2,7 @@ import csv
 import hashlib
 import logging
 import os
+import sys
 import typing as t
 from dataclasses import dataclass
 from enum import Enum
@@ -35,6 +36,13 @@ class RpForumsDataset(BaseDataset[RpThread]):
     '''Data from several different roleplay forums.'''
 
     def __iter__(self) -> t.Generator[RpThread, None, None]:
+        # NOTE(11b): I had no idea this was a thing, but apparently Python's CSV
+        # reader by default shits the bed if you have a field longer than 131072
+        # characters. _Usually_ this means you've messed up the parsing, but in
+        # our case it's actually just a massive forum post triggering this.
+        # https://stackoverflow.com/questions/15063936/csv-error-field-larger-than-field-limit-131072
+        csv.field_size_limit(sys.maxsize)
+
         for path in enumerate_files_for(dataset_name="rp_forums",
                                         file_extension=".csv"):
             with open(path, "r") as file:
