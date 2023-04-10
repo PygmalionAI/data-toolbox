@@ -42,7 +42,7 @@ def main() -> None:
                 idx += 1
                 if idx < args.starting_index:
                     continue
-                if args.max_count and (idx >=
+                if args.max_count and (idx >
                                        args.starting_index + args.max_count):
                     quit()
 
