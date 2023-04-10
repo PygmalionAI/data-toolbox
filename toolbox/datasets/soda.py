@@ -2,14 +2,13 @@ import os
 import typing as t
 from dataclasses import dataclass
 
-import mashumaro
 import pandas as pd
 
 from toolbox.core.dataset import BaseDataset, get_path_for
 
 
 @dataclass(frozen=True)
-class SodaEpisode(mashumaro.DataClassDictMixin):
+class SodaEpisode:
     narrative: str
     dialogue: t.List[str]
     speakers: t.List[str]
