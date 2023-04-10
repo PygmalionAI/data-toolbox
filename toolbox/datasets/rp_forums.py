@@ -30,6 +30,7 @@ class RpThread:
     messages: list[RpMessage]
     thread_name: str
     content_type: RpType
+    source_file: str
 
 
 class RpForumsDataset(BaseDataset[RpThread]):
@@ -47,7 +48,8 @@ class RpForumsDataset(BaseDataset[RpThread]):
                                         file_extension=".csv"):
             with open(path, "r") as file:
                 reader = csv.DictReader(file, delimiter=",")
-                content_type = _get_rp_type_from_path(path)
+                source_file = os.path.basename(path)
+                content_type = _get_rp_type_from_filename(source_file)
 
                 # Store a buffer of the previous thread
                 previous_thread = None
@@ -61,7 +63,8 @@ class RpForumsDataset(BaseDataset[RpThread]):
                             assert previous_thread is not None
                             yield RpThread(messages=messages,
                                            thread_name=previous_thread,
-                                           content_type=content_type)
+                                           content_type=content_type,
+                                           source_file=source_file)
 
                         messages = []
                     current_thread = row['thread_title']
@@ -74,12 +77,11 @@ class RpForumsDataset(BaseDataset[RpThread]):
                         messages = messages[:-1]
 
 
-def _get_rp_type_from_path(path: str) -> RpType:
+def _get_rp_type_from_filename(filename: str) -> RpType:
     '''
     Gets which kind of roleplaying this is based on the original file's name.
     Used to adjust the synthetic system prompt.
     '''
-    filename = os.path.basename(path)
     sha256_digest = hashlib.sha256(filename.encode()).hexdigest()
 
     return SHA256_DIGEST_TO_RP_TYPE_MAP[sha256_digest]
@@ -93,5 +95,13 @@ SHA256_DIGEST_TO_RP_TYPE_MAP: dict[str, RpType] = {
     '328f8498522ba006378a15b1bb8382278617077084afa68d865eb45edb3e2476':
         RpType.ERP,
     '5d2f252abc9008cb05e1584b77347050e309abb5cde09616d1de5645658e278a':
+        RpType.ERP,
+    '92dfc2e9f0fdf7efc7115e5b51ad88f01837360e9776d5e81085263b1971a9a1':
+        RpType.ERP,
+    'e519b14a4591a5d334d3b0e74a924296c457625cbebc3fbdc30f8810dbef3da9':
+        RpType.ERP,
+    '03aee36448fc81f8bae062196bad9767bfc1610c537e3a58660ba4047d49aeb5':
+        RpType.ERP,
+    '1bfadd54f7b41f5c2d387a4cbb9bda9342a203870e0f7be7a56a24ad3947f47a':
         RpType.ERP,
 }

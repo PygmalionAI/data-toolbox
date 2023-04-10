@@ -74,9 +74,7 @@ class RpForumsWritingTask(BaseTask):
                     cleaned_message = _remove_trailing_whitespace_and_bad_lines(
                         cleaned_message)
 
-                    # TODO(11b): This is creating problems worse than the actual
-                    # stuff I was trying to clean, so let's just disable for now
-                    # cleaned_message = _fix_markdown(cleaned_message)
+                    cleaned_message = _fix_markdown(cleaned_message)
 
                     # Fix excessive spaces after converting to Markdown.
                     cleaned_message = re.sub("\n{2,}", "\n\n", cleaned_message)
@@ -113,7 +111,10 @@ class RpForumsWritingTask(BaseTask):
                     turn = Turn(utterance=cleaned_message, kind=turn_kind)
                     turns.append(turn)
 
-            yield Episode(turns=turns, identifier=f"rp-{thread.thread_name}")
+            yield Episode(
+                turns=turns,
+                identifier=f"rp-{thread.source_file}-{thread.thread_name}",
+            )
 
 
 def _split_message(original_message: str, target_word_count: int,
@@ -153,6 +154,8 @@ def _fix_style_and_encoding_issues(original_message: str) -> str:
     message = message.replace(" , ", ", ")
     message = message.replace(" ? ", "? ")
     message = message.replace(" ! ", "! ")
+
+    message = re.sub(r"(\S)(…)(\S)", "\\1\\2 \\3", message)
 
     # Some forums have their pages incorrectly tagged as UTF-8, so we get
     # garbage when decoding. Most common problem I've seen is bad quotation
@@ -200,6 +203,11 @@ def _not_usable_as_training_label(message: str) -> bool:
     if re.search(r'\S"\S', message) is not None:
         return True
 
+    # Parenthesis mushed together with text.
+    if re.search(r'\S\(', message) is not None \
+        or re.search(r'\)\S', message) is not None:
+        return True
+
     # Lowercase "I". Fixable, but a sign of low-quality writing so I'd rather
     # not train the model on these.
     if re.search(r"\bi('m|'ll)?\b", message) is not None:
@@ -213,21 +221,19 @@ def _not_usable_as_training_label(message: str) -> bool:
 
 
 def _fix_markdown(original_message: str) -> str:
-    message = original_message
+    s = original_message
 
     # Bold/italics sometimes doesn't have spaces around it after converting from
     # HTML to Markdown for some reason.
-    message = re.sub(r"(\S)(\*\*\S+?\*\*)(\S)", "\\1 \\2 \\3", message)
-    message = re.sub(r"(\S)(\*\S+?\*)(\S)", "\\1 \\2 \\3", message)
-    message = re.sub(r"(\S)(__\S+?__)(\S)", "\\1 \\2 \\3", message)
-    message = re.sub(r"(\S)(_\S+?_)(\S)", "\\1 \\2 \\3", message)
+    is_opening_asterisk = True
+    while (match := re.search(r"([\w\d])(\*{1,2})([\w\d])", s)) is not None:
+        if is_opening_asterisk:
+            s = s[:match.start() + 1] + " " + s[match.start() + 1:]
+        else:
+            s = s[:match.end() - 1] + " " + s[match.end() - 1:]
+        is_opening_asterisk = not is_opening_asterisk
 
-    # ...and this fix introduces some problems, so we clean them up.
-    message = message.replace("* !", "*!")
-    message = message.replace("* ?", "*?")
-    message = message.replace("* .", "*.")
-
-    return message
+    return s
 
 
 def _remove_bad_html_tags(message: str) -> str:
