@@ -79,12 +79,17 @@ class ShareGptInstructionFollowingTask(BaseTask):
                     conversation.source_file)
 
     def _html_to_markdown(self, html: str) -> str:
+        # Remove useless nested HTML tags that mess up markdown conversion.
+        html = re.sub(DIV_REGEX, "", html)  # fixes indentation in code blocks
+        html = re.sub(SPAN_REGEX, "", html)  # fixes underscores in code blocks
+
         # Apparently the default BS4 parser has some bugs, so let's drop down
         # a level and parse with html5lib and convert the soup instead.
         #
         # https://github.com/matthewwithanm/python-markdownify/issues/58#issuecomment-1275703664
         with warnings.catch_warnings():
-            # But BS4 loves throwing this out for perfectly valid data.
+            # BS4 loves throwing this out for perfectly valid data so let's
+            # silence it.
             warnings.filterwarnings(
                 "ignore", "The input looks more like a filename than markup")
             soup = bs4.BeautifulSoup(html, 'html5lib')
@@ -99,35 +104,42 @@ class ShareGptInstructionFollowingTask(BaseTask):
         # We want that to become:
         #
         # ```lua\n
-        matches = re.finditer(BAD_CODEBLOCK_REGEX, markdown)
-        for match in matches:
-            language = match.group(1)
-            bad_markdown = match.group(0)
-            markdown = markdown.replace(bad_markdown, f"```{language}\n")
+        markdown = re.sub(CODE_LANG_REGEX, CODE_LANG_FORMAT, markdown)
 
-        # Edge case for the above: the "r" language is represented as "{r}" for
-        # some reason, so let's just fix that manually instead of complicating
-        # the regex.
-        markdown = markdown.replace("```\n{r}Copy code`", "```r\n")
+        # Remove "[number] / [number]" at the beginning
+        regeneration_str = re.search(REGENERATE_REGEX, markdown)
+        if regeneration_str and regeneration_str.start() == 0:
+            markdown = markdown[regeneration_str.end():]
 
-        # Code blocks are also not closed properly, so let's fix that.
-        markdown = markdown.replace("`\n```", "\n```")
+        # Remove "Copy[number] chars / [number] words"
+        markdown = re.sub(COPY_CHARS_REGEX, "", markdown)
+
+        # Remove empty code blocks (```\nCopy code\n```)
+        markdown = re.sub(COPY_CODE_REGEX, "", markdown)
+
+        # Remove trailing whitespace on every line.
+        markdown = "\n".join([line.rstrip() for line in markdown.splitlines()])
 
         # Excessive whitespace is also a part of the data, and then exarcebated
         # by our data munging, so let's trim that.
-        markdown = re.sub(r"\n{2,}", "\n", markdown)
+        markdown = re.sub(r"\n{3,}", "\n\n", markdown).strip()
 
         # Sanity checks because this is some nasty code.
         assert "{r}" not in markdown
         assert "Copy code`" not in markdown
         assert ".terminal-" not in markdown
 
-        # FIXME(11b): Characters like `_` are seemingly being escaped inside
-        # code blocks sometimes, which is not correct.
         return markdown
 
 
-BAD_CODEBLOCK_REGEX = re.compile(r"```\n(\w{0,8})Copy code`", re.MULTILINE)
+DIV_REGEX = re.compile(r"<div.*?>")
+SPAN_REGEX = re.compile(r"<span.*?>")
+CODE_LANG_REGEX = re.compile(
+    r"```\s*" + "(.*?)" + "(?:Copy code)+" + "(.+?)" + r"\s*?```", re.DOTALL)
+CODE_LANG_FORMAT = r"```\g<1>\n\g<2>\n```"
+REGENERATE_REGEX = re.compile(r"\d+ / \d+")
+COPY_CHARS_REGEX = re.compile(r"Copy\d+ chars / \d+ words")
+COPY_CODE_REGEX = re.compile(r"```(.*?)Copy code\s*```")
 
 SYSTEM_PROMPTS = [
     """Consider Assistant, a large language model (LLM) trained by PygmalionAI. It responds to user requests as truthfully as it can, and refuses to respond whenever doing so would generate harmful or possibly offensive content. Its responses should generally be long, descriptive and detailed. It has the following limitations:
