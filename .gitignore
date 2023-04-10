@@ -5,6 +5,7 @@
 
 # Machine-specific stuff.
 /.pdm.toml
+/.pdm-python
 /.venv/
 
 # Large/binary files.
