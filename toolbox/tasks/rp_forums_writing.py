@@ -61,11 +61,12 @@ class RpForumsWritingTask(BaseTask):
             for message in thread.messages:
                 long_message = message.message
 
-                long_message = _clean_style(long_message)
-                long_message = _clean_html(long_message)
-                long_message = _clean_links(long_message)
+                long_message = _fix_style_and_encoding_issues(long_message)
+                long_message = _remove_bad_html_tags(long_message)
+                long_message = _remove_links(long_message)
 
-                assert "http://" not in long_message, "Failed to clean URLs properly."
+                assert "http://" not in long_message and "https://" not in long_message \
+                    , "Failed to clean URLs properly."
 
                 # Add some variety so we can generate a synthetic prompt for
                 # controlling generation length down the line.
@@ -76,8 +77,12 @@ class RpForumsWritingTask(BaseTask):
                         target_word_count=target_word_count,
                         delimiter="<br/><br/>"):
                     cleaned_message = str(markdownify(message))
-                    cleaned_message = _clean_lines(cleaned_message)
-                    cleaned_message = _fix_markdown(cleaned_message)
+                    cleaned_message = _remove_trailing_whitespace_and_bad_lines(
+                        cleaned_message)
+
+                    # TODO(11b): This is creating problems worse than the actual
+                    # stuff I was trying to clean, so let's just disable for now
+                    # cleaned_message = _fix_markdown(cleaned_message)
 
                     # Fix excessive spaces after converting to Markdown.
                     cleaned_message = re.sub("\n{2,}", "\n\n", cleaned_message)
@@ -98,7 +103,7 @@ class RpForumsWritingTask(BaseTask):
                     # but also doesn't get used as a training label. That way,
                     # we avoid having the model learn any of the style problems.
                     turn_kind = TurnKind.USER \
-                                if _has_unfixable_bad_style(cleaned_message) \
+                                if _not_usable_as_training_label(cleaned_message) \
                                 else TurnKind.MODEL
 
                     turn = Turn(utterance=cleaned_message, kind=turn_kind)
@@ -133,7 +138,7 @@ def _split_message(original_message: str, target_word_count: int,
     return reconstructed_messages
 
 
-def _clean_style(original_message: str) -> str:
+def _fix_style_and_encoding_issues(original_message: str) -> str:
     '''Cleans up any style-related issues.'''
     message = original_message
     message = message.replace(" .. ", "... ")
@@ -142,6 +147,8 @@ def _clean_style(original_message: str) -> str:
 
     message = message.replace(" . ", ". ")
     message = message.replace(" , ", ", ")
+    message = message.replace(" ? ", "? ")
+    message = message.replace(" ! ", "! ")
 
     # Some forums have their pages incorrectly tagged as UTF-8, so we get
     # garbage when decoding. Most common problem I've seen is bad quotation
@@ -154,12 +161,12 @@ def _clean_style(original_message: str) -> str:
     return message
 
 
-def _clean_links(original_message: str) -> str:
+def _remove_links(original_message: str) -> str:
     '''Removes any links from the given message, due to privacy concerns.'''
     return re.sub(r"https?:\/\/.+?(\s|$)", "", original_message)
 
 
-def _clean_lines(original_message: str) -> str:
+def _remove_trailing_whitespace_and_bad_lines(original_message: str) -> str:
     lines: list[str] = []
     for line in original_message.splitlines():
         # Trailing whitespace is always useless.
@@ -175,10 +182,10 @@ def _clean_lines(original_message: str) -> str:
     return "\n".join(lines)
 
 
-def _has_unfixable_bad_style(message: str) -> bool:
+def _not_usable_as_training_label(message: str) -> bool:
     '''
-    Whether or not the message contains some style problem that we can't fix
-    reliably.
+    Whether or not the message contains some problem that we can't fix reliably,
+    and we're better off not training on.
     '''
 
     # "Floating" quotation marks.
@@ -192,6 +199,10 @@ def _has_unfixable_bad_style(message: str) -> bool:
     # Lowercase "I". Fixable, but a sign of low-quality writing so I'd rather
     # not train the model on these.
     if re.search(r"\bi('m|'ll)?\b", message) is not None:
+        return True
+
+    # Links.
+    if re.search(r"\[.+\]\(\S+\)", message) is not None:
         return True
 
     return False
@@ -215,20 +226,20 @@ def _fix_markdown(original_message: str) -> str:
     return message
 
 
-def _clean_html(message: str) -> str:
+def _remove_bad_html_tags(message: str) -> str:
     '''Cleans up HTML tags we don't want from the given message.'''
-    cleaned_message = _clean_html_tag(message, "blockquote")
-    cleaned_message = _clean_html_tag(cleaned_message, "script")
+    cleaned_message = _remove_html_tag(message, "blockquote")
+    cleaned_message = _remove_html_tag(cleaned_message, "script")
 
     if "bbImageWrapper" in message:
         # Images are a <div> with some JavaScript to lazy-load them, so we do
         # this behind a guard to reduce false positives just in case.
-        cleaned_message = _clean_html_tag(cleaned_message, "div")
+        cleaned_message = _remove_html_tag(cleaned_message, "div")
 
     return cleaned_message
 
 
-def _clean_html_tag(message: str, tag: str) -> str:
+def _remove_html_tag(message: str, tag: str) -> str:
     '''Cleans the given HTML tag from the message.'''
     cleaned_message = message
     cleaning_passes = 0
