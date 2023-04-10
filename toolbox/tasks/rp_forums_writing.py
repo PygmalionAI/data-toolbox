@@ -19,12 +19,6 @@ class RpForumsWritingTask(BaseTask):
     roleplay.
     '''
 
-    def __init__(self, keep_ooc: bool = False) -> None:
-        # OOC might provide a certain "charm" to the bot which
-        # we might want to keep.
-        self.keep_ooc = keep_ooc
-        super().__init__()
-
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for thread in RpForumsDataset():
             # These threads usually don't contain actual roleplaying.
@@ -94,17 +88,27 @@ class RpForumsWritingTask(BaseTask):
                         cleaned_message = re.sub(rf"\b{re.escape(name)}\b",
                                                  substitution, cleaned_message)
 
-                    if not self.keep_ooc:
-                        cleaned_message = OOC_REGEX.sub(
-                            '', cleaned_message).strip()
-
-                    # Label the utterance as a user utterance if it has any
-                    # unfixable style problems, so the message isn't "wasted"
-                    # but also doesn't get used as a training label. That way,
-                    # we avoid having the model learn any of the style problems.
-                    turn_kind = TurnKind.USER \
-                                if _not_usable_as_training_label(cleaned_message) \
-                                else TurnKind.MODEL
+                    # Little bit of roundabout logic so here's some explanation
+                    # as we go. We start by marking everything as a model turn
+                    # so we use as much data as possible as training labels.
+                    turn_kind = TurnKind.MODEL
+                    if _not_usable_as_training_label(cleaned_message):
+                        # ...however, if we have some problem in the data that
+                        # we'd rather not see the model replicate, we mark it
+                        # as a human turn, which is used as context but not for
+                        # loss calculation during training.
+                        turn_kind = TurnKind.USER
+                    elif _seems_to_have_ooc_talk(cleaned_message) \
+                        and not _seems_to_have_ooc_talk(turns[-1].utterance):
+                        # _However_, there's also another case we'd like to
+                        # handle. Ideally, the model should not slip into OOC
+                        # talk unprompted - it should only do that if we've
+                        # tried to talk to it out-of-character first.
+                        #
+                        # So if this turn has OOC talk, we'll only use it as a
+                        # model turn if the previous (user) turn also had OOC
+                        # talk.
+                        turn_kind = TurnKind.USER
 
                     turn = Turn(utterance=cleaned_message, kind=turn_kind)
                     turns.append(turn)
@@ -260,7 +264,12 @@ def _remove_html_tag(message: str, tag: str) -> str:
     return cleaned_message
 
 
-OOC_REGEX = re.compile(r"\((\(|(OOC)).*?\)?\)")
+def _seems_to_have_ooc_talk(message: str) -> bool:
+    '''Returns whether a message seems to have some out-of-character talk.'''
+    return re.search(_OOC_REGEX, message) is not None
+
+
+_OOC_REGEX = re.compile(r"^\((OOC: ?)?.+\)$", flags=re.MULTILINE)
 
 _BASE_SYSTEM_PROMPTS = [
     "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{content_type_str}}. {{response_length_str}}.",
