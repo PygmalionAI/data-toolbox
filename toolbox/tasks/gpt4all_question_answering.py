@@ -16,7 +16,7 @@ class Gpt4AllQuestionAnsweringTask(BaseTask):
     '''Question answering based on GPT4all data.'''
 
     def __iter__(self) -> t.Generator[Episode, None, None]:
-        for instance in Gpt4AllDataset():
+        for idx, instance in enumerate(Gpt4AllDataset()):
             try:
                 turns: list[Turn] = [
                     Turn(
@@ -33,7 +33,7 @@ class Gpt4AllQuestionAnsweringTask(BaseTask):
                     ),
                 ]
 
-                yield Episode(turns=turns, identifier="gpt4all")
+                yield Episode(turns=turns, identifier=f"gpt4all-{idx}")
             except AssertionError as ex:
                 # TODO(11b): markdownify lib is choking when seeing some
                 # regexes in the data. Skiping data for now, but ideally we'd
