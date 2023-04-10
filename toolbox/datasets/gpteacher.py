@@ -1,9 +1,10 @@
-import os
 import json
+import os
 import typing as t
 
 from toolbox.core.dataset import BaseDataset, get_path_for
-from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance  # not the greatest import...
+from toolbox.datasets.gpt4llm import \
+    AlpacaLikeDataInstance  # not the greatest import...
 
 
 class GpTeacherDataset(BaseDataset[AlpacaLikeDataInstance]):
