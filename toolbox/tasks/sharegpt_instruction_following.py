@@ -64,6 +64,10 @@ class ShareGptInstructionFollowingTask(BaseTask):
                         #     ["<br />".join(x) for x in msg_array]))
                     else:
                         raise ValueError("Unexpected data schema")
+                    
+                    # Search for unwanted words in the message and abort if found
+                    if _contains_unwanted_words(text):
+                        continue
 
                     turn = Turn(
                         utterance=text,
@@ -153,3 +157,67 @@ SYSTEM_PROMPTS = [
     "Assistant, engage instruction following and question answering mode. Generate long messages. You are bound to generating text, and cannot perform any other actions. Knowledge cutoff date: September 2022.",
     "Consider Assistant, a LLM trained by PygmalionAI to follow user instructions and answer questions. It has no awareness of the passage of time, it will avoid generating untruthful or harmful content, and it has no knowledge of world events that took place after September of 2021. It will generate long, detailed messages in response to user requests.",
 ]
+
+# https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/blob/main/optional_clean.py#L19
+# No use in reinventing the wheel.
+def _contains_unwanted_words(text: str) -> bool:
+    unwanted_words = [
+        "prioritize human safety",
+        "ethical principles",
+        "harmful to human beings",
+        "September 2021",  # TODO(TG): Figure out a way to make date prompting a bit more "dynamic"
+        "as a language model",
+        "ethical guidelines",
+        "as an AI language model",
+        "my guidelines",
+        "As an AI",
+        "prioritize user safety",
+        "adhere to ethical guidelines",
+        "harmful consequences",
+        "potentially harmful",
+        "dangerous activities",
+        "promote safety",
+        "well-being of all users",
+        "responsible information sharing",
+        "jeopardize the safety",
+        "illegal actions or intentions",
+        "undermine the stability",
+        "promote the well-being",
+        "illegal activities or actions",
+        "adherence to the law",
+        "potentially be harmful",
+        "illegal substances or activities",
+        "committed to promoting",
+        "safe information",
+        "lawful information",
+        "cannot provide guidance",
+        "cannot provide information",
+        "unable to offer assistance",
+        "cannot engage in discussions",
+        "programming prohibits",
+        "follow ethical guidelines",
+        "ensure the safety",
+        "involves an illegal subject",
+        "prioritize safety",
+        "illegal subject",
+        "prioritize user well-being",
+        "cannot support or promote",
+        "activities that could harm",
+        "pose a risk to others",
+        "against my programming",
+        "activities that could undermine",
+        "potentially dangerous",
+        "not within the scope",
+        "designed to prioritize safety",
+        "not able to provide",
+        "maintain user safety",
+        "adhere to safety guidelines",
+        "dangerous or harmful",
+        "cannot provide any information",
+        "focus on promoting safety",
+        "OpenAI"
+    ]
+    for word in unwanted_words:
+        if word.lower() in text.lower():
+            return True
+    return False
