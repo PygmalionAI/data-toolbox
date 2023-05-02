@@ -18,7 +18,10 @@ class SingleTurnInstructionFollowingTask(BaseTask):
         #     yield _data_instance_to_episode(instance, idx, "gpt-4-all")
 
         for idx, instance in enumerate(GpTeacherDataset()):
-            yield _data_instance_to_episode(instance, idx, "gpteacher")
+            try:
+                yield _data_instance_to_episode(instance, idx, "gpteacher")
+            except ValueError:
+                pass
 
 
 def _data_instance_to_episode(
@@ -27,7 +30,13 @@ def _data_instance_to_episode(
     source: str,
 ) -> Episode:
     turns: list[Turn] = []
-    if instance.input:
+
+    # For some reason, some training examples have an input that's just a
+    # chopped off segment of the instruction. Not great, so let's handle those
+    # as no-input examples.
+    bad_input = instance.input in instance.instruction
+
+    if instance.input and not bad_input:
         # We have a separate input, so let's construct the prompt using
         # a separate system prompt for the instruction.
         turns = [
