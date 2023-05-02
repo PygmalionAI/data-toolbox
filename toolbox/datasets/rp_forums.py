@@ -72,9 +72,6 @@ class RpForumsDataset(BaseDataset[RpThread]):
                     message = RpMessage(author=row['message_username'],
                                         message=row['message'])
                     messages.append(message)
-                    # Check for duplicate messages by same author, they indeed exist in the dataset
-                    if len(set(messages)) != len(messages):
-                        messages = messages[:-1]
 
 
 def _get_rp_type_from_filename(filename: str) -> RpType:
@@ -103,5 +100,7 @@ SHA256_DIGEST_TO_RP_TYPE_MAP: dict[str, RpType] = {
     '03aee36448fc81f8bae062196bad9767bfc1610c537e3a58660ba4047d49aeb5':
         RpType.ERP,
     '1bfadd54f7b41f5c2d387a4cbb9bda9342a203870e0f7be7a56a24ad3947f47a':
+        RpType.ERP,
+    '3d4b7c9d57643279ce091dc32e06006bc5195ab71ec3be98fef81623dcb132e7':
         RpType.ERP,
 }
