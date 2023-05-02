@@ -7,6 +7,7 @@ import json
 from colors import color
 
 from toolbox.core.training_example import TrainingExampleGenerator, TurnTooLargeError
+from toolbox.tasks import NAME_TO_TASK_MAPPING
 
 LOG = logging.getLogger(__name__)
 
@@ -23,12 +24,8 @@ def main() -> None:
     idx = 0
     print_new_episode_header = True
 
-    # TODO(11b): Finish this script and clean this up.
-    # from toolbox.tasks.sharegpt_instruction_following import ShareGptInstructionFollowingTask
-    # from toolbox.tasks.soda_summarization import SodaSummarizationTask
-    # from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
-    from toolbox.tasks.soda_reply_generation import SodaReplyGenerationTask
-    for episode in SodaReplyGenerationTask(split="test"):
+    Task = NAME_TO_TASK_MAPPING[args.task]
+    for episode in Task():
         if args.print and print_new_episode_header:
             print(
                 color("     new episode      ",
@@ -75,6 +72,11 @@ def main() -> None:
 
 def _parse_args_from_argv() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+
+    parser.add_argument("-t",
+                        "--task",
+                        required=True,
+                        help="Which task to build data for.")
 
     parser.add_argument("--starting-index",
                         type=int,
