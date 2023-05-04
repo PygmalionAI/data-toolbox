@@ -170,20 +170,20 @@ def _response_length_str_for(response: str) -> str:
 
     if word_count < 16:
         length_str = random.choice([
-            "The generation should be short (less than 16 words)",
-            "Be brief when generating the message (less than sixteen words)",
+            "The generation should be short",
+            "Be brief when generating the message",
             "The generated reply should be small",
-        ])
-    elif word_count < 48:
-        length_str = random.choice([
-            "The generated reply should be of medium length (between 16 to 48 words)",
-            "The generated response should be slightly lengthy (at most 48 words)",
-            "The generated message should be on the medium side",
         ])
     elif word_count < 96:
         length_str = random.choice([
+            "The generated reply should be of medium length",
+            "The generated response should be slightly lengthy",
+            "The generated message should be on the medium side",
+        ])
+    elif word_count < 192:
+        length_str = random.choice([
             "The new message will be lengthy",
-            "The reply should be long, more than 48 words",
+            "The reply should be long",
             "The generation should be long",
         ])
     else:
