@@ -79,7 +79,9 @@ def _split_text_into_chunks(text: str, min_word_count: int) -> list[str]:
 
 
 _BASE_SYSTEM_PROMPTS = [
-    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. Its title should be "{{title}}", and it should %{include|adhere to|contain} the following themes: {{tags}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}''',
+    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. Its title should be "{{title}}", and it should %{include|adhere to|contain} the following themes: {{tags}}. {{response_length_str}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}''',
+    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story} titled "{{title}}". It should %{include|adhere to|contain} the following themes: {{tags}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. {{response_length_str}}.''',
+    '''{{response_length_str}}. You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. Include the following %{themes|tags}: {{tags}}.''',
 ]
 
 _SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
