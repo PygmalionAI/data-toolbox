@@ -2,6 +2,7 @@ import typing as t
 
 from toolbox.core.task import BaseTask
 from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
+from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
 from toolbox.tasks.evol_instruct import EvolInstructTask
 from toolbox.tasks.gpt4all_question_answering import \
     Gpt4AllQuestionAnsweringTask
@@ -17,6 +18,7 @@ from toolbox.tasks.soda_summarization import SodaSummarizationTask
 NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
     cls.__name__: cls for cls in [
         CharacterAiRoleplayTask,
+        ClubFloydTextAdventureTask,
         EvolInstructTask,
         Gpt4AllQuestionAnsweringTask,
         McStoriesWritingTask,
