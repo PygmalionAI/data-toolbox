@@ -17,6 +17,7 @@ dependencies = [
     "pandas>=1.5.3",
     "mashumaro>=3.5",
     "pyarrow>=11.0.0",
+    "sklearn>=0.0.post4",
 ]
 
 [project.optional-dependencies]

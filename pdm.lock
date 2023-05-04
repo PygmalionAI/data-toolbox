@@ -273,6 +273,11 @@ requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 summary = "Python 2 and 3 compatibility utilities"
 
 [[package]]
+name = "sklearn"
+version = "0.0.post4"
+summary = "deprecated sklearn package, use scikit-learn instead"
+
+[[package]]
 name = "soupsieve"
 version = "2.4"
 requires_python = ">=3.7"
@@ -330,8 +335,9 @@ version = "0.32.0"
 summary = "A formatter for Python code."
 
 [metadata]
-lock_version = "4.1"
-content_hash = "sha256:04f31d264e325f3cdb965c5b0bafc75eb4a7e9d20cdead1bbd500ae851f04b31"
+lock_version = "4.2"
+groups = ["default", "debugging", "dev"]
+content_hash = "sha256:5ac89efd6e4ba44422fbd6d6cd76977c7712aa28478bcfc07ac2fec588e53ef5"
 
 [metadata.files]
 "ansicolors 1.1.8" = [
@@ -660,6 +666,9 @@ content_hash = "sha256:04f31d264e325f3cdb965c5b0bafc75eb4a7e9d20cdead1bbd500ae85
 "six 1.16.0" = [
     {url = "https://files.pythonhosted.org/packages/71/39/171f1c67cd00715f190ba0b100d606d440a28c93c7714febeca8b79af85e/six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
     {url = "https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+]
+"sklearn 0.0.post4" = [
+    {url = "https://files.pythonhosted.org/packages/99/b2/165110013aa66fae6fc13918ad0e9de4801e5f1691d371bf8b63328037e6/sklearn-0.0.post4.tar.gz", hash = "sha256:0e81ec9c32d4bb418e7be8f1ec1027d174975502dc84cbc4f4564b4cba31e674"},
 ]
 "soupsieve 2.4" = [
     {url = "https://files.pythonhosted.org/packages/1b/cb/34933ebdd6bf6a77daaa0bd04318d61591452eb90ecca4def947e3cb2165/soupsieve-2.4.tar.gz", hash = "sha256:e28dba9ca6c7c00173e34e4ba57448f0688bb681b7c5e8bf4971daafc093d69a"},
