@@ -25,7 +25,7 @@ class SodaDataset(BaseDataset[SodaEpisode]):
     https://huggingface.co/datasets/allenai/soda
     '''
 
-    def __init__(self, split: str) -> None:
+    def __init__(self, split: str = "train") -> None:
         assert split in ["test", "train", "valid"]
         root_data_path = get_path_for("soda")
         self.file_path = os.path.join(root_data_path, f"{split}.parquet")
