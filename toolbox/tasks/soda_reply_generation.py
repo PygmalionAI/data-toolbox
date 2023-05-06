@@ -15,7 +15,7 @@ class SodaReplyGenerationTask(BaseTask):
     narrative. Based on SODA data.
     '''
 
-    def __init__(self, split: str) -> None:
+    def __init__(self, split: str = "train") -> None:
         self.split = split
 
         super().__init__()
@@ -34,6 +34,11 @@ class SodaReplyGenerationTask(BaseTask):
                     continue
 
                 participants = list(set(conversation.speakers))
+
+                # Original model experiments were very sensitive to participant
+                # order, so let's randomize to hopefully fix that.
+                random.shuffle(participants)
+
                 participants_str = " and ".join(
                     [", ".join(participants[:-1]), participants[-1]])
 
