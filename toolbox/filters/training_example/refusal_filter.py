@@ -19,6 +19,7 @@ class RefusalFilter(TrainingExampleFilter):
 # Taken from the dataset card in:
 # https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered
 _TIER_1_BAD_PHRASES = [
+    " as an ai language model",
     "text-based ai language model",
     "domestic violence",
     "please refrain",
