@@ -1,6 +1,7 @@
 import typing as t
 
 from toolbox.core.task import BaseTask
+from toolbox.tasks.aidungeon_text_adventure import AiDungeonTextAdventureTask
 from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
 from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
 from toolbox.tasks.evol_instruct import EvolInstructTask
@@ -18,6 +19,7 @@ from toolbox.tasks.whocars_roleplay import WhocarsRoleplayTask
 
 NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
     cls.__name__: cls for cls in [
+        AiDungeonTextAdventureTask,
         CharacterAiRoleplayTask,
         ClubFloydTextAdventureTask,
         EvolInstructTask,
