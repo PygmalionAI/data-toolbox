@@ -13,7 +13,7 @@ MIN_USER_RATING = 3.0
 
 
 class ClubFloydTextAdventureTask(BaseTask):
-    '''Instruction following task based on the evol_instruct (WizardLM) data.'''
+    '''Text adventure task based on ClubFloyd data.'''
 
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for idx, story in enumerate(ClubFloydDataset()):
