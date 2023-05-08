@@ -1,5 +1,4 @@
 import logging
-import operator
 import random
 import typing as t
 
