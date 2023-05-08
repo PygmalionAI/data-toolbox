@@ -11,9 +11,8 @@ LOG = logging.getLogger(__name__)
 
 MIN_USER_RATING = 3.0
 
-
 class ClubFloydTextAdventureTask(BaseTask):
-    '''Instruction following task based on the evol_instruct (WizardLM) data.'''
+    '''Task to create a text adventure game with the ClubFloyd dataset.'''
 
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for idx, story in enumerate(ClubFloydDataset()):

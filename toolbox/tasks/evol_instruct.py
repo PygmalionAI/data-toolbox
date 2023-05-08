@@ -26,7 +26,7 @@ class EvolInstructTask(BaseTask):
             # Empty output.
             if len(instance.output) < 1:
                 continue
-            # Random "No Input" strewn about.
+            # Random "No Output" strewn about.
             if any([
                     x in instance.instruction.lower()
                     for x in ["nooutput", "no output"]
