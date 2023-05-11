@@ -27,7 +27,8 @@ class OpenAssistantDataEntry:
 
 class OpenAssistantDataset(BaseDataset[OpenAssistantDataEntry]):
     '''
-    The OpenAssistant dataset. Add more here.
+    The OpenAssistant dataset from the OpenAssistant organization - specifically, the cleaned version.
+    https://huggingface.co/datasets/OpenAssistant/oasst1
 
     Params:
     kept_languages: The list of languages in OpenAssist to keep in the final dataset. Set to None to keep all languages.
