@@ -18,8 +18,9 @@ class RefusalFilter(TrainingExampleFilter):
 
 # Taken from the dataset card in:
 # https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered
+# Then expanded to catch some more stuff.
 _TIER_1_BAD_PHRASES = [
-    " as an ai language model",
+    "as an ai language model",
     "text-based ai language model",
     "domestic violence",
     "please refrain",
@@ -134,4 +135,5 @@ _TIER_1_BAD_PHRASES = [
     "cannot provide any information",
     "focus on promoting safety",
     "openai",
+    "chatgpt",
 ]

@@ -45,9 +45,13 @@ def main() -> None:
             for example in TrainingExampleGenerator(episode):
                 # Right off the bat, if this training example gets caught by one
                 # of the filters, skip over and don't even count it.
+                should_keep = True
                 for filter in example_filters:
                     if not filter.should_keep(example):
-                        continue
+                        should_keep = False
+                        break
+                if not should_keep:
+                    continue
 
                 idx += 1
                 if idx < args.starting_index:
