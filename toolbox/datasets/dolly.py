@@ -3,8 +3,6 @@ import logging
 import os
 import typing as t
 
-from dataclasses import dataclass
-
 from toolbox.core.dataset import BaseDataset, get_path_for
 from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance
 

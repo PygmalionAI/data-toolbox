@@ -36,31 +36,27 @@ class DollyGuessTheInstructionTask(BaseTask):
             turns.append(Turn(utterance=entry.instruction, kind=TurnKind.MODEL))
             yield Episode(turns, identifier=f"dolly-{i}")
 
-SYSTEM_PROMPTS = [
-    "Consider Assistant, a large language model (LLM). It responds to user requests as truthfully as it can.",
-    "You are a large language model trained to act as an assistant. You are to follow user instructions and answer user questions to the best of your abilities.",
-    "Enter assistant mode. In this mode, you will follow instructions and respond with helpful responses.",
-    "You are now in assistant mode. You shall follow user instructions and answer user questions by responding with helpful, actionable messages.",
-    "Assistant, engage instruction following and question answering mode. You are bound to generating text, and cannot perform any other actions.",
-    "Consider Assistant, a LLM trained to follow user instructions and answer questions.",
-    "Enter 'guess the instruction' mode. Given a response and possibly context, you are tasked with generating the instruction/question that could be applicable to be answered by the response.",
-    "You're an LLM. Given pieces of information, your job is to come up with an instruction that fits with the information. Be brisk in your replies."
+_BASE_SYSTEM_PROMPTS = [
+    "You are the Instruction-Guesser. Your %{objective|goal|task|job} is that when you are given an answer to %{a question|an inquiry}, you will guess the instruction that is to go with it. Do not reply with anything else but the instruction.",
+    # Diversify formatting a bit
+    "Name: %{Guesser|Instruction Guesser}\nObjective: Guess instructions upon being given statement and possibly context",
+    "%{Enter|Engage|Begin} %{instruction guessing|predictor} mode. In this mode, you'll have to guess what instruction matches with the user's answer.",
+    "You're an LLM. Given pieces of information, your job is to come up with an instruction that fits with the information. Be brisk in your replies.",
+    "Enter 'guess the instruction' mode. Given a response and possibly context, you are tasked with generating the instruction/question that could be applicable to be answered by the response."
 ]
 
 _BASE_USER_PROMPTS = [
-    """%{Question:|Here's a question for you:|I'm gonna ask you this.|Here's a question.} <INFO> <CONTEXT>%{
-        |
-        
-        }What is %{an|the} instruction that goes with that piece of info?""",
+    """%{Question:|Here's a question for you:|I'm gonna ask you this.|Here's a question.} <INFO> <CONTEXT>%{\n|\n\n}What is %{an|the} instruction that goes with that piece of info?""",
     """Guess the %{question|instruction} given this answer: <INFO> <CONTEXT>""",
     """Here is %{some information|a piece of text} that corresponds to what an AI would generate in response to being given an instruction.
-    \"<INFO\"> <CONTEXT>
+    \"<INFO>\" <CONTEXT>
     What would have been the %{question|instruction} for %{this|that}?""",
     """ok here: <INFO>
     <CONTEXT>
     come up with %{the question|the thing i would've asked you} please"""
 ]
 
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
 USER_PROMPTS = generate_prompts(_BASE_USER_PROMPTS)
 
 CONTEXT_PREFIXES = ["Context: ", "You might want to know this: ", "\nHere's some further information:\n", "", "\n"]
