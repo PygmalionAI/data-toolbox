@@ -6,19 +6,6 @@ from dataclasses import dataclass
 
 from toolbox.core.dataset import BaseDataset, get_path_for
 
-# Thanks GPT-4
-def get_list_of_dicts(d):
-    '''Converts nested replies into a flattened conversation list.'''
-    if not d["replies"]:
-        return [[{"role": d["role"], "text": d["text"]}]]
-
-    result = []
-    for reply in d["replies"]:
-        for sub_reply in get_list_of_dicts(reply):
-            result.append([{"role": d["role"], "text": d["text"]}] + sub_reply)
-
-    return result
-
 @dataclass(frozen=True)
 class OpenAssistantDataEntry:
     conversation: list[dict]
@@ -29,9 +16,6 @@ class OpenAssistantDataset(BaseDataset[OpenAssistantDataEntry]):
     '''
     The OpenAssistant dataset from the OpenAssistant organization - specifically, the cleaned version.
     https://huggingface.co/datasets/OpenAssistant/oasst1
-
-    Params:
-    kept_languages: The list of languages in OpenAssist to keep in the final dataset. Set to None to keep all languages.
     '''
 
     def __iter__(self) -> t.Generator[OpenAssistantDataEntry, None, None]:
@@ -42,9 +26,22 @@ class OpenAssistantDataset(BaseDataset[OpenAssistantDataEntry]):
             for line in f:
                 entry = json.loads(line)
                 # Create a list of conversations from the different conversation paths
-                for conversation in get_list_of_dicts(entry["prompt"]):
+                for conversation in _get_list_of_dicts(entry["prompt"]):
                     yield OpenAssistantDataEntry(
                         conversation=conversation,
-                        language=conversation[0]["lang"],
+                        language=entry["prompt"]["lang"],
                         tree_id=entry["message_tree_id"]
                     )
+
+# Thanks GPT-4
+def _get_list_of_dicts(d):
+    '''Converts nested replies into a flattened conversation list.'''
+    if not d["replies"]:
+        return [[{"role": d["role"], "text": d["text"]}]]
+
+    result = []
+    for reply in d["replies"]:
+        for sub_reply in _get_list_of_dicts(reply):
+            result.append([{"role": d["role"], "text": d["text"]}] + sub_reply)
+
+    return result

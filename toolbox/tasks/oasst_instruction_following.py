@@ -24,7 +24,7 @@ class OpenAssistantInstructionFollowingTask(BaseTask):
         tree_id = ""
         for conversation in OpenAssistantDataset():
             # If the language of the conversation is not in the kept languages, skip it
-            if self.kept_languages is not None and conversation[0]['lang'] not in self.kept_languages:
+            if self.kept_languages is not None and conversation.language not in self.kept_languages:
                 continue
 
             # Set tree id and counter for identifier string
