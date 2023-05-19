@@ -29,7 +29,7 @@ class OpenAssistantInstructionFollowingTask(BaseTask):
 
             # Set tree id and counter for identifier string
             if conversation.tree_id != tree_id:
-                tree_id = conversation
+                tree_id = conversation.tree_id
                 counter = 1
 
             turns: list[Turn] = [
