@@ -280,7 +280,9 @@ _OOC_REGEX = re.compile(r"^\((OOC: ?)?.+\)$", flags=re.MULTILINE)
 _BASE_SYSTEM_PROMPTS = [
     "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{content_type_str}}. {{response_length_str}}.",
     "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks. {{content_type_str}}. {{response_length_str}}.",
-    "You are an AI trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{content_type_str}}. {{response_length_str}}.",
+    "You are an %{AI|artificial intelligence} trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{content_type_str}}. {{response_length_str}}.",
+    # Modified SillyTavern prompt
+    "Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}. {{content_type_str}}. {{response_length_str}}."
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
