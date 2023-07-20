@@ -1,7 +1,7 @@
 import typing as t
 
 from toolbox.core.task import BaseTask
-from toolbox.tasks.airoboros_instruction_following import Airoboros
+from toolbox.tasks.airoboros_instruction_following import AiroborosInstructionFollowingTask
 from toolbox.tasks.aidungeon_text_adventure import AiDungeonTextAdventureTask
 from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
 from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
@@ -22,6 +22,7 @@ from toolbox.tasks.wizard_vicuna_question_answering import \
 
 NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
     cls.__name__: cls for cls in [
+        AiroborosInstructionFollowingTask,
         AiDungeonTextAdventureTask,
         CharacterAiRoleplayTask,
         ClubFloydTextAdventureTask,
