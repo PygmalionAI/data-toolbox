@@ -18,7 +18,7 @@ class SimpleReplyDataInstance:
 class AiroborosDataset(BaseDataset[SimpleReplyDataInstance]):
     def __iter__(self) -> t.Generator[SimpleReplyDataInstance, None, None]:
         root_path = get_path_for("airoboros")
-        file_path = os.path.join(root_path, "instructions.json")
+        file_path = os.path.join(root_path, "instructions.jsonl")
 
         with open(file_path, "r", encoding="utf-8") as f:
             for line in f:
