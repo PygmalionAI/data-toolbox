@@ -1,6 +1,7 @@
 import typing as t
 
 from toolbox.core.task import BaseTask
+from toolbox.tasks.airoboros_instruction_following import Airoboros
 from toolbox.tasks.aidungeon_text_adventure import AiDungeonTextAdventureTask
 from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
 from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
