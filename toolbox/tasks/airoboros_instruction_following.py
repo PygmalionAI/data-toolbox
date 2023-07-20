@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 class AiroborosInstructionFollowingTask(BaseTask):
     '''Instruction following task based on the Airoboros data.'''
     def __iter__(self) -> t.Generator[Episode, None, None]:
-        for idx, instance in enumerate(AiroborosDataset, start=1):
+        for idx, instance in enumerate(AiroborosDataset(), start=1):
             # Throw out any responses containing "Airoboros"
             if instance.generation.lower().strip() == "airoboros":
                 continue
@@ -39,7 +39,7 @@ BASE_SYSTEM_PROMPTS = [
     "",
     "%{Enter|Engage|Begin in} assistant mode. Answer the user's questions in a detailed manner.",
     "%{You are now in|Engage|Start|Enter} %{instruction following|instruction|question answering|assistant|AI assistant} mode. %{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}.",
-    "%{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}."
+    "%{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}.",
     "%{Purpose|Goal|Job}: Assistant\n%{Procedure|Objective|Methods of achieving your goal}: %{Answer the user's questions|Follow the user's instructions}"
 ]
 

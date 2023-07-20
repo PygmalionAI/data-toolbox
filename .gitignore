@@ -7,7 +7,9 @@
 /.pdm.toml
 /.pdm-python
 /.venv/
+/dist/*
 
 # Large/binary files.
 /data/*
 !/data/.keep
+build.py

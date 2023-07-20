@@ -94,6 +94,11 @@ def _parse_args_from_argv() -> argparse.Namespace:
                         "--task",
                         required=True,
                         help="Which task to build data for.")
+                        
+    parser.add_argument("-o",
+                        "--output-file",
+                        default="",
+                        help="The path to the output file of the built data")
 
     parser.add_argument(
         "--example-filters",
