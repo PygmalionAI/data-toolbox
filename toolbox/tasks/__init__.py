@@ -9,6 +9,7 @@ from toolbox.tasks.evol_instruct import EvolInstructTask
 from toolbox.tasks.gpt4all_question_answering import \
     Gpt4AllQuestionAnsweringTask
 from toolbox.tasks.mcstories_writing import McStoriesWritingTask
+from toolbox.tasks.openorca_instruction_following import OpenOrcaInstructionFollowingTask
 from toolbox.tasks.rp_forums_writing import RpForumsWritingTask
 from toolbox.tasks.sharegpt_instruction_following import \
     ShareGptInstructionFollowingTask
@@ -29,6 +30,7 @@ NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
         EvolInstructTask,
         Gpt4AllQuestionAnsweringTask,
         McStoriesWritingTask,
+        OpenOrcaInstructionFollowingTask,
         RpForumsWritingTask,
         ShareGptInstructionFollowingTask,
         SingleTurnInstructionFollowingTask,
