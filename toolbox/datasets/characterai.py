@@ -128,10 +128,11 @@ def _available_json_data() -> t.Generator[dict[str, t.Any], None, None]:
     for folder in ["public", "private"]:
         folder_path = os.path.join(dataset_path, folder)
         for json_file_path in _enumerate_json_files(folder_path):
-            with open(json_file_path, "r") as json_file:
+            with open(json_file_path, "r", encoding="utf-8-sig") as json_file:
                 try:
                     yield json.load(json_file)
-                except json.decoder.JSONDecodeError as ex:
+                # TODO(TG): Fix the Unicode error more properly
+                except (json.decoder.JSONDecodeError, UnicodeDecodeError) as ex:
                     LOG.error("Failed to parse %s: %s", json_file_path, ex)
 
 

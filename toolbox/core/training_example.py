@@ -78,7 +78,14 @@ class TrainingExampleGenerator:
             # the prompt, and then use the model's utterance as the response.
             prompt = "".join([t.as_str() for t in cur_turns[:-1]
                              ]) + TurnKind.MODEL.value
-            generation = turn.utterance.strip()
+            
+            try:
+                generation = turn.utterance.strip()
+            except AttributeError:
+                # For some reason, Teatime logs can have other types
+                # as utterances.
+                LOG.info(f"Caught generation {turn.utterance} as type {type(turn.utterance)}, casting to string if possible...")
+                generation = str(turn.utterance).strip()
 
             # Sanity checks. Asserts that there's only a single system prompt
             # and it's at the very beginning of the prompt string.
