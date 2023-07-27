@@ -27,7 +27,7 @@ class OpenOrcaInstructionFollowingTask(BaseTask):
 
             # OpenOrca *looks* clean, but since it's GPT-4 generated data, better safe than sorry.
             for phrase in _TIER_1_BAD_PHRASES:
-                if phrase in orca_entry.response:
+                if phrase in orca_entry.response.lower():
                     continue
 
             system_prompt = random.choice(SYSTEM_PROMPTS)
