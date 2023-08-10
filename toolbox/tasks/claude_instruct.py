@@ -32,6 +32,7 @@ class ClaudeInstructTask(BaseTask):
                     # We check if the conversation has had a full exchange (system prompt, user input, model gen)
                     if len(turns) < 3:
                         # If not, abort the conversation and don't yield it.
+                        LOG.warning(f"Skipping example {round.id}, unable to complete a full conversation")
                         aborted_convo = True
                     else:
                         # If so, check to see if the blank reply comes from the human or the model.
