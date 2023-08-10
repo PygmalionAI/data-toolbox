@@ -60,7 +60,7 @@ def _available_json_data() -> t.Generator[list[dict[str, t.Any]], None, None]:
     Yields all available JSON data, parsed from the files in the Claude
     data folder.
     '''
-    dataset_path = get_path_for("claude")
+    dataset_path = get_path_for("claude-rp")
 
     for folder in ["public", "private"]:
         folder_path = os.path.join(dataset_path, folder)

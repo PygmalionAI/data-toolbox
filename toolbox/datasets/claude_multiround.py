@@ -18,7 +18,7 @@ class ClaudeInstructDataset(BaseDataset[ClaudeMultiround]):
     https://huggingface.co/datasets/Norquinal/claude_multiround_chat_30k
     '''
     def __iter__(self) -> t.Generator[ClaudeMultiround, None, None]:
-        root_path = get_path_for("claude_multiround")
+        root_path = get_path_for("claude-multiround")
         file_path = os.path.join(root_path, "claude_multiround_chat_30k.json")
 
         with open(file_path, "r", encoding="utf-8") as f:
