@@ -11,32 +11,32 @@ from toolbox.core.dataset import BaseDataset, get_path_for
 LOG = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
-class ClaudeMessage:
+class ClaudeRpMessage:
     message: str
     is_user: bool
 
 @dataclass(frozen=True)
-class ClaudeConversation:
-    messages: list[ClaudeMessage]
+class ClaudeRpConversation:
+    messages: list[ClaudeRpMessage]
     user_name: str
     bot_name: str
     convo_id: int
 
-class ClaudeDataset(BaseDataset[ClaudeMessage]):
+class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
     '''Dataset for user-submitted Claude logs'''
 
-    def __iter__(self) -> t.Generator[ClaudeMessage, None, None]:
+    def __iter__(self) -> t.Generator[ClaudeRpMessage, None, None]:
         # NOTE(TG): Maybe change the method of convo ID from number to timestamp?
         convo_num = 0
         for data in _available_json_data():
-            msg_list: list[ClaudeMessage] = []
+            msg_list: list[ClaudeRpMessage] = []
             user_name = ""
             bot_name = ""
 
             for entry in data:
                 # Convert dictionaries to dataclasses
                 msg_list.append(
-                    ClaudeMessage(
+                    ClaudeRpMessage(
                         message=entry["mes"],
                         is_user=entry["is_user"]
                     )
@@ -46,7 +46,7 @@ class ClaudeDataset(BaseDataset[ClaudeMessage]):
                 elif bot_name == "" and not entry["is_user"]:
                     bot_name = entry["name"]
 
-            yield ClaudeConversation(
+            yield ClaudeRpConversation(
                 messages=msg_list,
                 user_name=user_name,
                 bot_name=bot_name,

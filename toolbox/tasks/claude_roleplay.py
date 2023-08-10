@@ -4,7 +4,7 @@ import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
-from toolbox.datasets.claude import ClaudeDataset
+from toolbox.datasets.claude_logs import ClaudeRpDataset
 from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 class ClaudeRoleplayTask(BaseTask):
     '''Roleplay task based on Claude logs'''
     def __iter__(self) -> t.Generator[Episode, None, None]:
-        for convo in ClaudeDataset():
+        for convo in ClaudeRpDataset():
             # Deal with system prompts
             system_prompt = random.choice(SYSTEM_PROMPTS)
             system_prompt = system_prompt.replace("{{char}}", convo.bot_name)
@@ -32,7 +32,7 @@ class ClaudeRoleplayTask(BaseTask):
 
             yield Episode(
                 turns=turns,
-                identifier=f"claude-{convo.convo_id}"
+                identifier=f"claude-rp-{convo.convo_id}"
             )
 
 _BASE_SYSTEM_PROMPTS = [
