@@ -13,9 +13,9 @@ LOG = logging.getLogger(__name__)
 class OpenOrcaInstructionFollowingTask(BaseTask):
     '''
     OpenOrca instruction following task.
-    Limited to 65,000 entries by default due to the sheer absolute size of OpenOrca.
+    Limited to 200,000 entries by default due to the sheer absolute size of OpenOrca.
     '''
-    def __init__(self, max_examples: int = 65000) -> None:
+    def __init__(self, max_examples: int = 200000) -> None:
         super().__init__()
         self.max_examples = max_examples
 
