@@ -4,6 +4,7 @@ from toolbox.core.task import BaseTask
 from toolbox.tasks.airoboros_instruction_following import AiroborosInstructionFollowingTask
 from toolbox.tasks.aidungeon_text_adventure import AiDungeonTextAdventureTask
 from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
+from toolbox.tasks.claude_instruct import ClaudeInstructTask
 from toolbox.tasks.claude_roleplay import ClaudeRoleplayTask
 from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
 from toolbox.tasks.evol_instruct import EvolInstructTask
@@ -28,6 +29,7 @@ NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
         AiroborosInstructionFollowingTask,
         AiDungeonTextAdventureTask,
         CharacterAiRoleplayTask,
+        ClaudeInstructTask,
         ClaudeRoleplayTask,
         ClubFloydTextAdventureTask,
         EvolInstructTask,
