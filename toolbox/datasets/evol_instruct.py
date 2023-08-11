@@ -3,8 +3,7 @@ import os
 import typing as t
 
 from toolbox.core.dataset import BaseDataset, get_path_for
-from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance
-
+from toolbox.datasets.common import AlpacaLikeDataInstance
 
 class EvolInstructDataset(BaseDataset[AlpacaLikeDataInstance]):
     '''

@@ -3,17 +3,10 @@ import logging
 import os
 import typing as t
 
-from dataclasses import dataclass
-
 from toolbox.core.dataset import BaseDataset, get_path_for
+from toolbox.datasets.common import SimpleReplyDataInstance
 
 logger = logging.getLogger(__name__)
-
-# Even simpler dataclass than AlpacaLikeDataInstance...
-@dataclass(frozen=True)
-class SimpleReplyDataInstance:
-    prompt: str
-    generation: str
 
 class AiroborosDataset(BaseDataset[SimpleReplyDataInstance]):
     def __iter__(self) -> t.Generator[SimpleReplyDataInstance, None, None]:
