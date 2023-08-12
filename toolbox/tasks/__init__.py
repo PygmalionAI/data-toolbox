@@ -7,6 +7,7 @@ from toolbox.tasks.characterai_roleplay import CharacterAiRoleplayTask
 from toolbox.tasks.claude_instruct import ClaudeInstructTask
 from toolbox.tasks.claude_roleplay import ClaudeRoleplayTask
 from toolbox.tasks.clubfloyd_text_adventure import ClubFloydTextAdventureTask
+from toolbox.tasks.dolly_guess_instruction import DollyGuessTheInstructionTask
 from toolbox.tasks.evol_instruct import EvolInstructTask
 from toolbox.tasks.gpt4all_question_answering import \
     Gpt4AllQuestionAnsweringTask
@@ -32,6 +33,7 @@ NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
         ClaudeInstructTask,
         ClaudeRoleplayTask,
         ClubFloydTextAdventureTask,
+        DollyGuessTheInstructionTask,
         EvolInstructTask,
         Gpt4AllQuestionAnsweringTask,
         McStoriesWritingTask,
