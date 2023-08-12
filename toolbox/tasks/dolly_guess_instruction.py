@@ -1,5 +1,6 @@
 import logging
 import random
+import re
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
@@ -28,12 +29,15 @@ class DollyGuessTheInstructionTask(BaseTask):
             user_prompt = user_prompt.replace("<INFO>", entry.output)
             if entry.input != "":
                 context = random.choice(CONTEXT_PREFIXES) + entry.input
-                user_prompt = user_prompt.replace("<CONTEXT>", context)
+                user_prompt = user_prompt.replace("<CONTEXT>", context.lstrip())
             else:
                 user_prompt = user_prompt.replace("<CONTEXT>", "")
 
+            # Fix excessive whitespace in the instruction
+            instruction = re.sub(r' {2,}', ' ', entry.instruction)
+
             turns.append(Turn(utterance=user_prompt, kind=TurnKind.USER))
-            turns.append(Turn(utterance=entry.instruction, kind=TurnKind.MODEL))
+            turns.append(Turn(utterance=instruction, kind=TurnKind.MODEL))
             yield Episode(turns, identifier=f"dolly-{i}")
 
 _BASE_SYSTEM_PROMPTS = [
@@ -47,14 +51,14 @@ _BASE_SYSTEM_PROMPTS = [
 ]
 
 _BASE_USER_PROMPTS = [
-    """%{Question:|Here's a question for you:|I'm gonna ask you this.|Here's a question.} <INFO> <CONTEXT>%{\n|\n\n}What is %{an|the} instruction that goes with that %{piece|bit} of %{info|information|context}?""",
-    """Guess the %{question|instruction} given this answer: <INFO> <CONTEXT>""",
+    """%{Answer:|Here's an answer for you:|I'm gonna give you you this.|Here's an answer.} <INFO> <CONTEXT>\nWhat is %{an|the} instruction that goes with that %{piece|bit} of %{info|information|context}?""",
+    """Guess the instruction given this answer: <INFO> <CONTEXT>""",
     """Here is %{some information|a piece of text} that corresponds to what an %{AI assistant|artificial assistant} would generate in response to being given an instruction.
     \"<INFO>\" <CONTEXT>
     What would have been the %{question|instruction} for %{this|that}?""",
     """ok here: <INFO>
     <CONTEXT>
-    come up with %{the question|the thing i would've asked you} please"""
+    come up with %{the question|the thing i would've asked you} please""",
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
