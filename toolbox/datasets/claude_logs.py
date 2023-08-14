@@ -33,27 +33,32 @@ class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
             user_name = ""
             bot_name = ""
 
-            for entry in data:
-                # Convert dictionaries to dataclasses
-                msg_list.append(
-                    ClaudeRpMessage(
-                        message=entry["mes"],
-                        is_user=entry["is_user"]
+            try:
+                # Skip the first entry since that's metadata
+                for entry in data[1:]:
+                    # Convert dictionaries to dataclasses
+                    msg_list.append(
+                        ClaudeRpMessage(
+                            message=entry["mes"],
+                            is_user=entry["is_user"]
+                        )
                     )
+                    if user_name == "" and entry["is_user"]:
+                        user_name = entry["name"]
+                    elif bot_name == "" and not entry["is_user"]:
+                        bot_name = entry["name"]
+
+                yield ClaudeRpConversation(
+                    messages=msg_list,
+                    user_name=user_name,
+                    bot_name=bot_name,
+                    convo_id=convo_num,
                 )
-                if user_name == "" and entry["is_user"]:
-                    user_name = entry["name"]
-                elif bot_name == "" and not entry["is_user"]:
-                    bot_name = entry["name"]
 
-            yield ClaudeRpConversation(
-                messages=msg_list,
-                user_name=user_name,
-                bot_name=bot_name,
-                convo_id=convo_num,
-            )
-
-            convo_num += 1
+            except Exception as ex:
+                LOG.info(f"Unable to parse data in conversation {convo_num} due to exception {ex}")
+            finally:
+                convo_num += 1
 
 def _available_json_data() -> t.Generator[list[dict[str, t.Any]], None, None]:
     '''
@@ -89,7 +94,7 @@ def _enumerate_json_files(root_path: str) -> list[str]:
         absolute_file_path = os.path.abspath(os.path.join(root_path, item))
         files.append(absolute_file_path)
 
-    # Super nasty code to allow generation of CAI data with separate processes
+    # Super nasty code to allow generation of Claude data with separate processes
     # so I can speed it up. Pass the "SHARD" and "TOTAL_SHARDS" environment
     # variables to operate on the different parts of the data.
     if "SHARD" not in os.environ:
