@@ -39,6 +39,11 @@ class ClaudeRoleplayTask(BaseTask):
                     kind=TurnKind.USER if message.is_user else TurnKind.MODEL
                 ))
 
+            # Cut off any logs that don't have one full exchange of conversation
+            if len(turns) <= 2:
+                LOG.info("Skipping conversation {convo.convo_id} due to insufficient conversation length.")
+                continue
+
             yield Episode(
                 turns=turns,
                 identifier=f"claude-rp-{convo.convo_id}"
