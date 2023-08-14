@@ -21,6 +21,7 @@ class ClaudeRpConversation:
     user_name: str
     bot_name: str
     convo_id: int
+    persona: t.Optional[str]
 
 class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
     '''Dataset for user-submitted Claude logs'''
@@ -34,8 +35,15 @@ class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
             bot_name = ""
 
             try:
-                # Skip the first entry since that's metadata
-                for entry in data[1:]:
+                # Check to see if the first entry is metadata: if so, we can see if a persona exists from that.
+                if "chat_metadata" in data[0].keys():
+                    conversation = data[1:]
+                    persona = data[0]["chat_metadata"]["note_prompt"]
+                else:
+                    conversation = data
+                    persona = ""
+
+                for entry in conversation:
                     # Convert dictionaries to dataclasses
                     msg_list.append(
                         ClaudeRpMessage(
@@ -53,6 +61,7 @@ class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
                     user_name=user_name,
                     bot_name=bot_name,
                     convo_id=convo_num,
+                    persona=persona if persona != "" else None,
                 )
 
             except Exception as ex:

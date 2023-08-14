@@ -15,6 +15,10 @@ class ClaudeRoleplayTask(BaseTask):
         for convo in ClaudeRpDataset():
             # Deal with system prompts
             system_prompt = random.choice(SYSTEM_PROMPTS)
+            # Add a persona if there is one
+            if convo.persona is not None and system_prompt != "":
+                system_prompt += "\n{{char}} must act like this persona: " + convo.persona
+            
             system_prompt = system_prompt.replace("{{char}}", convo.bot_name)
             # If the name is simply "You", we make the user generic
             if convo.user_name.lower().strip() != "you":
