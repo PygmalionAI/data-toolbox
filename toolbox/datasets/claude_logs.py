@@ -21,6 +21,7 @@ class ClaudeRpConversation:
     user_name: str
     bot_name: str
     convo_id: int
+    persona: t.Optional[str]
 
 class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
     '''Dataset for user-submitted Claude logs'''
@@ -33,27 +34,40 @@ class ClaudeRpDataset(BaseDataset[ClaudeRpMessage]):
             user_name = ""
             bot_name = ""
 
-            for entry in data:
-                # Convert dictionaries to dataclasses
-                msg_list.append(
-                    ClaudeRpMessage(
-                        message=entry["mes"],
-                        is_user=entry["is_user"]
+            try:
+                # Check to see if the first entry is metadata: if so, we can see if a persona exists from that.
+                if "chat_metadata" in data[0].keys():
+                    conversation = data[1:]
+                    persona = data[0]["chat_metadata"]["note_prompt"]
+                else:
+                    conversation = data
+                    persona = ""
+
+                for entry in conversation:
+                    # Convert dictionaries to dataclasses
+                    msg_list.append(
+                        ClaudeRpMessage(
+                            message=entry["mes"],
+                            is_user=entry["is_user"]
+                        )
                     )
+                    if user_name == "" and entry["is_user"]:
+                        user_name = entry["name"]
+                    elif bot_name == "" and not entry["is_user"]:
+                        bot_name = entry["name"]
+
+                yield ClaudeRpConversation(
+                    messages=msg_list,
+                    user_name=user_name,
+                    bot_name=bot_name,
+                    convo_id=convo_num,
+                    persona=persona if persona != "" else None,
                 )
-                if user_name == "" and entry["is_user"]:
-                    user_name = entry["name"]
-                elif bot_name == "" and not entry["is_user"]:
-                    bot_name = entry["name"]
 
-            yield ClaudeRpConversation(
-                messages=msg_list,
-                user_name=user_name,
-                bot_name=bot_name,
-                convo_id=convo_num,
-            )
-
-            convo_num += 1
+            except Exception as ex:
+                LOG.info(f"Unable to parse data in conversation {convo_num} due to exception {ex}")
+            finally:
+                convo_num += 1
 
 def _available_json_data() -> t.Generator[list[dict[str, t.Any]], None, None]:
     '''
@@ -89,7 +103,7 @@ def _enumerate_json_files(root_path: str) -> list[str]:
         absolute_file_path = os.path.abspath(os.path.join(root_path, item))
         files.append(absolute_file_path)
 
-    # Super nasty code to allow generation of CAI data with separate processes
+    # Super nasty code to allow generation of Claude data with separate processes
     # so I can speed it up. Pass the "SHARD" and "TOTAL_SHARDS" environment
     # variables to operate on the different parts of the data.
     if "SHARD" not in os.environ:

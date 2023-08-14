@@ -15,8 +15,17 @@ class ClaudeRoleplayTask(BaseTask):
         for convo in ClaudeRpDataset():
             # Deal with system prompts
             system_prompt = random.choice(SYSTEM_PROMPTS)
+            # Add a persona if there is one
+            if convo.persona is not None and system_prompt != "":
+                system_prompt += "\n{{char}} must act like this persona: " + convo.persona
+            
             system_prompt = system_prompt.replace("{{char}}", convo.bot_name)
-            system_prompt = system_prompt.replace("{{user}}", convo.user_name)
+            # If the name is simply "You", we make the user generic
+            if convo.user_name.lower().strip() != "you":
+                system_prompt = system_prompt.replace("{{user}}", convo.user_name)
+            else:
+                system_prompt = system_prompt.replace("{{user}}", "the user")
+                
             turns: list[Turn] = [
                 Turn(
                     utterance=system_prompt,
@@ -27,8 +36,13 @@ class ClaudeRoleplayTask(BaseTask):
             for message in convo.messages:
                 turns.append(Turn(
                     utterance=message.message,
-                    kind=TurnKind.USER if message.is_user else TurnKind.SYSTEM
+                    kind=TurnKind.USER if message.is_user else TurnKind.MODEL
                 ))
+
+            # Cut off any logs that don't have one full exchange of conversation
+            if len(turns) <= 2:
+                LOG.info("Skipping conversation {convo.convo_id} due to insufficient conversation length.")
+                continue
 
             yield Episode(
                 turns=turns,
