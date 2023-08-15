@@ -32,7 +32,7 @@ class AiroborosInstructionFollowingTask(BaseTask):
                 ),
             ]
 
-            yield Episode(turns=turns, identifier=f"airoboros-{idx}")
+            yield Episode(turns=turns, identifier=f"airoboros-instruct-{idx}")
 
 
 BASE_SYSTEM_PROMPTS = [
