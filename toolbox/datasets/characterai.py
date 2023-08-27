@@ -40,6 +40,7 @@ class CaiChat:
     messages: list[CaiMessage]
     bot: CaiBotInfo
     identifier: str
+    timestamp: int
 
 
 class CharacterAiDataset(BaseDataset[CaiChat]):
@@ -50,7 +51,7 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
 
         # Do a first run through all the files to load all the definitions and
         # descriptions.
-        for data in _available_json_data():
+        for _, data in _available_json_data():
             try:
                 if not _is_definition_data(data):
                     continue
@@ -61,7 +62,7 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
                 LOG.debug("Skipping over exception: %s", ex)
 
         # Now do a second pass, to actually handle chat histories/messages.
-        for data in _available_json_data():
+        for timestamp, data in _available_json_data():
             try:
                 if _is_definition_data(data):
                     continue
@@ -76,7 +77,8 @@ class CharacterAiDataset(BaseDataset[CaiChat]):
                     messages = _messages_from_dict(history_dict["msgs"])
                     yield CaiChat(bot=bot_info,
                                   messages=messages,
-                                  identifier="TODO")
+                                  identifier=f"{timestamp}-{bot_info.name}",
+                                  timestamp=timestamp)
             except (AttributeError, KeyError, ValueError) as ex:
                 LOG.debug("Skipping over exception: %s", ex)
 
@@ -118,7 +120,7 @@ def _enumerate_json_files(root_path: str) -> list[str]:
     return files[file_range[0]:file_range[1]]
 
 
-def _available_json_data() -> t.Generator[dict[str, t.Any], None, None]:
+def _available_json_data() -> t.Generator[tuple[int, dict[str, t.Any]], None, None]:
     '''
     Yields all available JSON data, parsed from the files in the CharacterAI
     data folder.
@@ -129,8 +131,10 @@ def _available_json_data() -> t.Generator[dict[str, t.Any], None, None]:
         folder_path = os.path.join(dataset_path, folder)
         for json_file_path in _enumerate_json_files(folder_path):
             with open(json_file_path, "r", encoding="utf-8-sig") as json_file:
+                # Every valid submission has its filename start with a Unix timestamp (in ms)
+                timestamp = int(os.path.basename(json_file_path).split("_")[0])
                 try:
-                    yield json.load(json_file)
+                    yield (timestamp, json.load(json_file))
                 # TODO(TG): Fix the Unicode error more properly
                 except (json.decoder.JSONDecodeError, UnicodeDecodeError) as ex:
                     LOG.error("Failed to parse %s: %s", json_file_path, ex)
