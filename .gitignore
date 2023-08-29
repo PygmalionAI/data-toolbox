@@ -8,8 +8,7 @@
 /.pdm-python
 /.venv/
 /dist/*
-build.py
-build_data.py
+/build_data.py
 
 # Large/binary files.
 /data/*

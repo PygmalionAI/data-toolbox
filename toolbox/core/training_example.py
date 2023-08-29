@@ -4,7 +4,11 @@ import random
 import re
 import typing as t
 
-from toolbox.core.models import Episode, TrainingExample, TurnKind
+from toolbox.core.models import (
+    Episode,
+    TrainingExample,
+    TurnKind
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -14,10 +18,8 @@ LOG = logging.getLogger(__name__)
 # at training time.
 AVG_WORD_TO_TOKEN_RATIO = 1.7
 
-
 class TurnTooLargeError(RuntimeError):
     pass
-
 
 class TrainingExampleGenerator:
     '''Converts an `Episode` into `TrainingExample`s.'''
@@ -26,12 +28,23 @@ class TrainingExampleGenerator:
         self,
         episode: Episode,
         target_token_count: int = 2048,
+        format: str = "metharme"
     ) -> None:
         self.episode = episode
+        self.format = format.lower()
+        assert self.format in ["pygmalion", "metharme"], "Invalid format specified!"
 
         # Minus 32 is to account for the special tokens that we replace in the
         # input prompt, which will likely cause the prompt to expand.
         self.target_token_count = target_token_count - 32
+
+        # Different formats have different functions for converting
+        # a Turn into a string. Do an if statement here so we don't have
+        # to do a bunch more later.
+        if self.format == "metharme":
+            self.turn_to_str = lambda x: x.as_meth_str()
+        else:
+            self.turn_to_str = lambda x: x.as_pyg_str()
 
         super().__init__()
 
@@ -44,10 +57,10 @@ class TrainingExampleGenerator:
         base_turns = [system_turn]
 
         cur_turns = base_turns.copy()
-        cur_len = _token_count_for(system_turn.as_str())
+        cur_len = _token_count_for(self.turn_to_str(system_turn))
 
         for turn in self.episode.turns[1:]:
-            turn_len = _token_count_for(turn.as_str())
+            turn_len = _token_count_for(self.turn_to_str(turn))
 
             if cur_len + turn_len > self.target_token_count:
                 # Can't add this turn into the context window. Start dropping
@@ -57,7 +70,7 @@ class TrainingExampleGenerator:
                 while len_over_target > 0:
                     try:
                         removed_turn = cur_turns.pop(1)
-                        cur_len -= _token_count_for(removed_turn.as_str())
+                        cur_len -= _token_count_for(self.turn_to_str(removed_turn))
 
                         len_over_target = self.target_token_count - (cur_len +
                                                                      turn_len)
@@ -66,7 +79,7 @@ class TrainingExampleGenerator:
 
             # We have space for the next turn, so add it to the context window.
             cur_turns.append(turn)
-            cur_len += _token_count_for(turn.as_str())
+            cur_len += _token_count_for(self.turn_to_str(turn))
 
             # Yield training example if this is a model turn.
             if turn.kind != TurnKind.MODEL:
@@ -76,16 +89,12 @@ class TrainingExampleGenerator:
             # string representation, _except_ for the last model turn. For the
             # last model turn, we append the TurnKind.MODEL token to the end of
             # the prompt, and then use the model's utterance as the response.
-            prompt = "".join([t.as_str() for t in cur_turns[:-1]
-                             ]) + TurnKind.MODEL.value
-            
-            try:
-                generation = turn.utterance.strip()
-            except AttributeError:
-                # For some reason, Teatime logs can have other types
-                # as utterances.
-                LOG.info(f"Caught generation {turn.utterance} as type {type(turn.utterance)}, casting to string if possible...")
-                generation = str(turn.utterance).strip()
+            prompt = "".join([self.turn_to_str(t) for t in cur_turns[:-1]])
+            if self.format == "metharme":
+                prompt += TurnKind.MODEL.value
+            else:
+                prompt += f"\n{turn.name}: "
+            generation = turn.utterance.strip()
 
             # Sanity checks. Asserts that there's only a single system prompt
             # and it's at the very beginning of the prompt string.
@@ -93,7 +102,8 @@ class TrainingExampleGenerator:
                 # NOTE(11b): Some datasets now include multiple system prompts
                 # so I'm turning off this check for now. Reconsider later.
                 # assert _ocurrence_count_of(TurnKind.SYSTEM.value, prompt) == 1
-                assert prompt.find(TurnKind.SYSTEM.value) == 0
+                if self.format == "metharme":
+                    assert prompt.find(TurnKind.SYSTEM.value) == 0
             except AssertionError as ex:
                 LOG.error(
                     "Sanity checks for generated training example failed.")

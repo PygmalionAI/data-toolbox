@@ -52,7 +52,7 @@ def main() -> None:
                 print_new_episode_header = False
             
             try:
-                for example in TrainingExampleGenerator(episode, target_token_count=args.max_length):
+                for example in TrainingExampleGenerator(episode, target_token_count=args.max_length, format=args.format):
                     # Right off the bat, if this training example gets caught by one
                     # of the filters, skip over and don't even count it.
                     should_keep = True
@@ -133,6 +133,14 @@ def _parse_args_from_argv() -> argparse.Namespace:
         default=2048,
         # TODO(TG): Explain this more clearly
         help="The (approximate) amount of tokens to limit episodes to."
+    )
+
+    parser.add_argument(
+        "-m",
+        "--format",
+        type=str,
+        default="metharme",
+        help="The format for the training data to use (accepted inputs: 'pygmalion', 'metharme'). Defaults  'metharme'"
     )
 
     parser.add_argument(
