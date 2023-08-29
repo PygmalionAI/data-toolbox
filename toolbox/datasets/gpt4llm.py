@@ -1,17 +1,9 @@
 import json
 import typing as t
-from dataclasses import dataclass
 
 from toolbox.core.dataset import BaseDataset
+from toolbox.datasets.common import AlpacaLikeDataInstance
 from toolbox.utils.files import enumerate_files_for
-
-
-@dataclass(frozen=True)
-class AlpacaLikeDataInstance:
-    instruction: str
-    input: str
-    output: str
-
 
 class Gpt4LlmDataset(BaseDataset[AlpacaLikeDataInstance]):
     '''

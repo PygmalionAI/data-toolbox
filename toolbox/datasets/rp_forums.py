@@ -103,4 +103,14 @@ SHA256_DIGEST_TO_RP_TYPE_MAP: dict[str, RpType] = {
         RpType.ERP,
     '3d4b7c9d57643279ce091dc32e06006bc5195ab71ec3be98fef81623dcb132e7':
         RpType.ERP,
+    '99131ae34901d21eca1a33ad0112fdb3f13df649c4bcf0d9e244c26273727849':
+        RpType.MIXED,
+    '14cc766f100cc8f1c5644d3edf822aba312d8a1c40beea7810adbd29608c9c53':
+        RpType.ERP,
+    'dfa38d0b1db60bf999aec14973a6919d8fbc57d217262a3877e5026f71b39d0a':
+        RpType.RP,
+    '795074be9881eb21bfb2ce958eda47d12e63cce1d955599d528ea257ac66f4b7':
+        RpType.ERP,
+    '3179b0c4ee80dc14eb3b08447d693382df2062602c40d543b1946b2ddf32daf8':
+        RpType.ERP,   
 }
