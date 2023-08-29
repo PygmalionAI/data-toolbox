@@ -22,7 +22,7 @@ class Turn:
     def as_pyg_str(self) -> str:
         # Handle system prompt separately
         if self.kind == TurnKind.SYSTEM:
-            return f"{self.name}'s Persona: {self.utterance}\n<START>\n"
+            return f"{self.name}'s Persona: {self.utterance}\n<START>"
         else:
             return f"\n{self.name}: {self.utterance}"
 

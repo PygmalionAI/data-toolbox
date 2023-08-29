@@ -102,7 +102,8 @@ class TrainingExampleGenerator:
                 # NOTE(11b): Some datasets now include multiple system prompts
                 # so I'm turning off this check for now. Reconsider later.
                 # assert _ocurrence_count_of(TurnKind.SYSTEM.value, prompt) == 1
-                assert prompt.find(TurnKind.SYSTEM.value) == 0
+                if self.format == "metharme":
+                    assert prompt.find(TurnKind.SYSTEM.value) == 0
             except AssertionError as ex:
                 LOG.error(
                     "Sanity checks for generated training example failed.")
