@@ -24,7 +24,7 @@ class Turn:
         if self.kind == TurnKind.SYSTEM:
             return f"{self.name}'s Persona: {self.utterance}\n<START>"
         else:
-            return f"\n{self.name}: {self.utterance}"
+            return f"{self.name}: {self.utterance}"
 
 @dataclass(frozen=True)
 class Episode:
