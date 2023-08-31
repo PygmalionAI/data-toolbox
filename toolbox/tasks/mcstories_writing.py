@@ -37,10 +37,15 @@ class McStoriesWritingTask(BaseTask):
                 Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             ]
 
+            # Choose either user or model turn first, then alternate
+            current_turn = random.choice([TurnKind.MODEL, TurnKind.USER])
+
             for chunk in chunks:
+                # Messy code for switching up turns
+                current_turn = TurnKind.MODEL if current_turn == TurnKind.USER else TurnKind.USER
                 turns.append(Turn(
                     utterance=chunk,
-                    kind=TurnKind.MODEL,
+                    kind=current_turn,
                 ))
 
             yield Episode(turns=turns, identifier=f"mcstories-{idx}")
