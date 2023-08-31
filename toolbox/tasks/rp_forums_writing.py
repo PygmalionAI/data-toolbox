@@ -19,6 +19,11 @@ class RpForumsWritingTask(BaseTask):
     roleplay.
     '''
 
+    def __init__(self, all_model_turns: bool = False) -> None:
+        # Keep the old way of having the turns be almost entirely
+        # model turns, just in case.
+        self.all_model_turns = all_model_turns
+
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for thread in RpForumsDataset():
             # These threads usually don't contain actual roleplaying.
@@ -51,6 +56,12 @@ class RpForumsWritingTask(BaseTask):
                                                   content_type_prompt)
             system_turn = Turn(utterance=system_prompt, kind=TurnKind.SYSTEM)
             turns: list[Turn] = [system_turn]
+
+            # Since CAI-like UIs can have the model speak first,
+            # we augment the data by allowing the model to sometimes
+            # speak first. Specifically, only 25% of the time.
+            # This is only used when all_model_turns is False.
+            current_speaker = random.choice([TurnKind.MODEL, TurnKind.USER, TurnKind.USER, TurnKind.USER])
 
             for message in thread.messages:
                 long_message = message.message
@@ -85,31 +96,43 @@ class RpForumsWritingTask(BaseTask):
                     for name, substitution in username_substitutions.items():
                         cleaned_message = re.sub(rf"\b{re.escape(name)}\b",
                                                  substitution, cleaned_message)
-
-                    # Little bit of roundabout logic so here's some explanation
-                    # as we go. We start by marking everything as a model turn
-                    # so we use as much data as possible as training labels.
-                    turn_kind = TurnKind.MODEL
-                    if _not_usable_as_training_label(cleaned_message):
-                        # ...however, if we have some problem in the data that
-                        # we'd rather not see the model replicate, we mark it
-                        # as a human turn, which is used as context but not for
-                        # loss calculation during training.
-                        turn_kind = TurnKind.USER
-                    elif _seems_to_have_ooc_talk(cleaned_message) \
-                        and not _seems_to_have_ooc_talk(turns[-1].utterance):
-                        # _However_, there's also another case we'd like to
-                        # handle. Ideally, the model should not slip into OOC
-                        # talk unprompted - it should only do that if we've
-                        # tried to talk to it out-of-character first.
-                        #
-                        # So if this turn has OOC talk, we'll only use it as a
-                        # model turn if the previous (user) turn also had OOC
-                        # talk.
-                        turn_kind = TurnKind.USER
+                        
+                    # NOTE(TG): 11b's original idea where RP generations were framed
+                    # as almost entirely model turns in order to get as much data from
+                    # it as possible was nice, but a little flawed. In 7B and 13B models,
+                    # this caused the model to endlessly ramble on. I'll keep the old code
+                    # here, but only if it's manually enabled.
+                    if self.all_model_turns:
+                        # Little bit of roundabout logic so here's some explanation
+                        # as we go. We start by marking everything as a model turn
+                        # so we use as much data as possible as training labels.
+                        turn_kind = TurnKind.MODEL
+                        if _not_usable_as_training_label(cleaned_message):
+                            # ...however, if we have some problem in the data that
+                            # we'd rather not see the model replicate, we mark it
+                            # as a human turn, which is used as context but not for
+                            # loss calculation during training.
+                            turn_kind = TurnKind.USER
+                        elif _seems_to_have_ooc_talk(cleaned_message) \
+                            and not _seems_to_have_ooc_talk(turns[-1].utterance):
+                            # _However_, there's also another case we'd like to
+                            # handle. Ideally, the model should not slip into OOC
+                            # talk unprompted - it should only do that if we've
+                            # tried to talk to it out-of-character first.
+                            #
+                            # So if this turn has OOC talk, we'll only use it as a
+                            # model turn if the previous (user) turn also had OOC
+                            # talk.
+                            turn_kind = TurnKind.USER
+                    else:
+                        # TODO(TG): Try to do more about OOC/potential low-quality generations.
+                        turn_kind = current_speaker
 
                     turn = Turn(utterance=cleaned_message, kind=turn_kind)
                     turns.append(turn)
+                
+                # Messy switching
+                current_speaker = TurnKind.MODEL if current_speaker == TurnKind.USER else TurnKind.USER
 
             yield Episode(
                 turns=turns,
