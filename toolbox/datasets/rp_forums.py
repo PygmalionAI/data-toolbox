@@ -53,25 +53,31 @@ class RpForumsDataset(BaseDataset[RpThread]):
 
                 # Store a buffer of the previous thread
                 previous_thread = None
-                current_thread = None
-                messages: list[RpMessage] = []
+                previous_message: list[RpMessage] = []
 
                 for row in reader:
-                    if row['thread_title'] != previous_thread:
-                        previous_thread = current_thread
-                        if len(messages) != 0:
+                    current_thread = row['thread_title']
+                    if current_thread != previous_thread:
+                        if len(previous_message) != 0:
                             assert previous_thread is not None
-                            yield RpThread(messages=messages,
+                            yield RpThread(messages=previous_message,
                                            thread_name=previous_thread,
                                            content_type=content_type,
                                            source_file=source_file)
-
-                        messages = []
-                    current_thread = row['thread_title']
+                        previous_thread = current_thread
+                        previous_message = []
 
                     message = RpMessage(author=row['message_username'],
                                         message=row['message'])
-                    messages.append(message)
+                    previous_message.append(message)
+
+                if len(previous_message) != 0:
+                    # Yield the last thread
+                    assert previous_thread is not None
+                    yield RpThread(messages=previous_message,
+                                   thread_name=previous_thread,
+                                   content_type=content_type,
+                                   source_file=source_file)
 
 
 def _get_rp_type_from_filename(filename: str) -> RpType:
