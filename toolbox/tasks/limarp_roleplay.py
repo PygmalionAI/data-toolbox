@@ -19,7 +19,7 @@ class LimaRpRoleplayTask(BaseTask):
             # Format the system prompt first.
             system_prompt = random.choice(SYSTEM_PROMPTS)
             # Fix it up and append it as the first turn
-            system_prompt = _fix_punctuation(_substitute_elements(system_prompt))
+            system_prompt = _fix_punctuation(_substitute_elements(system_prompt, entry))
             turns.append(Turn(
                 utterance=system_prompt,
                 kind=TurnKind.SYSTEM
@@ -27,7 +27,7 @@ class LimaRpRoleplayTask(BaseTask):
 
             # Now for the rest
             for msg in entry.conversation:
-                cleaned_msg = _fix_punctuation(_substitute_elements(msg['text']))
+                cleaned_msg = _fix_punctuation(_substitute_elements(msg['text'], entry))
                 turns.append(Turn(
                     utterance=cleaned_msg,
                     kind=TurnKind.MODEL if msg['name'] == "<FIRST>" else TurnKind.USER
@@ -47,13 +47,14 @@ def _substitute_elements(input_string: str, entry: LimaRpEntry) -> str:
     '''
     Replace blank/template fields with data from the particular entry.
     '''
-    # Users
-    input_string = input_string.replace("<SECOND>", "{{user}}")
-    input_string = input_string.replace("<FIRST>", entry.names['<FIRST>'])
     # System prompts
     input_string = input_string.replace("<CHAR>", entry.names['<FIRST>'])
     input_string = input_string.replace("<PERSONA>", entry.personas['<FIRST>'])
     input_string = input_string.replace("<SCENARIO>", entry.scenario)
+
+    # Users
+    input_string = input_string.replace("<SECOND>", "{{user}}")
+    input_string = input_string.replace("<FIRST>", entry.names['<FIRST>'])
 
     return input_string
 
