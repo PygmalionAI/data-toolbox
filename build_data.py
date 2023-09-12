@@ -52,7 +52,7 @@ def main() -> None:
                 print_new_episode_header = False
             
             try:
-                for example in TrainingExampleGenerator(episode):
+                for example in TrainingExampleGenerator(episode, target_token_count=args.max_length, format=args.format):
                     # Right off the bat, if this training example gets caught by one
                     # of the filters, skip over and don't even count it.
                     should_keep = True
@@ -120,17 +120,34 @@ def _parse_args_from_argv() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-p",
-        "--print",
-        action="store_true",
-        help="Print training examples instead of writing to STDOUT."
-    )
-
-    parser.add_argument(
         "-f",
         "--filters",
         type=str,
         help="List of comma-separated filters to apply to training examples."
+    )
+
+    parser.add_argument(
+        "-l",
+        "--max-length",
+        type=int,
+        default=2048,
+        # TODO(TG): Explain this more clearly
+        help="The (approximate) amount of tokens to limit episodes to."
+    )
+
+    parser.add_argument(
+        "-m",
+        "--format",
+        type=str,
+        default="metharme",
+        help="The format for the training data to use (accepted inputs: 'pygmalion', 'metharme'). Defaults  'metharme'"
+    )
+
+    parser.add_argument(
+        "-p",
+        "--print",
+        action="store_true",
+        help="Print training examples instead of writing to STDOUT."
     )
 
     parser.add_argument(
