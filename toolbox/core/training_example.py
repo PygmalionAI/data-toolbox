@@ -9,6 +9,7 @@ from toolbox.core.models import (
     TrainingExample,
     TurnKind
 )
+from toolbox.core.wrapper import WRAPPER_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -17,6 +18,8 @@ LOG = logging.getLogger(__name__)
 # can instead use an estimation instead if we're OK with dropping some examples
 # at training time.
 AVG_WORD_TO_TOKEN_RATIO = 1.7
+
+VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca"]
 
 class TurnTooLargeError(RuntimeError):
     pass
@@ -32,19 +35,15 @@ class TrainingExampleGenerator:
     ) -> None:
         self.episode = episode
         self.format = format.lower()
-        assert self.format in ["pygmalion", "metharme"], "Invalid format specified!"
+        # Assert the format is a valid one
+        assert self.format in VALID_FORMATS, f"Invalid format specified! Valid options: {', '.join(VALID_FORMATS)}"
+
+        # Wrap the turns in a turn wrapper
+        self.wrapper = WRAPPER_MAP[self.format]
 
         # Minus 32 is to account for the special tokens that we replace in the
         # input prompt, which will likely cause the prompt to expand.
         self.target_token_count = target_token_count - 32
-
-        # Different formats have different functions for converting
-        # a Turn into a string. Do an if statement here so we don't have
-        # to do a bunch more later.
-        if self.format == "metharme":
-            self.turn_to_str = lambda x: x.as_meth_str()
-        else:
-            self.turn_to_str = lambda x: x.as_pyg_str()
 
         super().__init__()
 
@@ -53,14 +52,17 @@ class TrainingExampleGenerator:
 
         # Always start off with the system turn.
         system_turn = self.episode.turns[0]
+        system_turn = self.wrapper(system_turn)
         assert system_turn.kind == TurnKind.SYSTEM
         base_turns = [system_turn]
 
         cur_turns = base_turns.copy()
-        cur_len = _token_count_for(self.turn_to_str(system_turn))
+        cur_len = _token_count_for(system_turn.as_str())
 
         for turn in self.episode.turns[1:]:
-            turn_len = _token_count_for(self.turn_to_str(turn))
+            # Wrap the turn inside a turn wrapper
+            turn = self.wrapper(turn)
+            turn_len = _token_count_for(turn.as_str())
 
             if cur_len + turn_len > self.target_token_count:
                 # Can't add this turn into the context window. Start dropping
@@ -70,7 +72,7 @@ class TrainingExampleGenerator:
                 while len_over_target > 0:
                     try:
                         removed_turn = cur_turns.pop(1)
-                        cur_len -= _token_count_for(self.turn_to_str(removed_turn))
+                        cur_len -= _token_count_for(removed_turn.as_str())
 
                         len_over_target = self.target_token_count - (cur_len +
                                                                      turn_len)
@@ -79,7 +81,7 @@ class TrainingExampleGenerator:
 
             # We have space for the next turn, so add it to the context window.
             cur_turns.append(turn)
-            cur_len += _token_count_for(self.turn_to_str(turn))
+            cur_len += _token_count_for(turn.as_str())
 
             # Yield training example if this is a model turn.
             if turn.kind != TurnKind.MODEL:
@@ -89,11 +91,9 @@ class TrainingExampleGenerator:
             # string representation, _except_ for the last model turn. For the
             # last model turn, we append the TurnKind.MODEL token to the end of
             # the prompt, and then use the model's utterance as the response.
-            prompt = "".join([self.turn_to_str(t) for t in cur_turns[:-1]])
-            if self.format == "metharme":
-                prompt += TurnKind.MODEL.value
-            else:
-                prompt += f"\n{turn.name}: "
+            prompt = "".join([t.as_str() for t in cur_turns[:-1]])
+            prompt += turn.get_model_turn()
+            
             generation = turn.utterance.strip()
 
             # Sanity checks. Asserts that there's only a single system prompt
