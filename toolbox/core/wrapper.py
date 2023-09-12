@@ -1,8 +1,3 @@
-"""
-NOTE(TG): I still think there's a better way to handle multiple formats than this.
-It's just a gut feeling.
-"""
-
 from abc import ABC, abstractmethod
 from toolbox.core.models import Turn, TurnKind
 
