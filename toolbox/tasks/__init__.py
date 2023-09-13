@@ -16,6 +16,7 @@ from toolbox.tasks.gpt4all_question_answering import \
 from toolbox.tasks.mcstories_writing import McStoriesWritingTask
 from toolbox.tasks.openorca_instruction_following import OpenOrcaInstructionFollowingTask
 from toolbox.tasks.rp_forums_writing import RpForumsWritingTask
+from toolbox.tasks.rp_guild_writing import RpGuildWritingTask
 from toolbox.tasks.sharegpt_instruction_following import \
     ShareGptInstructionFollowingTask
 from toolbox.tasks.single_turn_instruction_following import \
@@ -44,6 +45,7 @@ NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
         LimaRpRoleplayTask,
         OpenOrcaInstructionFollowingTask,
         RpForumsWritingTask,
+        RpGuildWritingTask,
         ShareGptInstructionFollowingTask,
         SingleTurnInstructionFollowingTask,
         SodaReplyGenerationTask,
