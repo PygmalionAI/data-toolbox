@@ -31,7 +31,7 @@ class LimaRpDataset(BaseDataset[LimaRpEntry]):
             with open(file, 'r', encoding='utf-8') as f:
                 source = yaml.safe_load(f)
                 yield LimaRpEntry(
-                    personas=source["personas"],
+                    personas=source["persona"],
                     names=source["names"],
                     scenario=source["scenario"],
                     conversation=source["conversation"],
