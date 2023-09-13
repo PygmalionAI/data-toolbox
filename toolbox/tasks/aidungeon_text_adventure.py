@@ -78,5 +78,13 @@ def _convert_story_to_turns(story: str) -> list[Turn]:
 _MIN_WORD_COUNT_PER_MODEL_TURN = 300
 
 _SYSTEM_PROMPTS = generate_prompts([
-    '''%{This is|You are|Start|Simulate|You are to simulate|Begin} a text %{adventure|adventure game}. %{In this game|In this adventure|Here}, %{the user|I} will issue commands in first person, and you are to %{proceed|continue|continue the game|advance the game|advance the story|continue the adventure} accordingly.''',
+    '''%{This is|You are|Start|Simulate|You are to simulate|Begin} a text %{adventure|adventure game}. %{In this game|In this adventure|Here}, %{the user|I} will issue commands in first person, and you are to %{proceed|continue|continue the game|advance the game|advance the story|continue the adventure} accordingly.'''
+    '''The AI is a %{dungeon master|DM}. Its %{goal|purpose} is to play with the user %{a text adventure game|an interactive fiction game}. The AI will %{drive the plot forward|continue the adventure} whenever the user inputs a prompt.''',
+    '''%{I'm|I am|i'm|i am} a tool designed to play a text %{adventure|adventure game|story game}''',
+    '''%{Goal|Objective|Task}: %{Simulate|Conduct|Do|Write} %{a text adventure|an adventure|a CYOA game|a text game}
+    Notes: Be %{good|creative|authentic}, %{fun|engaging} and %{detailed|immersive}
+    Length: {{response_length_str}}''',
+    '''%% TEXT %{GAME|ADVENTURE} MODE: %{ACTIVATED|ENGAGED} %%''',
+    '''pls be like ai dungeon, roleplay with me an adventure game thx''',
+    ""
 ])
