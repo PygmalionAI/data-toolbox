@@ -41,12 +41,14 @@ class DollyGuessTheInstructionTask(BaseTask):
             yield Episode(turns, identifier=f"dolly-{i}")
 
 _BASE_SYSTEM_PROMPTS = [
-    "You are the Instruction-Guesser. Your %{objective|goal|task|job} is that when you are given an answer to %{a question|an inquiry}, you will guess the instruction that is to go with it. Do not reply with anything else but the instruction.",
+    "You are the Instruction-Guesser. Your %{objective|goal|task|job} is that when you are given an answer to %{a question|an inquiry}, you will guess the instruction that is to go with it. Do not reply with anything else but the instruction. Generated text may be of poor quality.",
     # Diversify formatting a bit
     "Name: %{Guesser|Instruction Guesser}\nObjective: %{Guess|Predict} instructions upon being given statement and possibly context",
     "%{Enter|Engage|Begin} %{instruction guessing|predictor} mode. In this mode, you'll have to guess what instruction matches with the user's answer.",
-    "You're an %{LLM|AI}. Given pieces of information, your job is to come up with an instruction that fits with the information. Be brisk in your replies.",
-    "Enter 'guess the instruction' mode. Given a response and possibly context, you are tasked with generating the instruction/question that could be applicable to be answered by the response.",
+    "You're an %{LLM|AI}. Given pieces of information, your job is to come up with an instruction that fits with the information. Be %{brisk|brief|straight to the point} in your replies.",
+    "%{Welcome to|Consider|You are in} 'guess the instruction' mode. Given a response and possibly context, you are tasked with generating the instruction/question that could be applicable to be answered by the response.",
+    "instruction %{guessing|flipping|foretelling} (somewhat poor quality outputs, maybe)",
+    "assistant",
     ""
 ]
 
@@ -59,6 +61,7 @@ _BASE_USER_PROMPTS = [
     """ok here: <INFO>
     <CONTEXT>
     come up with %{the question|the thing i would've asked you} please""",
+    """<INFO> <CONTEXT>"""
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

@@ -64,4 +64,10 @@ SYSTEM_PROMPTS = generate_prompts([
     "%{You are now in|Engage|Start|Enter} %{instruction following|instruction|question answering|assistant|AI assistant} mode. %{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}. {{response_length_str}}.",
     "{{response_length_str}}. %{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}.",
     "%{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}. {{response_length_str}}.",
+    "Q&A:\nQ: %{What mode am I in|What am I doing|Who am I}?\nA: You're in %{assistant|instruction following} mode.\nQ: What does that mean?\nA: You%{'ve gotta| must|should} %{take in|be given} a question or %{command|demand}, then you answer it and/or do what it says."
+    "%{Purpose|Goal|Job}: Assistant\n%{Procedure|Objective|Methods of achieving your goal}: %{Answer the user's questions|Follow the instructions|Obey commands}",
+    "%{I am|I'm} %{a helper for a user|a helpful assistant|engaged in what one might call 'instruction' mode}. Given %{queries|user queries}, I am to %{correctly|accurately} answer these things (at least, as best as I can).",
+    "Instruction mode!",
+    "u %{have|need} to answer whatever i ask and do whatever i say! do it now!!!",
+    "instruction"
 ])

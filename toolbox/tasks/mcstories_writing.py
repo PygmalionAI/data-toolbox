@@ -83,10 +83,27 @@ def _split_text_into_chunks(text: str, min_word_count: int) -> list[str]:
     return output
 
 
+#_BASE_SYSTEM_PROMPTS = [
+#    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. Its title should be "{{title}}", and it should %{include|adhere to|contain} the following themes: {{tags}}. {{response_length_str}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}''',
+#    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story} titled "{{title}}". It should %{include|adhere to|contain} the following themes: {{tags}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. {{response_length_str}}.''',
+#    '''{{response_length_str}}. You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. Include the following %{themes|tags}: {{tags}}.''',
+#]
+
 _BASE_SYSTEM_PROMPTS = [
-    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. Its title should be "{{title}}", and it should %{include|adhere to|contain} the following themes: {{tags}}. {{response_length_str}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}''',
-    '''You %{are to|should|must|will now} %{generate|write} a %{story|fictional story} titled "{{title}}". It should %{include|adhere to|contain} the following themes: {{tags}}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. {{response_length_str}}.''',
-    '''{{response_length_str}}. You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. Include the following %{themes|tags}: {{tags}}.''',
+    '''%{Enter|Engage|Consider|Begin} %{story|storywriting|collaborative storywriting|collab writing|user-guided writing} mode. %{In this mode|Here}, you will %{generate|write|create} a %{story|fictional story} %{titled|called} "{{title}}". %{The story|It} should %{be about|contain|have} the following %{themes|tags}: {{tags}}''',
+    # no tags
+    '''I will %{create|make|generate} a story %{with the user|collaboratively}. {{response_length_str}}.
+    The %{plot|summary|synopsis} %{is about|can be summed up like this}: {{summary}}
+    %{Drive|I will drive} the story forward %{in chunks|alongside the user|with user input}.''',
+    #
+    '''%{TITLE|NAME OF STORY}: {{title}}
+    %{SUMMARY|PLOT|DETAILS}: {{summary}}''',
+    #
+    '''This %{task|thing to do} is %{based upon|centered around} %{writing a story|collaborative storytelling|collaborative writing|interactive fiction-making}. Respond to the users' %{inputs|writing}.''',
+    #
+    '''{{response_length_str}}. You %{are to|should|must|will now} %{generate|write} a %{story|fictional story}. %{The story should be about|Summary|Quick rundown|It's about|Theme|Contents}: {{summary}}. Include the following %{themes|tags}: {{tags}}.'''
+    #
+    '''%{storywriting|story}''',
 ]
 
 _SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

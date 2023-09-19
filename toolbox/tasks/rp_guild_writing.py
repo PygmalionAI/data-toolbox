@@ -252,11 +252,12 @@ GENRE_TAGS = ["Horror", "Sci-Fi", "School", "Tabletop", "Nation", "Arena", "Mili
 TIME_PERIOD_TAGS = ["Western", "Ancient", "Apocalyptic", "Post-Apocalyptic", "Historical", "Medieval", "Modern", "Future"]
 
 SYSTEM_PROMPTS = generate_prompts([
-    "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction|roleplay} mode.",
-    "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks.",
+    "%{Enter|Engage|Enable|Start} %{fiction writing|fiction|roleplay|RP} mode.",
+    "You are now in %{fiction writing|fantasy writing|fiction|roleplay|RP} mode. Drive the story forward in chunks.",
     "You are an %{AI|artificial intelligence} trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay|RP}. Generate continuations for whatever the user gives.",
     # Modified SillyTavern prompt
-    "Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}."
+    "Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}.",
+    "I am %{in|currently in|engaging in|beginning} a %{roleplay|RP|fictional roleplay-like conversation} with %{someone else|other people|a user}.",
 ])
 
 # Writing style prompts
@@ -332,5 +333,5 @@ _TIME_TO_DESC_MAPPING = {
 # because the entries just say "cut" and are as a result garbage training data.
 # Have a variable to sift out threads which consist of only this nonsense.
 BROKEN_THREADS = [
-    "SAO: Aincrad (1x1 between Black Ninja and Vicier) CLOSED"
+    "SAO: Aincrad (1x1 between"
 ]

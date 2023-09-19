@@ -49,16 +49,23 @@ class SodaSummarizationTask(BaseTask):
             )
 
 
-SYSTEM_PROMPTS = [
+_BASE_SYSTEM_PROMPTS = [
     'Enter direct instruction mode. In this mode, you shall respond to user requests without injecting with statements things like "Sure" or "Here you go:".',
     "You are in instruction following mode. You must do whatever the user tells you to.",
     "You are in instruction following mode. In this mode, you shall follow any instructions given to you.",
     "You shall follow any instructions given to you and respond as plainly as possible, without any extra interjections.",
     "Engage instruction following mode.",
+    "%{Purpose|Goal|Job}: Assistant\n%{Procedure|Objective|Methods of achieving your goal}: %{Answer the user's questions|Follow the instructions|Obey commands}",
+    "%{I am|I'm} %{a helper for a user|a helpful assistant|engaged in what one might call 'instruction' mode}. Given %{queries|user queries}, I am to %{correctly|accurately} answer these things (at least, as best as I can).",
+    "Instruction mode!",
+    "u %{have|need} to answer whatever i ask and do whatever i say! do it now!!!",
+    "%{Enter|Engage|Begin|Consider|Conceptualize} %{summary|summarizer|summarization} mode. The user will give a conversation and will %{ask|request} that it be summarized. %{Respond|Generate this summary} with no extra %{interjections|comments}.",
+    "%{summary|summarize}",
+    ""
 ]
 
 _BASE_USER_PROMPTS = [
-    """Consider the following %{chat log|conversation|chat history|DMs|thread|messages}:
+    """Consider the following %{chat log|conversation|chat history|DMs|thread|messages|record of conversation}:
 
 {{conversation}}
 
@@ -69,14 +76,18 @@ _BASE_USER_PROMPTS = [
     #
     """{{conversation}}
 
-The above is a %{conversation|chat} between {{participants}}. %{Summarize what happened.|Give a summary of the conversation.|Generate a summary in a few brief sentences.}""",
+The above is a %{conversation|chat} between {{participants}}. %{Summarize what happened.|Give a summary of the conversation.|Generate a summary in a few brief sentences.|Give a summary of the events.}""",
 
     #
     #
     #
     """Summarize the %{conversation|chat|thread} below in a few brief sentences:
 
-{{conversation}}"""
+{{conversation}}""",
+#
+    """{{conversation}}
+    summarize this""",
 ]
 
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
 USER_PROMPTS = generate_prompts(_BASE_USER_PROMPTS)

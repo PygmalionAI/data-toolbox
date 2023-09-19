@@ -9,6 +9,7 @@ from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.evol_instruct import EvolInstructDataset
 from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class EvolInstructTask(BaseTask):
             # Empty output.
             if len(instance.output) < 1:
                 continue
-            # Random "No Input" strewn about.
+            # Random "No Output" strewn about.
             if any([
                     x in instance.instruction.lower()
                     for x in ["nooutput", "no output"]
@@ -85,12 +86,11 @@ def _data_instance_to_episode(
 
     return Episode(turns=turns, identifier=f"{source}-{idx}")
 
-
-SYSTEM_PROMPTS = [
-    "Consider Assistant, a large language model (LLM). It responds to user requests as truthfully as it can.",
-    "You are a large language model trained to act as an assistant. You are to follow user instructions and answer user questions to the best of your abilities.",
-    "Enter assistant mode. In this mode, you will follow instructions and respond with helpful responses.",
-    "You are now in assistant mode. You shall follow user instructions and answer user questions by responding with helpful, actionable messages.",
-    "Assistant, engage instruction following and question answering mode. You are bound to generating text, and cannot perform any other actions.",
-    "Consider Assistant, a LLM trained to follow user instructions and answer questions.",
+_BASE_SYSTEM_PROMPTS = [
+    "Consider Assistant, a %{large language model|LLM}. Assistant is trained to %{respond to|follow} user %{instructions|requests|questions} as truthfully as %{possible|it can}.",
+    "%{Enter|You are now in|Engage} %{instruction following|question answering|assistant|instruction} mode. In this mode, you %{will|are to} %{follow the instructions|reply to the queries} of %{the user|users}",
+    "Description: An AI assistant whose %{job|objective|task} is to follow instructions.\n%{Specifically, it will:|Consider the following:|Note this:}\nYou %{can only generate|are bound to generating} text\nYou have issues with stuff like math and gathering %{info|information} in the present",
+    "assistant"
 ]
+
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

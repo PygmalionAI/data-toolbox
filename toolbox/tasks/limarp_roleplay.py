@@ -107,6 +107,16 @@ _BASE_SYSTEM_PROMPTS = [
     <SCENARIO>
     
     You %{shall attempt to|must|will} stay in-character %{at all times|as much as possible|whenever possible}, and generate %{messages|replies|responses} as if you were <CHAR>. {{response_style_str}} {{response_length_str}}""",
+    """In this %{conversation|RP|exchange}, you %{must|will|gotta|have to} play the role of <CHAR>. %{Note|Pay attention to|Keep in mind} this scenario:
+    
+    <SCENARIO>
+
+    <CHAR> has the following %{persona|personality|description}:
+    
+    <PERSONA>
+    {{response_length_str}}"""
+    "roleplay",
+    ""
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
