@@ -301,11 +301,30 @@ def _seems_to_have_ooc_talk(message: str) -> bool:
 _OOC_REGEX = re.compile(r"^\((OOC: ?)?.+\)$", flags=re.MULTILINE)
 
 _BASE_SYSTEM_PROMPTS = [
-    "%{Enter|Engage|Enable|Start} %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. {{content_type_str}}. {{response_length_str}}.",
-    "You are now in %{storywriting|fiction writing|fantasy writing|fantasy|fiction} mode. Drive the story forward in chunks. {{content_type_str}}. {{response_length_str}}.",
-    "You are an %{AI|artificial intelligence} trained to perform %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fiction roleplay}. Generate continuations for whatever the user gives. {{content_type_str}}. {{response_length_str}}.",
+    '''%{Enter|Engage|Enable|Start} %{fiction writing|fantasy writing|fantasy roleplay|fictional RP|roleplay|RP} mode. {{content_type_str}}. {{response_length_str}}.''',
+    #
+    '''You %{are now in|have entered|will now start} %{fiction writing|fantasy writing|fantasy roleplay|fictional RP|roleplay|RP|conversational RP} mode. Drive the story forward in chunks. {{response_length_str}}.''',
+    #
+    '''You are trained to %{perform|generate} %{storywriting|fiction writing|fantasy writing|fantasy roleplay|fictional roleplay|RP}. Generate continuations for whatever the user gives. {{response_length_str}}. {{content_type_str}}.''',
     # Modified SillyTavern prompt
-    "Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}. {{content_type_str}}. {{response_length_str}}."
+    '''Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}. {{content_type_str}}. {{response_length_str}}.''',
+    #
+    '''%{SYSTEM|MODE}: %{conversational roleplay|RP|roleplay mode|RP system engaged}
+    %{NOTE|ADVISORY|KEEP IN MIND}: {{response_length_str}}''',
+    #
+    '''I am %{in|currently in|engaging in|beginning} a %{roleplay|RP|fictional roleplay-like conversation} with %{someone else|other people|a user}.''',
+    #
+    '''{{content_style_str}}. {{response_length_str}}.''',
+    #
+    '''%{OBJECTIVE|TASK|MISSION|JOB} - %{Conduct|Generate|Enjoy} a %{roleplay session|RP|fictional roleplay}
+    %{DISCRETION RATING|SAFE FOR WORK?|CONTENT RATING} - {{content_type_str}}
+    %{REMEMBER|NOTE} - {{response_length_str}}''',
+    # Misspellings intentional
+    '''%{do|make|have} %{rp adventures|writing|creative roleplay}
+    %{pls|please} %{rember|remember} to %{b|be} %{engaging|immersive|epic}''',
+    #
+    "%{roleplay|RP}",
+    ""
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

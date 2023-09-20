@@ -5,6 +5,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.soda import SodaDataset
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ class SodaReplyGenerationTask(BaseTask):
     '''
     Task to generate a single reply based on given conversation history and
     narrative. Based on SODA data.
+    NOTE(TG): Likely requires updating.
     '''
 
     def __init__(self, split: str = "train") -> None:
@@ -80,125 +82,94 @@ def _response_length_str_for(response: str) -> str:
             "The generated response should be short (less than 16 words)",
             "Be brief when generating the message (less than sixteen words)",
             "The generated reply should be small",
+            "This reply should be less than 16 words",
+            "16 or less words in the message",
+            "Have this reply be really short",
+            "Short response"
         ])
     elif word_count < 32:
         return random.choice([
             "The generated reply should be of medium length (between 16 to 32 words)",
             "The generated response should be slightly lengthy (at most 32 words)",
             "The generated message should be on the medium side",
+            "This message should be between 16 and 32 words in length",
+            "Medium response",
+            "Reply should be slightly lengthy (16-32 words)"
         ])
     elif word_count < 64:
         return random.choice([
             "The new message will be of moderate-to-large length",
             "The reply should be moderately-sized, tending towards a longer message (more than 32 words)",
             "The generation should be of medium to medium-long length",
+            "There should be 32 to 64 words in this reply",
+            "The generated message should be somewhere in-between 'medium' and 'long' in terms of length",
+            "The range of the number of words in the message should be between 32 and 64."
         ])
     else:
         return random.choice([
             "The new message will be lengthy",
             "The reply should be long, more than 64 words",
             "The generation should be long",
+            "This response will be quite lengthy",
+            "More than 64 words in the reply, please",
+            "The generated message should be more than sixty-four words in length",
+            "Very long response (64+ words)"
         ])
 
-
-SYSTEM_PROMPTS = [
-    """The following is a conversation between {{participants}}:
-
-{{conversation}}
-
-You must complete the conversation by generating a single response for {{respond_for}}, while adhering to the following narrative:
-
-{{narrative}}
-
-The generated response must be a single paragraph, and must not contain roleplay or actions enclosed between asterisks. {{response_length_str}}.""",
-
+_BASE_SYSTEM_PROMPTS = [
+    """%{The following is a|Given the following} conversation between {{participants}}:
+    
+    {{conversation}}
+    
+    You %{must complete the conversation by generating a single response|shall generate a response for} {{respond_for}} while adhering to the following %{narrative|summary}:
+    
+    {{narrative}}
+    
+    {{response_length_str}}.""",
     #
+    """%{Given the|Pay attention to|Take a look at} the following conversation between {{participants}}:
+    
+    {{conversation}}
+    
+    You %{must|shall|have to} %{generate|create|say|craft} a %{reply|response} for {{respond_for}}, keeping in mind that the conversation must progress according to the following %{summary|synopsis|context}:
+    
+    {{narrative}}
+    
+    The response should be exclusively of human dialogue and contain no roleplaying actions. Replies %{must be|should be no more than} a single paragraph %{long|in length}.""",
     #
+    """%{Enter|Engage|Begin|Consider} %{conversation|conversational|chat|quick chat} mode. In this mode, you must %{generate|create} conversational dialogue responses and coherently continue the conversation in %{an interesting|a creative} manner. {{response_length_str}}.
+    This is the conversation so far:
+    {{conversation}}
+    
+    These are the themes that the conversation should follow:
+    {{narrative}}""",
     #
-    """Given the following conversation between {{participants}}:
-
-{{conversation}}
-
-You shall generate a response for {{respond_for}}, keeping in mind that the conversation must progress according to the following summary:
-
-{{narrative}}
-
-{{response_length_str}}. The response should be exclusively of human dialogue and contain no roleplaying actions.""",
-
-    #
-    #
-    #
-    """Enter conversation mode. In this mode, you must generate conversational dialogue responses and coherently continue the conversation in an interesting manner. {{response_length_str}}.
-
-This is the conversation so far:
-
-{{conversation}}
-
-These are the themes that the conversation should follow:
-
-{{narrative}}
-""",
-
-    #
-    #
-    #
-    """This is a conversation involving {{participants}}:
-
-{{conversation}}
-
-Generate a message for {{respond_for}}, taking into account that the conversation should follow this scenario:
-
-{{narrative}}
-
-The message should contain sentences that strictly denote spoken dialogue, and not actions. {{response_length_str}}.""",
-
-    #
-    #
-    #
-    """You are to generate a message for {{respond_for}} in this chat between {{participants}}. This is the chat so far:
-
-{{conversation}}
-
-Keep in mind this context:
-
-{{narrative}}
-
-{{response_length_str}}.""",
-
-    #
-    #
-    #
-    """Consider the following narrative:
-
-{{narrative}}
-
-You are to generate a response acting as {{respond_for}} in the following conversation between {{participants}}:
-
-{{conversation}}
-
-{{response_length_str}}.""",
-
-    #
-    #
+    """%{Consider|Look at|Pay attention to} the following narrative:
+    
+    {{narrative}}
+    
+    You are to generate a response acting as {{respond_for}} in the following conversation between {{participants}}:
+    
+    {{conversation}}
+    
+    {{response_length_str}}.""",
     #
     """Keeping this scenario in mind:
-
-{{narrative}}
-
-Act as {{respond_for}} in this chat between {{participants}} and reply with a chat message:
-
-{{conversation}}
-
-{{response_length_str}}.""",
-
-    #
-    #
+    
+    {{narrative}}
+    
+    %{Act as|Imitate|Take the role of} {{respond_for}} in this %{chat|conversation} between {{participants}} and reply with a chat message:
+    
+    {{conversation}}
+    
+    Response length: {{response_length_str}}.""",#
     #
     """{{narrative}}
+    
+    Pretend to be {{respond_for}} %{and reply|when replying|as you respond} to the following dialogue history:
+    {{conversation}}
+    {{response_length_str}}."""
 
-Pretend to be {{respond_for}} reply to the following dialogue history:
-
-{{conversation}}
-
-{{response_length_str}}.""",
 ]
+
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

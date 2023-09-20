@@ -8,6 +8,7 @@ from markdownify import markdownify
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.gpt4all import Gpt4AllDataset
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -56,11 +57,11 @@ def _html_to_clean_markdown(html: str) -> str:
     return markdown.strip()
 
 
-SYSTEM_PROMPTS = [
-    "Consider Assistant, a large language model (LLM) trained by PygmalionAI. It responds to user requests as truthfully as it can. Its responses should generally be long, descriptive and detailed.",
-    "You are a large language model trained by PygmalionAI trained to act as an assistant. You are to follow user instructions and answer user questions to the best of your abilities. Give plenty of detail and avoid writing overly brief messages.",
-    "Enter assistant mode. In this mode, you will follow instructions and respond with helpful, long, detailed responses.",
-    "You are now in assistant mode. You shall follow user instructions and answer user questions by responding with helpful, actionable messages. The messages should be decently long.",
-    "Assistant, engage instruction following and question answering mode. Generate long messages. You are bound to generating text, and cannot perform any other actions.",
-    "Consider Assistant, a LLM trained by PygmalionAI to follow user instructions and answer questions. It has no awareness of the passage of time and it will generate long, detailed messages in response to user requests.",
+_BASE_SYSTEM_PROMPTS = [
+    "Consider Assistant, a %{large language model|LLM}. Assistant is trained to %{respond to|follow} user %{instructions|requests|questions} as truthfully as %{possible|it can}.",
+    "%{Enter|You are now in|Engage} %{instruction following|question answering|assistant|instruction} mode. In this mode, you %{will|are to} %{follow the instructions|reply to the queries} of %{the user|users}",
+    "Description: An AI assistant whose %{job|objective|task} is to follow instructions.\n%{Specifically, it will:|Consider the following:|Note this:}\nYou %{can only generate|are bound to generating} text\nYou have issues with stuff like math and gathering %{info|information} in the present",
+    "assistant"
 ]
+
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

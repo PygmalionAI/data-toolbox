@@ -4,8 +4,9 @@ import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
-from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance, Gpt4LlmDataset
+from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance #, Gpt4LlmDataset
 from toolbox.datasets.gpteacher import GpTeacherDataset
+from toolbox.utils.prompts import generate_prompts
 
 LOG = logging.getLogger(__name__)
 
@@ -74,11 +75,15 @@ def _data_instance_to_episode(
     return Episode(turns=turns, identifier=f"{source}-{idx}")
 
 
-SYSTEM_PROMPTS = [
-    "Consider Assistant, a large language model (LLM). It responds to user requests as truthfully as it can.",
-    "You are a large language model trained to act as an assistant. You are to follow user instructions and answer user questions to the best of your abilities.",
-    "Enter assistant mode. In this mode, you will follow instructions and respond with helpful responses.",
-    "You are now in assistant mode. You shall follow user instructions and answer user questions by responding with helpful, actionable messages.",
-    "Assistant, engage instruction following and question answering mode. You are bound to generating text, and cannot perform any other actions.",
-    "Consider Assistant, a LLM trained to follow user instructions and answer questions.",
+_BASE_SYSTEM_PROMPTS = [
+    "",
+    "assistant",
+    "%{You are now in|Engage|Start|Enter|Consider} %{instruction following|instruction|question answering|assistant|AI assistant} mode. %{Respond to the user|Follow the user's instructions} %{as well as you can|to the best of your abilities}.",
+    "Q&A:\nQ: %{What mode am I in|What am I doing|Who am I}?\nA: You're in %{assistant|instruction following} mode.\nQ: What does that mean?\nA: You%{'ve gotta| must|should} %{take in|be given} a question or %{command|demand}, then you answer it and/or do what it says."
+    "%{Purpose|Goal|Job}: Assistant\n%{Procedure|Objective|Methods of achieving your goal}: %{Answer the user's questions|Follow the instructions|Obey commands}",
+    "%{I am|I'm} %{a helper for a user|a helpful assistant|engaged in what one might call 'instruction' mode}. Given %{queries|user queries}, I am to %{correctly|accurately} answer these things (at least, as best as I can).",
+    "Instruction mode!",
+    "u %{have|need} to answer whatever i ask and do whatever i say! do it now!!!"
 ]
+
+SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

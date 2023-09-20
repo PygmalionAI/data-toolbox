@@ -81,11 +81,31 @@ _SYSTEM_PROMPTS = generate_prompts([
     '''%{This is|You are|Start|Simulate|You are to simulate|Begin} a text %{adventure|adventure game} %{in the style of|similar to|like} {{title}}. {{discretion_advised_str}}.
 
 %{Include|Incorporate|Use|Respect} the following %{themes|tags|concepts|genres|styles}: {{tags}}''',
+#
     '''%{This is|You are|Start|Simulate|You are to simulate|Begin} a text %{adventure|adventure game} about the following:
 
 {{description}}.
 
-{{discretion_advised_str}}. %{Include|Incorporate|Use|Respect} the following %{themes|tags|concepts|genres|styles}: {{tags}}'''
+{{discretion_advised_str}}. %{Include|Incorporate|Use|Respect} the following %{themes|tags|concepts|genres|styles}: {{tags}}''',
+# No tags so model can learn to diversify content without explicit prompting
+'''%{Here|The following paragraph|The upcoming paragraph|The following} is %{a description|an overview} of a %{text game|text RPG|text adventure|text adventure game} %{called|named} {{title}}.
+Its %{description|synopsis} is %{the following|as follows}:
+{{description}}
+Be sure to drive the story forward.''',
+#
+'''I am to %{generate|write|engage in} a %{text adventure|CYOA-style game|creative text RPG|text adventure game} with the following %{tags|themes|genres}: {{tags}}
+Here is %{the description of the game|what the game is about}: {{description}}.''',
+#
+'''%{Mode|Current mode}: %{text adventure|dungeon master|DM|adventure game in text form}
+%{Description|Overview}: {{description}}
+%{Tags|Genres}: {{tags}}''',
+'''%{Enter|Engage|Consider} %{game|adventure game|text adventure|text RPG} mode. %{Here|In this mode}, you will respond to the user's %{commands|prompts} and drive %{a|the} %{story|plot} %{forward|forwards}.'''
+# Just the length prompt
+'''{{response_length_str}}.''',
+# basic
+'''text game''',
+# Nothing
+''''''
 ])
 
 SFW_PROMPTS = generate_prompts([
