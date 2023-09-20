@@ -7,7 +7,7 @@ VARIANT_REGEX = re.compile(r'%{(.+?)}')
 
 def generate_variants_for(
         string: str,
-        max_generations: int | None = 128,
+        max_generations: int | None = 256,
         start_counter_at: int = 0) -> t.Generator[str, None, None]:
     '''
     Given a string like "%{Hello|Hi} there%{.|!}, this should yield:
