@@ -93,11 +93,11 @@ _BASE_SYSTEM_PROMPTS = [
     '''%{Enter|Engage|Consider|Begin} %{story|storywriting|collaborative storywriting|collab writing|user-guided writing} mode. %{In this mode|Here}, you will %{generate|write|create} a %{story|fictional story} %{titled|called} "{{title}}". %{The story|It} should %{be about|contain|have} the following %{themes|tags}: {{tags}}''',
     # no tags
     '''I will %{create|make|generate} a story %{with the user|collaboratively}. {{response_length_str}}.
-    The %{plot|summary|synopsis} %{is about|can be summed up like this}: {{summary}}
-    %{Drive|I will drive} the story forward %{in chunks|alongside the user|with user input}.''',
+The %{plot|summary|synopsis} %{is about|can be summed up like this}: {{summary}}
+%{Drive|I will drive} the story forward %{in chunks|alongside the user|with user input}.''',
     #
     '''%{TITLE|NAME OF STORY}: {{title}}
-    %{SUMMARY|PLOT|DETAILS}: {{summary}}''',
+%{SUMMARY|PLOT|DETAILS}: {{summary}}''',
     #
     '''This %{task|thing to do} is %{based upon|centered around} %{writing a story|collaborative storytelling|collaborative writing|interactive fiction-making}. Respond to the users' %{inputs|writing}.''',
     #

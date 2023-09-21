@@ -288,12 +288,14 @@ STYLE_PROMPT_MAPPING = {
 # It's incomplete because the script will finish the rest depending on the time period.
 TIME_PROMPTS = generate_prompts([
     " %{The|This} %{roleplay|RP} is set in ",
-    " The time period of this %{roleplay|setting|RP} is "
+    " The time period of this %{roleplay|setting|RP} is ",
+    " Time period: "
 ])
 
 GENRE_PROMPTS = generate_prompts([
     " Genre: ",
-    " The %{type|genre} of this %{roleplay|RP} is "
+    " The %{type|genre} of this %{roleplay|RP} is ",
+    " The %{themes|genres} are "
 ])
 
 NSFW_PROMPTS = generate_prompts([

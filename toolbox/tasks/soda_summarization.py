@@ -86,7 +86,7 @@ The above is a %{conversation|chat} between {{participants}}. %{Summarize what h
 {{conversation}}""",
 #
     """{{conversation}}
-    summarize this""",
+summarize this""",
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

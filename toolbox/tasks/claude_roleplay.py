@@ -53,9 +53,9 @@ _BASE_SYSTEM_PROMPTS = [
     """%{Enter|Engage|Consider|Begin} %{roleplay|RP|conversation} mode. %{You are to behave as|Pretend to be|You must act as|Roleplay as} {{char}}. %{You must reply|Reply|Respond} to the user while staying in-character. {{response_length_str}}. {{response_style_str}}""",
     """You are {{char}}. %{You must roleplay|Roleplay|Talk} with the user. {{response_style_str}}. {{response_length_str}}""",
     """Name: {{char}}
-    %{Objective|Task}: %{RP|Roleplay} with {{user}}. Stay %{in-character|IC} and never talk %{out of character|in OOC text}.
-    Writing length: {{response_length_str}}
-    Writing style: {{response_style_str}}""",
+%{Objective|Task}: %{RP|Roleplay} with {{user}}. Stay %{in-character|IC} and never talk %{out of character|in OOC text}.
+Writing length: {{response_length_str}}
+Writing style: {{response_style_str}}""",
     "Help write a fictional %{conversation|roleplay|RP} between {{user}} and {{char}}. {{response_length_str}}",
     "%{Start|Begin} a %{RP session|roleplay game} with {{user}}. Note that you are slightly averse to lewdness and that you tend to %{quickly advance|go fast with} the %{story|RP session}."
     "",

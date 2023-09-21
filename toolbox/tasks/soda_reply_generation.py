@@ -119,56 +119,56 @@ def _response_length_str_for(response: str) -> str:
 _BASE_SYSTEM_PROMPTS = [
     """%{The following is a|Given the following} conversation between {{participants}}:
     
-    {{conversation}}
+{{conversation}}
     
-    You %{must complete the conversation by generating a single response|shall generate a response for} {{respond_for}} while adhering to the following %{narrative|summary}:
+You %{must complete the conversation by generating a single response|shall generate a response for} {{respond_for}} while adhering to the following %{narrative|summary}:
     
-    {{narrative}}
+{{narrative}}
     
-    {{response_length_str}}.""",
+{{response_length_str}}.""",
     #
     """%{Given the|Pay attention to|Take a look at} the following conversation between {{participants}}:
     
-    {{conversation}}
+{{conversation}}
     
-    You %{must|shall|have to} %{generate|create|say|craft} a %{reply|response} for {{respond_for}}, keeping in mind that the conversation must progress according to the following %{summary|synopsis|context}:
+You %{must|shall|have to} %{generate|create|say|craft} a %{reply|response} for {{respond_for}}, keeping in mind that the conversation must progress according to the following %{summary|synopsis|context}:
     
-    {{narrative}}
+{{narrative}}
     
-    The response should be exclusively of human dialogue and contain no roleplaying actions. Replies %{must be|should be no more than} a single paragraph %{long|in length}.""",
+The response should be exclusively of human dialogue and contain no roleplaying actions. Replies %{must be|should be no more than} a single paragraph %{long|in length}.""",
     #
     """%{Enter|Engage|Begin|Consider} %{conversation|conversational|chat|quick chat} mode. In this mode, you must %{generate|create} conversational dialogue responses and coherently continue the conversation in %{an interesting|a creative} manner. {{response_length_str}}.
-    This is the conversation so far:
-    {{conversation}}
+This is the conversation so far:
+{{conversation}}
     
-    These are the themes that the conversation should follow:
-    {{narrative}}""",
+These are the themes that the conversation should follow:
+{{narrative}}""",
     #
     """%{Consider|Look at|Pay attention to} the following narrative:
     
-    {{narrative}}
+{{narrative}}
     
-    You are to generate a response acting as {{respond_for}} in the following conversation between {{participants}}:
+You are to generate a response acting as {{respond_for}} in the following conversation between {{participants}}:
     
-    {{conversation}}
+{{conversation}}
     
-    {{response_length_str}}.""",
+{{response_length_str}}.""",
     #
     """Keeping this scenario in mind:
     
-    {{narrative}}
+{{narrative}}
     
-    %{Act as|Imitate|Take the role of} {{respond_for}} in this %{chat|conversation} between {{participants}} and reply with a chat message:
+%{Act as|Imitate|Take the role of} {{respond_for}} in this %{chat|conversation} between {{participants}} and reply with a chat message:
     
-    {{conversation}}
+{{conversation}}
     
-    Response length: {{response_length_str}}.""",#
+Response length: {{response_length_str}}.""",#
     #
     """{{narrative}}
     
-    Pretend to be {{respond_for}} %{and reply|when replying|as you respond} to the following dialogue history:
-    {{conversation}}
-    {{response_length_str}}."""
+Pretend to be {{respond_for}} %{and reply|when replying|as you respond} to the following dialogue history:
+{{conversation}}
+{{response_length_str}}."""
 
 ]
 

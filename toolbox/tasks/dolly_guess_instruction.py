@@ -56,15 +56,15 @@ _BASE_USER_PROMPTS = [
     """%{Answer:|Here's an answer for you:|I'm gonna give you you this.|Here's an answer.} <INFO> <CONTEXT>\nWhat is %{an|the} instruction that goes with that %{piece|bit} of %{info|information|context}?""",
     """Guess the instruction given this answer: <INFO> <CONTEXT>""",
     """Here is %{some information|a piece of text} that corresponds to what an %{AI assistant|artificial assistant} would generate in response to being given an instruction.
-    \"<INFO>\" <CONTEXT>
-    What would have been the %{question|instruction} for %{this|that}?""",
+\"<INFO>\" <CONTEXT>
+What would have been the %{question|instruction} for %{this|that}?""",
     """ok here: <INFO>
-    <CONTEXT>
-    come up with %{the question|the thing i would've asked you} please""",
+<CONTEXT>
+come up with %{the question|the thing i would've asked you} please""",
     """<INFO> <CONTEXT>"""
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
 USER_PROMPTS = generate_prompts(_BASE_USER_PROMPTS)
 
-CONTEXT_PREFIXES = ["Context: ", "You might want to know this: ", "\nHere's some further information:\n", "", "\n"]
+CONTEXT_PREFIXES = ["Context: ", "You might want to know this: ", "\nHere's some further information:\n", "Here is the context: ", "Further information: " "", "\n"]

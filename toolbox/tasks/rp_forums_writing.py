@@ -310,18 +310,18 @@ _BASE_SYSTEM_PROMPTS = [
     '''Write the next reply in a fictional %{roleplay|RP} %{chat|conversation}. {{content_type_str}}. {{response_length_str}}.''',
     #
     '''%{SYSTEM|MODE}: %{conversational roleplay|RP|roleplay mode|RP system engaged}
-    %{NOTE|ADVISORY|KEEP IN MIND}: {{response_length_str}}''',
+%{NOTE|ADVISORY|KEEP IN MIND}: {{response_length_str}}''',
     #
     '''I am %{in|currently in|engaging in|beginning} a %{roleplay|RP|fictional roleplay-like conversation} with %{someone else|other people|a user}.''',
     #
     '''{{content_style_str}}. {{response_length_str}}.''',
     #
     '''%{OBJECTIVE|TASK|MISSION|JOB} - %{Conduct|Generate|Enjoy} a %{roleplay session|RP|fictional roleplay}
-    %{DISCRETION RATING|SAFE FOR WORK?|CONTENT RATING} - {{content_type_str}}
-    %{REMEMBER|NOTE} - {{response_length_str}}''',
+%{DISCRETION RATING|SAFE FOR WORK?|CONTENT RATING} - {{content_type_str}}
+%{REMEMBER|NOTE} - {{response_length_str}}''',
     # Misspellings intentional
     '''%{do|make|have} %{rp adventures|writing|creative roleplay}
-    %{pls|please} %{rember|remember} to %{b|be} %{engaging|immersive|epic}''',
+%{pls|please} %{rember|remember} to %{b|be} %{engaging|immersive|epic}''',
     #
     "%{roleplay|RP}",
     ""
