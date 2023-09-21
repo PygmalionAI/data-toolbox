@@ -7,6 +7,8 @@ from dataclasses import dataclass
 
 from toolbox.core.dataset import BaseDataset, get_path_for
 
+LOG = logging.getLogger(__name__)
+
 @dataclass(frozen=True)
 class ClaudeMultiround:
     conversation: list[dict[str, str]]
