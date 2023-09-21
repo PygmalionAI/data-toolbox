@@ -1,3 +1,4 @@
+import random
 import re
 import typing as t
 
@@ -67,7 +68,11 @@ def generate_prompts(system_prompts: list[str]) -> list[str]:
     Given a list of base system prompts,
     this function generates a list of variants on these prompts using generate_variants_for
     '''
-    unflattened_list = [list(generate_variants_for(x)) for x in system_prompts]
+    # NOTE(TG): If we don't choose a singular base prompt *before* generating variants,
+    # certain base prompts can have a lot more appearances in the final list to choose from
+    # due to the amount of variants.
+    choice = [random.choice(system_prompts)]
+    unflattened_list = [list(generate_variants_for(x)) for x in choice]
 
     flattened_list: list[str] = []
     for l in unflattened_list:
