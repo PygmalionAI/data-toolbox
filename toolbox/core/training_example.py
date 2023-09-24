@@ -9,7 +9,7 @@ from toolbox.core.models import (
     TrainingExample,
     TurnKind
 )
-from toolbox.core.wrapper import WRAPPER_MAP
+from toolbox.core.wrapper import VALID_FORMATS, WRAPPER_MAP
 
 LOG = logging.getLogger(__name__)
 
@@ -18,8 +18,6 @@ LOG = logging.getLogger(__name__)
 # can instead use an estimation instead if we're OK with dropping some examples
 # at training time.
 AVG_WORD_TO_TOKEN_RATIO = 1.7
-
-VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml"]
 
 class TurnTooLargeError(RuntimeError):
     pass

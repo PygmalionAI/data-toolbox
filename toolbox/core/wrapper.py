@@ -111,3 +111,5 @@ WRAPPER_MAP: dict[str, TurnWrapper] = {
     "henkpaca": HenkpacaWrapper,
     "chatml": ChatMlWrapper,
 }
+
+VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml"]
