@@ -46,7 +46,7 @@ class PygmalionWrapper(TurnWrapper):
 class AlpacaWrapper(TurnWrapper):
     def __init__(self, turn: Turn) -> None:
         super().__init__(turn)
-        self.kind_map: [TurnKind, str] = {
+        self.kind_map: dict[TurnKind, str] = {
             TurnKind.SYSTEM: "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:",
             TurnKind.USER: "### Input:",
             TurnKind.MODEL: "### Response:"
@@ -84,6 +84,38 @@ class HenkpacaWrapper(TurnWrapper):
         
     def get_model_turn(self) -> str:
         return f"{self.name}: "
+    
+class ChatMlWrapper(TurnWrapper):
+    def __init__(self, turn: Turn) -> None:
+        '''
+        Plain-text version of ChatML as described here: https://github.com/openai/openai-python/blob/main/chatml.md
+        '''
+        super().__init__(turn)
+        self.kind_map: dict[TurnKind, str] = {
+            TurnKind.SYSTEM: "system",
+            TurnKind.USER: "user",
+            TurnKind.MODEL: "assistant",
+        }
+
+    def as_str(self) -> str:
+        return f"<|im_start|>{self.kind_map[self.kind]}\n{self.utterance}<|im_end|>\n"
+    
+    def get_model_turn(self) -> str:
+        return f"<|im_start|>{self.kind_map[TurnKind.MODEL]}\n"
+    
+class ChatMlWithNameWrapper(ChatMlWrapper):
+    def __init__(self, turn: Turn) -> None:
+        '''
+        Plain-text version of ChatML as described here: https://github.com/openai/openai-python/blob/main/chatml.md
+        This version with a name.
+        '''
+        super().__init__(turn)
+
+    def as_str(self) -> str:
+        return f"<|im_start|>{self.kind_map[self.kind]} name={self.name}\n{self.utterance}<|im_end|>\n"
+    
+    def get_model_turn(self) -> str:
+        return f"<|im_start|>{self.kind_map[TurnKind.MODEL]} name={self.name}\n"
 
 WRAPPER_MAP: dict[str, TurnWrapper] = {
     "metharme": MetharmeWrapper,
@@ -91,4 +123,8 @@ WRAPPER_MAP: dict[str, TurnWrapper] = {
     "alpaca": AlpacaWrapper,
     "minimal_alpaca": MinimalAlpacaWrapper,
     "henkpaca": HenkpacaWrapper,
+    "chatml": ChatMlWrapper,
+    "chatml_named": ChatMlWithNameWrapper
 }
+
+VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml", "chatml_named"]
