@@ -102,6 +102,20 @@ class ChatMlWrapper(TurnWrapper):
     
     def get_model_turn(self) -> str:
         return f"<|im_start|>{self.kind_map[TurnKind.MODEL]}\n"
+    
+class ChatMlWithNameWrapper(ChatMlWrapper):
+    def __init__(self, turn: Turn) -> None:
+        '''
+        Plain-text version of ChatML as described here: https://github.com/openai/openai-python/blob/main/chatml.md
+        This version with a name.
+        '''
+        super().__init__(turn)
+
+    def as_str(self) -> str:
+        return f"<|im_start|>{self.kind_map[self.kind]} name={self.name}\n{self.utterance}<|im_end|>\n"
+    
+    def get_model_turn(self) -> str:
+        return f"<|im_start|>{self.kind_map[TurnKind.MODEL]} name={self.name}\n"
 
 WRAPPER_MAP: dict[str, TurnWrapper] = {
     "metharme": MetharmeWrapper,
@@ -110,6 +124,7 @@ WRAPPER_MAP: dict[str, TurnWrapper] = {
     "minimal_alpaca": MinimalAlpacaWrapper,
     "henkpaca": HenkpacaWrapper,
     "chatml": ChatMlWrapper,
+    "chatml_named": ChatMlWithNameWrapper
 }
 
-VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml"]
+VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml", "chatml_named"]
