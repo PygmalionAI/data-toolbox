@@ -94,7 +94,7 @@ class TrainingExampleGenerator:
             
             generation = turn.utterance.strip()
             # ChatML format prefers to end with its own end token rather than the model's.
-            if self.format == "chatml":
+            if "chatml" in self.format:
                 generation += "<|im_end|>"
 
             # Sanity checks. Asserts that there's only a single system prompt
