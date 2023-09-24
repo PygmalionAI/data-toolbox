@@ -19,7 +19,7 @@ LOG = logging.getLogger(__name__)
 # at training time.
 AVG_WORD_TO_TOKEN_RATIO = 1.7
 
-VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca"]
+VALID_FORMATS = ["metharme", "pygmalion", "alpaca", "minimal_alpaca", "henkpaca", "chatml"]
 
 class TurnTooLargeError(RuntimeError):
     pass
@@ -95,6 +95,9 @@ class TrainingExampleGenerator:
             prompt += turn.get_model_turn()
             
             generation = turn.utterance.strip()
+            # ChatML format prefers to end with its own end token rather than the model's.
+            if self.format == "chatml":
+                generation += "<|im_end|>"
 
             # Sanity checks. Asserts that there's only a single system prompt
             # and it's at the very beginning of the prompt string.
