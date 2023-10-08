@@ -184,7 +184,7 @@ def _remove_mentions(message: str) -> str:
     cleaned_message = message
     removal_bounds: list[tuple[int, int]] = []
     for match in re.finditer(MENTION_PATTERN, message):
-        end_char = message[match.end()]
+        end_char = message[match.end()-1]
         # If the next character is a whitespace or punctuation,
         # we can assume that removing the mention won't affect the message
         # much in terms of coherency. We store the bounds in a tuple
