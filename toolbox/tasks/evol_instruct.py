@@ -1,5 +1,4 @@
 import logging
-import random
 import typing as t
 
 from sklearn.feature_extraction.text import CountVectorizer
@@ -9,7 +8,7 @@ from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.evol_instruct import EvolInstructDataset
 from toolbox.datasets.gpt4llm import AlpacaLikeDataInstance
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ def _data_instance_to_episode(
 ) -> Episode:
     turns = [
         Turn(
-            utterance=random.choice(SYSTEM_PROMPTS),
+            utterance=select_prompt(SYSTEM_PROMPTS),
             kind=TurnKind.SYSTEM,
         ),
         Turn(

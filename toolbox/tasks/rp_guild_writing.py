@@ -19,7 +19,7 @@ from toolbox.tasks.rp_forums_writing import(
     _seems_to_have_ooc_talk,
     _split_message,
 )
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 # Gaze upon my works, ye mighty, and despair.
 MENTION_PATTERN = re.compile(r"(?<!\w)([^\S\r\n]|^)*@[^\W\s]+?(?=(,|\.|\?|~|!|\s|:|$))", flags=re.MULTILINE)
@@ -66,23 +66,23 @@ class RpGuildWritingTask(BaseTask):
                 continue
 
             # Generate the system prompt.
-            sys_prompt = random.choice(SYSTEM_PROMPTS)
+            sys_prompt = select_prompt(SYSTEM_PROMPTS)
             # Takes the first style prompt it sees
             for tag in thread.tags:
                 if tag in list(STYLE_PROMPT_MAPPING.keys()):
-                    sys_prompt += random.choice(STYLE_PROMPT_MAPPING[tag])
+                    sys_prompt += select_prompt(STYLE_PROMPT_MAPPING[tag])
                     break
             # The time and genre
             genre_str, time_str = _combine_tags_into_str(thread.tags)
             if genre_str is not None:
-                add_prompt = random.choice(GENRE_PROMPTS)
+                add_prompt = select_prompt(GENRE_PROMPTS)
                 sys_prompt += (add_prompt + genre_str + ".")
             if time_str is not None:
-                add_prompt = random.choice(TIME_PROMPTS)
+                add_prompt = select_prompt(TIME_PROMPTS)
                 sys_prompt += (add_prompt + time_str + ".")
             # NSFW
             if "18+" in thread.tags:
-                sys_prompt += random.choice(NSFW_PROMPTS)
+                sys_prompt += select_prompt(NSFW_PROMPTS)
 
             # Finally convert the system prompt to a Turn
             sys_prompt = Turn(utterance=sys_prompt, kind=TurnKind.SYSTEM)

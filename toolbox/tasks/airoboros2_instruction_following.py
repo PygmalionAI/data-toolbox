@@ -6,7 +6,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.airoboros2 import Airoboros2DataInstance, Airoboros2Dataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def _no_special_processing(entry: Airoboros2DataInstance) -> list[Turn]:
     Generates a turn list consisting of a system prompt and a singular user-response pair.
     '''
     turns = [
-        Turn(utterance=random.choice(SYSTEM_PROMPTS), kind=TurnKind.SYSTEM),
+        Turn(utterance=select_prompt(SYSTEM_PROMPTS), kind=TurnKind.SYSTEM),
         Turn(utterance=entry.instruction, kind=TurnKind.USER),
         Turn(utterance=entry.response, kind=TurnKind.MODEL)
     ]
@@ -136,7 +136,7 @@ def _process_contextual(entry: Airoboros2DataInstance) -> list[Turn]:
     # For the sake of having extremely versatile system prompts,
     # I've made it so that there's a random chance the context comes in either
     # the system prompt or the user input.
-    sys_prompt = random.choice(SYSTEM_PROMPTS)
+    sys_prompt = select_prompt(SYSTEM_PROMPTS)
     context = (random.choice(CONTEXT_PRELUDES) + f"\n{context}").strip()
     if random.random() > 0.5:
         # Context is chosen to be in system prompt.

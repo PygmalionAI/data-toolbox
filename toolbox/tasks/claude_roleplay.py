@@ -5,7 +5,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.claude_logs import ClaudeRpDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class ClaudeRoleplayTask(BaseTask):
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for convo in ClaudeRpDataset():
             # Deal with system prompts
-            system_prompt = random.choice(SYSTEM_PROMPTS)
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
             # Add a persona if there is one
             if convo.persona is not None and system_prompt != "":
                 system_prompt += f"\n{random.choice(PERSONA_PROMPTS)} " + convo.persona

@@ -1,12 +1,10 @@
 import logging
-import operator
-import random
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.soda import SodaDataset
-from toolbox.utils.prompts import generate_prompts, generate_variants_for
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -31,8 +29,8 @@ class SodaSummarizationTask(BaseTask):
             participants_str = " and ".join(
                 [", ".join(participants[:-1]), participants[-1]])
 
-            system_prompt = random.choice(SYSTEM_PROMPTS)
-            user_prompt = random.choice(USER_PROMPTS)
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
+            user_prompt = select_prompt(USER_PROMPTS)
             user_prompt = user_prompt.replace("{{conversation}}", history_str)
             user_prompt = user_prompt.replace("{{participants}}",
                                               participants_str)

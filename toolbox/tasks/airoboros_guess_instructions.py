@@ -1,11 +1,10 @@
 import logging
-import random
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.airoboros import AiroborosDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class AiroborosGuessTheInstructionTask(BaseTask):
 
             turns: list[Turn] = [
                 Turn(
-                    utterance=random.choice(SYSTEM_PROMPTS),
+                    utterance=select_prompt(SYSTEM_PROMPTS),
                     kind=TurnKind.SYSTEM,
                 ),
                 Turn(
@@ -43,7 +42,8 @@ _BASE_SYSTEM_PROMPTS = [
     "Your question will be...",
     "%{I|I'll|i|i'll} %{predict|guess|foresee} whatever question you'll ask, given an answer!"
     "instruct",
-    "assistant"
+    "assistant",
+    "is_assistant = True"
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

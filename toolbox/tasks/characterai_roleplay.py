@@ -1,11 +1,10 @@
 import logging
-import random
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.characterai import CharacterAiDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ class CharacterAiRoleplayTask(BaseTask):
                     conversation.bot.name)
                 continue
 
-            system_prompt = random.choice(SYSTEM_PROMPTS)
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
             system_prompt = system_prompt.replace("{{char}}",
                                                   conversation.bot.name)
             system_prompt = system_prompt.replace("{{persona}}",

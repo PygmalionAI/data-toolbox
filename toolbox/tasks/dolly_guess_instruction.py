@@ -6,7 +6,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.dolly import DollyDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -20,12 +20,12 @@ class DollyGuessTheInstructionTask(BaseTask):
         for i, entry in enumerate(DollyDataset()):
             turns: list[Turn] = [
                 Turn(
-                    utterance=random.choice(SYSTEM_PROMPTS),
+                    utterance=select_prompt(SYSTEM_PROMPTS),
                     kind=TurnKind.SYSTEM
                 )
             ]
             # Construct user prompt
-            user_prompt = random.choice(USER_PROMPTS)
+            user_prompt = select_prompt(USER_PROMPTS)
             user_prompt = user_prompt.replace("<INFO>", entry.output)
             if entry.input != "":
                 context = random.choice(CONTEXT_PREFIXES) + entry.input

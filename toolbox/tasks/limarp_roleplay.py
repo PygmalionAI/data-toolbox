@@ -1,14 +1,13 @@
 # Much of this taken from dataprepare.py in the LIMARP, thanks anon
 # If it ain't broke, don't fix it!
 import logging
-import random
 import re
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.limarp import LimaRpDataset, LimaRpEntry
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ class LimaRpRoleplayTask(BaseTask):
         for entry in LimaRpDataset():
             turns: list[Turn] = []
             # Format the system prompt first.
-            system_prompt = random.choice(SYSTEM_PROMPTS)
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
             # Fix it up and append it as the first turn
             system_prompt = _fix_punctuation(_substitute_elements(system_prompt, entry))
             turns.append(Turn(

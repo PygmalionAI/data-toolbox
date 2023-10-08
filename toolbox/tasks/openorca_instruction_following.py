@@ -1,21 +1,20 @@
 import logging
-import random
 import re
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.openorca import OpenOrcaDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
 class OpenOrcaInstructionFollowingTask(BaseTask):
     '''
     OpenOrca instruction following task.
-    Limited to 200,000 entries by default due to the sheer absolute size of OpenOrca.
+    Limited to 250,000 entries by default due to the sheer absolute size of OpenOrca.
     '''
-    def __init__(self, max_examples: int = 200000) -> None:
+    def __init__(self, max_examples: int = 250000) -> None:
         super().__init__()
         self.max_examples = max_examples
 
@@ -30,7 +29,7 @@ class OpenOrcaInstructionFollowingTask(BaseTask):
                 if phrase in orca_entry.response.lower():
                     continue
 
-            system_prompt = random.choice(SYSTEM_PROMPTS)
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
             # Remove the default "you are an AI assistant" instruction which is
             # typically in the first sentence of an OpenOrca system prompt
             additional_instructions = re.sub(ASSISTANT_PATTERN, "", orca_entry.system_prompt)
@@ -65,7 +64,8 @@ _BASE_SYSTEM_PROMPTS = [
     "%{Assistant|AI}, engage instruction following and question answering mode.",
     "Act helpfully. Answer any questions and follow any instructions that are given.",
     "Primary %{objective|purpose|goal}: answer the user's %{questions|queries} alongside following their instructions.",
-    "Please follow user %{instructions|queries}."
+    "Please follow user %{instructions|queries}.",
+    "You are an AI assistant designed to answer questions and obey whatever the user says."
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)

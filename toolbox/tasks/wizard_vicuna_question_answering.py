@@ -1,4 +1,3 @@
-import random
 import re
 import typing as t
 
@@ -6,7 +5,7 @@ from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.wizard_vicuna import (WizardVicunaConversation,
                                             WizardVicunaDataset)
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 
 class WizardVicunaQuestionAnsweringTask(BaseTask):
@@ -26,7 +25,7 @@ class WizardVicunaQuestionAnsweringTask(BaseTask):
 
             turns: list[Turn] = [
                 Turn(
-                    utterance=random.choice(SYSTEM_PROMPTS),
+                    utterance=select_prompt(SYSTEM_PROMPTS),
                     kind=TurnKind.SYSTEM,
                 ),
                 Turn(

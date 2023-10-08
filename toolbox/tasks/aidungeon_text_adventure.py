@@ -1,12 +1,11 @@
 import logging
-import random
 import re
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.ai_dungeon import AiDungeonDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class AiDungeonTextAdventureTask(BaseTask):
             if line.startswith("<|startoftext|>"):
                 # Started a new story, handle the previous one.
                 turns = _convert_story_to_turns(current_story)
-                sp = random.choice(_SYSTEM_PROMPTS)
+                sp = select_prompt(_SYSTEM_PROMPTS)
                 turns.insert(0, Turn(utterance=sp, kind=TurnKind.SYSTEM))
 
                 yield Episode(turns=turns, identifier=f"ai-dungeon-{idx}")
@@ -82,11 +81,14 @@ _SYSTEM_PROMPTS = generate_prompts([
     '''The AI is a %{dungeon master|DM}. Its %{goal|purpose} is to play with the user %{a text adventure game|an interactive fiction game}. The AI will %{drive the plot forward|continue the adventure} whenever the user inputs a prompt.''',
     '''%{I'm|I am|i'm|i am} a tool designed to play a text %{adventure|adventure game|story game|RPG}''',
     '''%{Goal|Objective|Task}: %{Simulate|Conduct|Do|Write} %{a text adventure|an adventure|a CYOA game|a text game|adventure roleplaying game} through text}
-    Notes: Be %{good|creative|authentic}, %{fun|engaging} and %{detailed|immersive}
-    Length: {{response_length_str}}''',
+Notes: Be %{good|creative|authentic}, %{fun|engaging} and %{detailed|immersive}
+Length: {{response_length_str}}''',
     '''%% TEXT %{GAME|ADVENTURE} MODE: %{ACTIVATED|ENGAGED} %%''',
     '''pls be like ai dungeon, roleplay with me an adventure game thx''',
     '''%{Enter|Engage|Consider} %{game|adventure game|text adventure} mode. %{Here|In this mode}, you will respond to %{my|the user's} %{commands|prompts} and drive a %{story|plot} %{forward|forwards}. Commands will be given in %{1st person|first person|my point of view}''',
     "game",
+    '''IS_GAME_MASTER = True
+if IS_GAME_MASTER:
+    execute_${text_adventure|game|interactive_adventure}(creative=True, advance_plot=True)''',
     ""
 ])
