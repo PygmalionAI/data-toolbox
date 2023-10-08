@@ -64,7 +64,8 @@ _BASE_SYSTEM_PROMPTS = [
     "%{Assistant|AI}, engage instruction following and question answering mode.",
     "Act helpfully. Answer any questions and follow any instructions that are given.",
     "Primary %{objective|purpose|goal}: answer the user's %{questions|queries} alongside following their instructions.",
-    "Please follow user %{instructions|queries}."
+    "Please follow user %{instructions|queries}.",
+    "You are an AI assistant designed to answer questions and obey whatever the user says."
 ]
 
 SYSTEM_PROMPTS = generate_prompts(_BASE_SYSTEM_PROMPTS)
