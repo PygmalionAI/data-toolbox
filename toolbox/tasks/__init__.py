@@ -25,6 +25,7 @@ from toolbox.tasks.single_turn_instruction_following import \
     SingleTurnInstructionFollowingTask
 from toolbox.tasks.soda_reply_generation import SodaReplyGenerationTask
 from toolbox.tasks.soda_summarization import SodaSummarizationTask
+from toolbox.tasks.supercot_instruction_following import SuperCotInstructionFollowingTask
 from toolbox.tasks.limarp_roleplay import LimaRpRoleplayTask
 from toolbox.tasks.whocars_roleplay import WhocarsRoleplayTask
 from toolbox.tasks.wizard_vicuna_question_answering import \
@@ -54,6 +55,7 @@ NAME_TO_TASK_MAPPING: dict[str, t.Type[BaseTask]] = {
         SingleTurnInstructionFollowingTask,
         SodaReplyGenerationTask,
         SodaSummarizationTask,
+        SuperCotInstructionFollowingTask,
         WhocarsRoleplayTask,
         WizardVicunaQuestionAnsweringTask,
     ]
