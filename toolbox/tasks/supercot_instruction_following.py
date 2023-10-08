@@ -1,11 +1,10 @@
 import logging
-import random
 import typing as t
 
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.supercot import SuperCotDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ class SuperCotInstructionFollowingTask(BaseTask):
     '''Instruction following task based on the SuperCOT data.'''
     def __iter__(self) -> t.Generator[Episode, None, None]:
         for idx, instance in enumerate(SuperCotDataset()):
-            sys_prompt = random.choice(SYSTEM_PROMPTS)
+            sys_prompt = select_prompt(SYSTEM_PROMPTS)
             user_prompt = instance.instruction
             if instance.input is not None:
                 user_prompt += f"\n{instance.input}"

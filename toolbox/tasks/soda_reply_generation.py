@@ -5,7 +5,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.soda import SodaDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class SodaReplyGenerationTask(BaseTask):
                 history_str = "\n".join(cur_history[:-2])
                 response_length_str = _response_length_str_for(utterance)
 
-                system_prompt = random.choice(SYSTEM_PROMPTS)
+                system_prompt = select_prompt(SYSTEM_PROMPTS)
                 system_prompt = system_prompt.replace("{{participants}}",
                                                       participants_str)
                 system_prompt = system_prompt.replace("{{conversation}}",

@@ -7,7 +7,7 @@ from markdownify import markdownify
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.mcstories import McStoriesDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -21,8 +21,8 @@ class McStoriesWritingTask(BaseTask):
             contents = _html_story_to_clean_md(story.text_contents)
             chunks = _split_text_into_chunks(contents, min_word_count=250)
 
-            # Compose synthetic the system prompt.
-            system_prompt = random.choice(_SYSTEM_PROMPTS)
+            # Compose a synthetic system prompt.
+            system_prompt = select_prompt(_SYSTEM_PROMPTS)
             system_prompt = system_prompt.replace("{{title}}", story.title)
             system_prompt = system_prompt.replace("{{summary}}", story.summary)
 

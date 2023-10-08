@@ -71,11 +71,17 @@ def generate_prompts(system_prompts: list[str]) -> list[str]:
     # NOTE(TG): If we don't choose a singular base prompt *before* generating variants,
     # certain base prompts can have a lot more appearances in the final list to choose from
     # due to the amount of variants.
-    choice = [random.choice(system_prompts)]
-    unflattened_list = [list(generate_variants_for(x)) for x in choice]
+    unflattened_list = [list(generate_variants_for(x)) for x in system_prompts]
 
-    flattened_list: list[str] = []
-    for l in unflattened_list:
-        flattened_list += l
+    # flattened_list: list[str] = []
+    # for l in unflattened_list:
+    #     flattened_list += l
 
-    return flattened_list
+    return unflattened_list
+
+def select_prompt(system_prompts: list[list[str]]) -> str:
+    '''
+    Selects a random system prompt which takes into account
+    that certain base system prompts have more variations than others
+    '''
+    return random.choice(random.choice(system_prompts))

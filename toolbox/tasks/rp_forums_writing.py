@@ -8,7 +8,7 @@ from markdownify import markdownify
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.rp_forums import RpForumsDataset, RpType
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -49,8 +49,8 @@ class RpForumsWritingTask(BaseTask):
                 username_substitutions[name] = "{{char_" + str(idx) + "}}"
 
             # System prompt
-            system_prompt = random.choice(SYSTEM_PROMPTS)
-            content_type_prompt = random.choice(
+            system_prompt = select_prompt(SYSTEM_PROMPTS)
+            content_type_prompt = select_prompt(
                 CONTENT_TYPE_TO_PROMPTS[thread.content_type])
             system_prompt = system_prompt.replace("{{content_type_str}}",
                                                   content_type_prompt)

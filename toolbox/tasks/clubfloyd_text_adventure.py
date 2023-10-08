@@ -5,7 +5,7 @@ import typing as t
 from toolbox.core.models import Episode, Turn, TurnKind
 from toolbox.core.task import BaseTask
 from toolbox.datasets.clubfloyd import ClubFloydDataset
-from toolbox.utils.prompts import generate_prompts
+from toolbox.utils.prompts import generate_prompts, select_prompt
 
 LOG = logging.getLogger(__name__)
 
@@ -22,12 +22,12 @@ class ClubFloydTextAdventureTask(BaseTask):
                 # trade-off.
                 continue
 
-            sp = random.choice(_SYSTEM_PROMPTS)
+            sp = select_prompt(_SYSTEM_PROMPTS)
             sp = sp.replace("{{title}}", story.name)
             sp = sp.replace("{{description}}", story.description)
             sp = sp.replace(
                 "{{discretion_advised_str}}",
-                random.choice(
+                select_prompt(
                     NSFW_PROMPTS if story.discretion_advised else SFW_PROMPTS))
             sp = sp.replace("{{tags}}",
                             _process_tags(story.tags + story.genres))
