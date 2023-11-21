@@ -1,0 +1,6 @@
+colorama
+ftfy
+markdownify
+pyyaml
+scikit-learn
+ujson
