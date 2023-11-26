@@ -22,7 +22,7 @@ class TrainingExampleGenerator:
     def __init__(
         self,
         episode: Episode,
-        target_token_count: int,
+        target_token_count: int = 4096,
         format: str = "metharme"
     ) -> None:
         self.episode = episode
