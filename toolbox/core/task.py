@@ -1,5 +1,5 @@
-from .filter import BaseFilter
-from .training_example import TrainingExample
+from filters import BaseFilter
+from training_example import TrainingExample
 
 class BaseTask:
     '''Base task class. Relies on config fed into this task.'''

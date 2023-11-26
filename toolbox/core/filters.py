@@ -1,4 +1,4 @@
-from .training_example import TrainingExample
+from training_example import TrainingExample
 
 class BaseFilter:
     '''

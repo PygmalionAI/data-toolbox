@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .turns import Episode
+from turns import Episode
 
 class BaseFormat(ABC):
     '''

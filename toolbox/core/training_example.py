@@ -3,7 +3,7 @@ import logging
 from dataclasses import dataclass
 from typing import Generator
 
-from .turns import Episode
+from turns import Episode
 
 LOG = logging.getLogger(__name__)
 
