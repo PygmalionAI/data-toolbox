@@ -3,4 +3,6 @@ ftfy
 markdownify
 pyyaml
 scikit-learn
+tqdm
 ujson
+zstandard
