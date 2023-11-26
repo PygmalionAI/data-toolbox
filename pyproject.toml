@@ -28,6 +28,11 @@ dev = [
     "isort>=5.10.1",
     "pylint>=2.15.8",
     "mypy>=0.991",
+    # I don't think we need to pin the versions here.
+    "ftfy",
+    "jsonlines",
+    "zstandard",
+    "tqdm",
 ]
 debugging = [
     "pdbpp>=0.10.3",

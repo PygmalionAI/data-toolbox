@@ -7,6 +7,7 @@
 /.pdm.toml
 /.pdm-python
 /.venv/
+/venv/
 /dist/*
 /build_data.py
 
