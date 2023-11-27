@@ -1,0 +1,7 @@
+---
+# Airoboros
+AiroborosInstructionFollowingTask:
+  custom_prompts:
+  dataset_name: "airoboros"
+  filters:
+...

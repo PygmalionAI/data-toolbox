@@ -1,4 +1,4 @@
-from training_example import TrainingExample
+from turns import Episode
 
 class BaseFilter:
     '''
@@ -6,7 +6,7 @@ class BaseFilter:
     Filters work on the task level and discards any data that does not meet
     a certain criteria (must be English, must not be a duplicate, etc etc.)
     '''
-    def should_keep(self, example: TrainingExample) -> bool:
+    def should_keep(self, example: Episode) -> bool:
         '''
         Whether or not the given training example should be kept and used for training.
         '''
