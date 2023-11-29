@@ -3,6 +3,8 @@ import re
 
 import ftfy
 
+EXCESSIVE_CHARS_PATTERN = re.compile(r"(\.|\-|\*|!)\1{3,}")
+
 # Custom ftfy config to keep stuff such as full-width text (for fun!)
 config = ftfy.TextFixerConfig(
     fix_latin_ligatures=False,
@@ -23,7 +25,8 @@ def fix_style_and_encoding_issues(original_message: str) -> str:
     message = message.replace(" ? ", "? ")
     message = message.replace(" ! ", "! ")
 
-    message = re.sub(r"(\S)(…)(\S)", "\\1\\2 \\3", message)
+    message = re.sub(r"(\S)(…|\.\.\.)(\S)", "\\1\\2 \\3", message)
+    message = EXCESSIVE_CHARS_PATTERN.sub(r"\1\1\1", message)
 
     # Fix hidden zero-width spaces and other whitespace fuckery which could
     # mess with a model.

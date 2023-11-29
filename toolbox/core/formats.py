@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from turns import Episode
+from .turns import Episode
 
 class BaseFormat(ABC):
     '''
@@ -9,6 +9,10 @@ class BaseFormat(ABC):
     '''
     def __init__(self) -> None:
         # still need to figure out exactly how to do this
+        raise NotImplementedError
+    
+    @abstractmethod
+    def apply_format(self, episode: Episode) -> Episode:
         raise NotImplementedError
     
     @abstractmethod

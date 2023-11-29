@@ -48,7 +48,7 @@ class AiroborosInstructionFollowingTask(BaseTask):
                 ),
                 Turn(
                     utterance=example.generation,
-                    kind=TurnKind.SYSTEM,
+                    kind=TurnKind.MODEL,
                     name="Assistant",
                 ),
             ]

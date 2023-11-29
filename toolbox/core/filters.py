@@ -1,4 +1,4 @@
-from turns import Episode
+from .turns import Episode
 
 class BaseFilter:
     '''

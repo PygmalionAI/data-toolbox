@@ -1,13 +1,13 @@
 from typing import Optional
 
-from filters import BaseFilter
-from turns import Episode
+from .filters import BaseFilter
+from .turns import Episode
 
 class BaseTask:
     '''Base task class. Relies on config fed into this task.'''
     def __init__(
         self,
-        filters: list[BaseFilter],
+        filters: list[BaseFilter] = [],
         custom_prompts: Optional[list[str]] = None,
         **kwargs
     ) -> None:

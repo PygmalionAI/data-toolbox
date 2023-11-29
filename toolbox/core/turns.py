@@ -10,11 +10,11 @@ class TurnKind(Enum):
     require an enum (and generally just looks better in code rather than
     simple strings, IMO).
     '''
-    SYSTEM = ""
-    USER = ""
-    MODEL = ""
+    SYSTEM = "<|system|>"
+    USER = "<|user|>"
+    MODEL = "<|model|>"
 
-@dataclass(frozen=True)
+@dataclass
 class Turn:
     '''Can be thought of as a message or interaction within a conversation.'''
     utterance: str
@@ -23,7 +23,7 @@ class Turn:
     # with formats that require them.
     name: str = "<BOT>"
         
-@dataclass(frozen=True)
+@dataclass
 class Episode:
     '''A collection of turns.'''
     turns: list[Turn]

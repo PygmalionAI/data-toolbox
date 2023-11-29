@@ -56,10 +56,10 @@ class PromptManager:
         self.balanced = balance_prompt_choices
         if custom_prompts is not None:
             assert len(custom_prompts) > 0, "No custom prompts have been supplied!"
-            self.prompts = self.generate_prompts(custom_prompts, balanced=self.balanced)
+            self.prompts = self.generate_prompts(custom_prompts)
         else:
             # No assertions required because we did that above
-            self.prompts = self.generate_prompts(GENERIC_PROMPT_MAP[generic_prompts], balanced=self.balanced)
+            self.prompts = self.generate_prompts(GENERIC_PROMPT_MAP[generic_prompts])
 
     def generate_variants_for(
             self,

@@ -1,11 +1,18 @@
 import logging
+import math
 
 from dataclasses import dataclass
-from typing import Generator
+from typing import Generator, Type
 
-from turns import Episode
+from .formats import BaseFormat
+from .turns import Episode, Turn, TurnKind
 
 LOG = logging.getLogger(__name__)
+
+# TODO(TG): Old ratio, needs updating for LLaMA/Mistral tokenizer.
+# Also, allow for using a tokenizer proper rather than approximations if speed
+# is not a factor.
+AVG_WORD_TO_TOKEN_RATIO = 1.7
 
 class TurnTooLargeError(RuntimeError):
     pass
@@ -22,14 +29,58 @@ class TrainingExampleGenerator:
     def __init__(
         self,
         episode: Episode,
+        formatter: Type[BaseFormat],
         target_token_count: int = 4096,
-        format: str = "metharme"
     ) -> None:
         self.episode = episode
-        # Avoid any silly errors which can result from user not lowercasing.
-        self.format = format.lower()
-        # TODO(TG): The rest of this.
-        pass
+        self.format = formatter
+        self.target_token_count = target_token_count
+        self.turn_order: list[TurnKind] = [
+            t.kind for t in self.episode.turns
+        ]
+
+        # Run an assertion that the turn is "valid" by checking whether the
+        # first term is a system prompt and that both model and user gens are
+        # present.
+        assert self.turn_order[0] == TurnKind.SYSTEM and set(self.turn_order) \
+        == {TurnKind.SYSTEM, TurnKind.MODEL, TurnKind.USER}
 
     def __iter__(self) -> Generator[TrainingExample, None, None]:
-        raise NotImplementedError
+        # Modify the Episode to add in the format before calculating token counts.
+        self.episode = self.format.apply_format(self.episode)
+        # Calculate the token counts now starting from the system turn.
+        total_tokens = 0
+        trimmed_turns: list[Turn] = []
+        for turn in self.episode.turns:
+            utterance = turn.utterance
+            if (tokens := (total_tokens + _token_count_for(utterance))) \
+                > self.target_token_count:
+                # We've gone past the max token count. Check to see if this
+                # is a user turn. If so, stop here.
+                if turn.kind == TurnKind.USER:
+                    break
+                # If it's a model turn, that means the last turn before
+                # context length fills is a user turn - hence, take out the
+                # last user turn.
+                trimmed_turns = trimmed_turns[:-1]
+            else:
+                total_tokens += tokens
+                trimmed_turns.append(turn)
+        self.episode.turns = trimmed_turns
+
+        # Now we check if there are at least 3 turns. If not, something is
+        # missing and we raise the TurnTooLargeError.
+        if len(self.turn_order) < 3:
+            raise TurnTooLargeError
+
+        # Feed the trimmed episode into the formatter again to convert to its
+        # final output in the form of a dictionary.
+        dict_to_write = self.format.construct_dict(self.episode)
+        yield TrainingExample(
+            formatted_episode=dict_to_write,
+            identifier=self.episode.identifier
+        )
+
+def _token_count_for(string: str) -> int:
+    '''Estimate token counts.'''
+    return math.ceil(len(string.split()) * AVG_WORD_TO_TOKEN_RATIO)
