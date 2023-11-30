@@ -7,7 +7,10 @@ class BaseFilter(ABC):
     Filters work on the task level and discards any data that does not meet
     a certain criteria (must be English, must not be a duplicate, etc etc.)
     '''
-    @staticmethod    
+    @abstractmethod
+    def __init__(self) -> None:
+        raise NotImplementedError 
+    
     @abstractmethod
     def should_keep(episode: Episode) -> bool:
         '''

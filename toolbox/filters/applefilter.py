@@ -12,8 +12,10 @@ class AppleFilter(BaseFilter):
     of "apple", and if so, drops the example. Obviously this shouldn't be used
     for any serious dataset, unless you really really hate apples.
     '''
-    @staticmethod
-    def should_keep(episode: Episode) -> bool:
+    def __init__(self) -> None:
+        pass
+
+    def should_keep(self, episode: Episode) -> bool:
         for i, turn in enumerate(episode.turns):
             if "apple" in turn.utterance:
                 LOG.info(f"Episode {episode.identifier} dropped due to it \

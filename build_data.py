@@ -34,7 +34,7 @@ def main() -> None:
     for task in args.tasks.split(","):
         kwargs = task_configs[task]
         # Add in filters
-        kwargs["filters"] = [NAME_TO_FILTER_MAPPING[f] for f in kwargs["filters"]]
+        kwargs["filters"] = [NAME_TO_FILTER_MAPPING[f]() for f in kwargs["filters"]]
         all_tasks.append(NAME_TO_TASK_MAPPING[task](**kwargs))
 
     for task in all_tasks:
