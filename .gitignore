@@ -10,3 +10,6 @@
 # Large/binary files.
 /data/*
 !/data/.keep
+
+# Testing files.
+/test_config.yml

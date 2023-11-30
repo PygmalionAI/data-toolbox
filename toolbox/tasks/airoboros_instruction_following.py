@@ -22,7 +22,7 @@ class AiroborosInstructionFollowingTask(BaseTask):
         custom_prompts: Optional[list[str]] = None,
         **kwargs
     ) -> None:
-        super().__init__()
+        super().__init__(filters=filters)
         # If no custom prompts, use the generic "assistant" prompts
         kwargs = {"generic_prompts": "assistant"} if custom_prompts is None \
             else {"custom_prompts": custom_prompts}
@@ -54,9 +54,7 @@ class AiroborosInstructionFollowingTask(BaseTask):
             ]
 
             # Run through the filters.
-            episode = Episode(turns=turns, identifier=f"airoboros-instruct-{idx}"f"airoboros-instruct-{idx}")
+            episode = Episode(turns=turns, identifier=f"airoboros-instruct-{idx}")
             if self.should_keep(episode):
                 # Passed through filters!
                 yield episode
-            else:
-                LOG.debug(f"Episode {episode.identifier} did not pass filters.")
