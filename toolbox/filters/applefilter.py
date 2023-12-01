@@ -1,8 +1,6 @@
 import logging
 
-from toolbox.core.turns import Episode
-
-from ..core import BaseFilter
+from ..core import BaseFilter, Episode
 
 LOG = logging.getLogger("AppleFilter")
 

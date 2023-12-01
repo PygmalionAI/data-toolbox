@@ -1,8 +1,6 @@
 import logging
 
-from toolbox.core.turns import Episode, TurnKind
-
-from ..core import BaseFilter
+from ..core import BaseFilter, Episode, TurnKind
 
 LOG = logging.getLogger("RefusalFilter")
 

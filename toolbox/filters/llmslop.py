@@ -1,8 +1,6 @@
 import logging
 
-from toolbox.core.turns import Episode
-
-from ..core import BaseFilter, TurnKind
+from ..core import BaseFilter, Episode, TurnKind
 
 LOG = logging.getLogger("LlmSlopFilter")
 
