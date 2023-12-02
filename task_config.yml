@@ -4,4 +4,14 @@ AiroborosInstructionFollowingTask:
   custom_prompts:
   dataset_name: "airoboros"
   filters:
+    - ExactDedupFilter
+    - LlmSlopFilter
+    - RefusalFilter
+# RP forums
+RpForumsRoleplayTask:
+  custom_prompts:
+  dataset_name: "rp_forums"
+  filters:
+    - ExactDedupFilter
+    - LowQualityRpFilter
 ...

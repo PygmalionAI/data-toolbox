@@ -46,7 +46,6 @@ class LowQualityRpFilter(BaseFilter):
                 # "Floating" quotation marks
                 for pattern, msg in PATTERNS.items():
                     if pattern.search(message) is not None:
-                        LOG.info(f"Episode {episode.identifier} dropped due to \
-                        {msg} in turn {i}!")
+                        LOG.info(f"Episode {episode.identifier} dropped due to signs of low-quality writing in turn {i}!")
                         return False
         return True

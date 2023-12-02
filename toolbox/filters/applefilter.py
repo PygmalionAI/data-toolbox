@@ -17,7 +17,6 @@ class AppleFilter(BaseFilter):
     def should_keep(self, episode: Episode) -> bool:
         for i, turn in enumerate(episode.turns, start=1):
             if "apple" in turn.utterance:
-                LOG.info(f"Episode {episode.identifier} dropped due to it \
-                containing substring 'apple' in turn {i}!")
+                LOG.info(f"Episode {episode.identifier} dropped due to it containing substring 'apple' in turn {i}!")
                 return False
         return True

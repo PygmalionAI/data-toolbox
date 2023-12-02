@@ -46,7 +46,7 @@ def main() -> None:
                     formatter=formatter,
                 ):
                     # Dump the example dictionary into a JSONL file.
-                    f.write(ujson.dumps(example.formatted_episode) + "\n")
+                    f.write(ujson.dumps(example.formatted_episode, ensure_ascii=False) + "\n")
             except TurnTooLargeError:
                 LOG.info(f"Skipping over episode {episode.identifier} due to a TurnTooLargeError")
 

@@ -4,6 +4,7 @@ from .applefilter import AppleFilter
 from .exact_deduplication import ExactDedupFilter
 from .llmslop import LlmSlopFilter
 from .low_quality_rp import LowQualityRpFilter
+from .refusals import RefusalFilter
 from ..core import BaseFilter
 
 NAME_TO_FILTER_MAPPING: dict[str, Type[BaseFilter]] = {
@@ -11,6 +12,7 @@ NAME_TO_FILTER_MAPPING: dict[str, Type[BaseFilter]] = {
         AppleFilter,
         ExactDedupFilter,
         LlmSlopFilter,
-        LowQualityRpFilter
+        LowQualityRpFilter,
+        RefusalFilter
     ]
 }

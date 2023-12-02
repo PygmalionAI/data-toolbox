@@ -126,7 +126,7 @@ BAD_PHRASES = [
     "chatgpt",
 ]
 
-class LowQualityRpFilter(BaseFilter):
+class RefusalFilter(BaseFilter):
     '''
     ChatGPT/GPT-4 is designed to refuse requests it considers "harmful"
     and "unsafe". Furthermore, it's been documented that the model indeed has
@@ -146,7 +146,6 @@ class LowQualityRpFilter(BaseFilter):
                 # Go through the list of bad phrases
                 for phrase in BAD_PHRASES:
                     if phrase in message.lower():
-                        LOG.info(f"Episode {episode.identifier} dropped due to \
-                                 potential refusal/bias in turn {i}!")
+                        LOG.info(f"Episode {episode.identifier} dropped due to potential refusal/bias (key term: {phrase}) in turn {i}!")
                         return False       
         return True

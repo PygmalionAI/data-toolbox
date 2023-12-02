@@ -42,8 +42,10 @@ class TrainingExampleGenerator:
         # Run an assertion that the turn is "valid" by checking whether the
         # first term is a system prompt and that both model and user gens are
         # present.
+        #print(self.turn_order)
+        #print(self.episode.turns[-1])
         assert self.turn_order[0] == TurnKind.SYSTEM and set(self.turn_order) \
-        == {TurnKind.SYSTEM, TurnKind.MODEL, TurnKind.USER}
+        == {TurnKind.SYSTEM, TurnKind.MODEL, TurnKind.USER}, f"Weird error!\n\n"
 
     def __iter__(self) -> Generator[TrainingExample, None, None]:
         # Modify the Episode to add in the format before calculating token counts.
@@ -54,7 +56,7 @@ class TrainingExampleGenerator:
         for turn in self.episode.turns:
             utterance = turn.utterance
             if (tokens := (total_tokens + _token_count_for(utterance))) \
-                > self.target_token_count:
+                >= self.target_token_count:
                 # We've gone past the max token count. Check to see if this
                 # is a user turn. If so, stop here.
                 if turn.kind == TurnKind.USER:
@@ -62,7 +64,8 @@ class TrainingExampleGenerator:
                 # If it's a model turn, that means the last turn before
                 # context length fills is a user turn - hence, take out the
                 # last user turn.
-                trimmed_turns = trimmed_turns[:-1]
+                #trimmed_turns = trimmed_turns[:-1]
+                break
             else:
                 total_tokens += tokens
                 trimmed_turns.append(turn)

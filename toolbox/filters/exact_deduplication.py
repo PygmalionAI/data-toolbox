@@ -34,14 +34,10 @@ class ExactDedupFilter(BaseFilter):
         # Use a try-except statement to attempt to access the hashmap.
         # If there's no entry corresponding to the hash in the hashmap,
         # this means that the episode is unique.
-        try:
+        if hash in self.hashmap:
             duped_identifier = self.hashmap[hash]
-            # If we get past the lookup, this is a duplicate. Filter out.
-            LOG.info(f"Episode {episode.identifier} dropped due to being \
-            a duplication of episode {duped_identifier}!")
+            LOG.info(f"Episode {episode.identifier} dropped due to being a duplication of episode {duped_identifier}!")
             return False
-        except KeyError:
-            # Not a duplicate, but add it now to the hashmap.
-            self.hashmap[hash] = episode.identifier
-    
+        
+        self.hashmap[hash] = episode.identifier
         return True

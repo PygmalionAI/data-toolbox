@@ -1,7 +1,7 @@
 import random
 import re
 
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 
 # The regex used to find message variants (e.g.: `%{Hi|Hello} there!`)
 VARIANT_REGEX = re.compile(r'%{(.+?)}')
@@ -60,7 +60,7 @@ class PromptManager:
         else:
             # No assertions required because we did that above
             self.prompts = self.generate_prompts(GENERIC_PROMPT_MAP[generic_prompts])
-
+    
     def generate_variants_for(
             self,
             string: str,
