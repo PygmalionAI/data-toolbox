@@ -137,8 +137,118 @@ class PromptManager:
     
     def sample_prompt(self) -> str:
         '''Samples a random system prompt.'''
+
         if self.balanced:
             # Deal with lists of lists
             return random.choice(random.choice(self.prompts))
         else:
             return random.choice(self.prompts)
+    
+    @staticmethod
+    def fill_response_style_length(prompt: str, response: str) -> str:
+        '''
+        Given a response, updates a prompt to fill in the temp
+        strings {{response_style_str}} and {{response_length_str}} with
+        descriptions of the response's style and length.
+        '''
+        prompt = prompt.replace("{{response_style_str}}", _response_style_str_for(response))
+        prompt = prompt.replace("{{response_length_str}}", _response_length_str_for(response))
+        return prompt
+
+def _ocurrence_count_of(word: str, string_to_search_in: str) -> int:
+    '''Returns how many times `word` shows up in `string_to_search_in`.'''
+    pattern = re.compile(re.escape(word))
+    return sum(1 for _ in re.finditer(pattern, string_to_search_in))
+
+def _has_matching_pairs_of(word: str, string_to_search_in: str) -> bool:
+    count = _ocurrence_count_of(word, string_to_search_in)
+    return count > 0 and count % 2 == 0
+
+def _response_style_str_for(response: str) -> str:
+    '''
+    For the given `response`, spit out a random string containing instructions
+    according to its writing style.
+    '''
+    instructions: list[str] = []
+
+    if _has_matching_pairs_of("*", response):
+        instructions.append(
+            random.choice([
+                "Use asterisks to denote actions",
+                "Enclose roleplay actions within asterisks",
+                "Use asterisks for roleplaying actions",
+                "Write in internet roleplay style (with asterisks for actions)",
+                "The generation must contains asterisks to denote actions"
+            ]))
+
+    if _has_matching_pairs_of('"', response):
+        instructions.append(
+            random.choice([
+                "Enclose dialog in quotes", "Dialog should go between quotes",
+                'Enclose spoken dialog in quotes ("Like this")',
+                "Spoken dialogue should be in between quotes"
+            ]))
+
+    random.shuffle(instructions)
+    return ". ".join(instructions)
+
+
+def _response_length_str_for(response: str) -> str:
+    '''
+    For the given `response`, spit out a random string containing an instruction
+    according to its length.
+    '''
+    word_count = len(response.split())
+    paragraph_count = response.count("\n\n") + 1
+
+    paragraph_count_str = random.choice([
+        f"It should contain {paragraph_count} paragraphs",
+        f"Use exactly {paragraph_count} paragraphs",
+        f"Write {paragraph_count} paragraphs",
+        f"Generate {paragraph_count} paragraphs",
+        f"Respond with {paragraph_count} paragraphs",
+    ])
+
+    if word_count < 16:
+        length_str = random.choice([
+            "The generation should be short",
+            "Be brief when generating the message",
+            "The generated reply should be small",
+        ])
+    elif word_count < 96:
+        length_str = random.choice([
+            "The generated reply should be of medium length",
+            "The generated response should be slightly lengthy",
+            "The generated message should be on the medium side",
+        ])
+    elif word_count < 192:
+        length_str = random.choice([
+            "The new message will be lengthy",
+            "The reply should be long",
+            "The generation should be long",
+        ])
+    else:
+        length_str = random.choice([
+            "The new message will be extremely lengthy",
+            "The reply should be extremely long",
+            "The generation should be very long",
+        ])
+
+    # Lazy way of doing the following: if there's only a single paragraph,
+    # randomly decide whether to inject some wording about it only being a
+    # single paragraph's worth of generation. Otherwise, always mention
+    # paragraph count + generation length. Ugly code but it works and I'm
+    # rushing this a little.
+    if paragraph_count == 1:
+        return random.choice([
+            length_str, length_str, ". ".join([
+                length_str,
+                random.choice([
+                    f"It should contain a single paragraph",
+                    f"Write only one paragraph",
+                    f"Generate a single paragraph",
+                    f"Respond with an individual paragraph",
+                ])
+            ])
+        ])
+    return ". ".join([length_str, paragraph_count_str])

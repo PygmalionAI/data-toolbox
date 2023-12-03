@@ -13,23 +13,6 @@ from ..utils import enumerate_files_for
 
 LOG = logging.getLogger(__name__)
 
-"""
-Issue:
-We parse a .csv file consisting of forum posts. Each post has a thread title,
-author, and message. We want to group all messages with the same thread title
-together into a single thread. The issue here is that for some reason, the last
-post of every thread is not added to the list of messages in the thread. That is,
-if we have the following posts in the csvfile:
-thread1,...,post1
-thread1,...,post2
-thread1,...,post3
-thread2,...,post1
-thread2,...,post2
-
-Then thread1 will have posts 1 and 2 in RpThread.messages, but not 3.
-thread2 will have post 1, but not 2 in RpThread.messages.
-"""
-
 class RpType(Enum):
     ERP = "erp"
     RP = "rp"
@@ -136,5 +119,5 @@ SHA256_DIGEST_TO_RP_TYPE_MAP: dict[str, RpType] = {
     '795074be9881eb21bfb2ce958eda47d12e63cce1d955599d528ea257ac66f4b7':
         RpType.ERP,
     '3179b0c4ee80dc14eb3b08447d693382df2062602c40d543b1946b2ddf32daf8':
-        RpType.ERP,   
+        RpType.ERP,
 }

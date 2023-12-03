@@ -26,6 +26,7 @@ from ..utils import (
 LOG = logging.getLogger(__name__)
 
 MARKDOWN_NOSPACE_PATTERN = re.compile(r"([\w\d])(\*{1,2})([\w\d])")
+ONLY_OOC_PATTERN = re.compile(r"^\([^)]*\)\.?$")
 
 class RpForumsRoleplayTask(BaseTask):
     '''
@@ -84,7 +85,7 @@ class RpForumsRoleplayTask(BaseTask):
     def _reset_buffer(self) -> None:
         '''Resets the buffer.'''
         self.previous_author = None
-        self.full_post = ""
+        self.full_post = None
         self.current_kind = TurnKind.USER
 
     def __iter__(self) -> Generator[Episode, None, None]:
@@ -94,10 +95,6 @@ class RpForumsRoleplayTask(BaseTask):
             # we avoid repeated human/model turns, which can confuse the model
             # big time.
             self._reset_buffer()
-            
-            print(f"\n\nThread length: {len(thread.messages)}")
-            if len(thread.messages)== 2:
-                print(thread.messages)
 
             # These threads usually don't contain actual roleplaying.
             if any([
@@ -142,35 +139,91 @@ class RpForumsRoleplayTask(BaseTask):
                 )
             ]
 
+            # Assign usernames to either the user or the model.
+            # Since we've checked beforehand that there's only two authors,
+            # we can just assign the first one to the user and the second one
+            # to the model.
+            user_author = self.previous_author = thread.messages[0].author
+            model_author = (usernames - {user_author}).pop()
+            roles = {
+                user_author: TurnKind.USER,
+                model_author: TurnKind.MODEL
+            }
+
             for message in thread.messages:
                 # Check the author, if it's *not* the same as the previous
                 # author then yield the full turn. This should be done *first*.
-                if message.author != self.previous_author and self.full_post != "":
+                if message.author != self.previous_author and \
+                self.full_post is not None:
                     turns.append(
                         Turn(
                             utterance=self.full_post,
-                            kind=self.current_kind,
+                            kind=roles[self.previous_author],
                             # TODO(TG): Assign a proper name.
                             name="TODO"
                         )
                     )
                     self.previous_author = message.author
                     self.full_post = ""
-                    # Messy switching
-                    self.current_kind = TurnKind.MODEL if self.current_kind == \
-                        TurnKind.USER else TurnKind.USER
+
+                # Now that we got past the first check, empty the string.
+                if self.full_post is None:
+                    self.full_post = ""
 
                 # Process the message.
                 cleaned_message = self._clean_message(
                     message.message, 
                     username_substitutions
                 )
-                self.full_post = (self.full_post + f"\n\n{cleaned_message}").strip()
+
+                self.full_post = (self.full_post + f"\n{cleaned_message}").strip()
+
+            # Yield the final turn.
+            final_kind = roles[thread.messages[-1].author]
+            turns.append(
+                Turn(
+                    utterance=self.full_post,
+                    kind=final_kind,
+                    name="TODO"
+                )
+            )
+
+            # Sometimes we just have a situation where the HTML cleaning
+            # results in a faulty message.
+            # If this is the case for every message, just ditch the thread.
+            if _thread_unsalvagable(turns[1:]):
+                LOG.info(f"Skipping {thread.thread_name} due to being deemed 'unsalvagable'")
+                continue
+
+            # Update the system prompt by filling in the template strings.
+            turns[0].utterance = PromptManager.fill_response_style_length(
+                turns[0].utterance, self.full_post)
 
             yield Episode(
                 turns=turns,
                 identifier=f"rp-{thread.source_file}-{thread.thread_name}"
             )
+
+def _failed_cleaning(message: str) -> bool:
+    '''
+    Sometimes markdownify, HTML tag removal and additional processing results
+    in a message which has nothing left, likely due to faulty formatting.
+    This function attempts to detect those situations, or other situations
+    '''
+    if len(message.strip()) <= 1:
+        return True
+    # OOC only.
+    if ONLY_OOC_PATTERN.search(message) is not None:
+        return True
+    return False
+
+def _thread_unsalvagable(turns: list[Turn], threshold: float = 0.5) -> bool:
+    '''
+    If the thread is messy enough that we can't salvage a threshold of messages,
+    then we just ditch the thread. By default, it's 50%.
+    '''
+    # Fun fact: True == 1 in Python, so we can just sum up the booleans.
+    return sum(_failed_cleaning(x.utterance) for x in turns) / len(turns) >= threshold
 
 # Unique functions (for now...)
 def _fix_markdown(original_message: str) -> str:
