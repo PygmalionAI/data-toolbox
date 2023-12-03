@@ -29,7 +29,7 @@ class OpenChatFormat(BaseFormat):
             turns.append({
                 "role": self.turnkind_map[t.kind],
                 "content": t.utterance,
-                "value": self.turnkind_values[t.kind]
+                "weight": self.turnkind_values[t.kind]
             })
 
         dict_to_write = {
