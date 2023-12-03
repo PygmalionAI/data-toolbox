@@ -9,10 +9,9 @@ from .turns import Episode, Turn, TurnKind
 
 LOG = logging.getLogger(__name__)
 
-# TODO(TG): Old ratio, needs updating for LLaMA/Mistral tokenizer.
-# Also, allow for using a tokenizer proper rather than approximations if speed
+# TODO(TG): Allow for using a tokenizer proper rather than approximations if speed
 # is not a factor.
-AVG_WORD_TO_TOKEN_RATIO = 1.7
+AVG_WORD_TO_TOKEN_RATIO = 1.3
 
 class TurnTooLargeError(RuntimeError):
     pass
