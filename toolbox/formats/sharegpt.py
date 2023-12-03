@@ -1,4 +1,4 @@
-from ..core import BaseFormat, Episode, Turn, TurnKind
+from ..core import BaseFormat, Episode, TurnKind
 
 class ShareGptFormat(BaseFormat):
     def __init__(self) -> None:
