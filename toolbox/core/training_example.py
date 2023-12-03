@@ -49,26 +49,27 @@ class TrainingExampleGenerator:
         self.episode = self.format.apply_format(self.episode)
         # Calculate the token counts now starting from the system turn.
         total_tokens = 0
-        trimmed_turns: list[Turn] = []
-        for turn in self.episode.turns:
-            utterance = turn.utterance
-            if (tokens := (total_tokens + _token_count_for(utterance))) \
-                >= self.target_token_count:
-                # We've reached the target token count, so we stop here.
-                break
-            else:
-                total_tokens += tokens
-                trimmed_turns.append(turn)
+        if self.target_token_count != -1:
+            trimmed_turns: list[Turn] = []
+            for turn in self.episode.turns:
+                utterance = turn.utterance
+                if (tokens := (total_tokens + _token_count_for(utterance))) \
+                    >= self.target_token_count:
+                    # We've reached the target token count, so we stop here.
+                    break
+                else:
+                    total_tokens += tokens
+                    trimmed_turns.append(turn)
 
-        # If the last turn is a user turn, we cut it off.
-        if trimmed_turns[-1].kind == TurnKind.USER:
-            trimmed_turns = trimmed_turns[:-1]
+            # If the last turn is a user turn, we cut it off.
+            if trimmed_turns[-1].kind == TurnKind.USER:
+                trimmed_turns = trimmed_turns[:-1]
 
-        self.episode.turns = trimmed_turns
+            self.episode.turns = trimmed_turns
 
         # Now we check if there are at least 3 turns. If not, something is
         # missing and we raise the TurnTooLargeError.
-        if len(trimmed_turns) < 3:
+        if len(self.episode.turns) < 3:
             raise TurnTooLargeError
 
         # Feed the trimmed episode into the formatter again to convert to its

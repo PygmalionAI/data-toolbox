@@ -87,8 +87,8 @@ def _parse_args_from_argv() -> argparse.Namespace:
     parser.add_argument(
         "--max-length",
         type=int,
-        default=4096,
-        help="The number of tokens (exact or approximate depending on settings) to cap conversations to."
+        default=-1,
+        help="The number of tokens (exact or approximate depending on settings) to cap conversations to. Set to -1 (default) to disable.)"
     )
 
     parser.add_argument(
