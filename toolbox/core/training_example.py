@@ -69,7 +69,7 @@ class TrainingExampleGenerator:
 
         # Now we check if there are at least 3 turns. If not, something is
         # missing and we raise the TurnTooLargeError.
-        if len(self.turn_order) < 3:
+        if len(trimmed_turns) < 3:
             raise TurnTooLargeError
 
         # Feed the trimmed episode into the formatter again to convert to its
