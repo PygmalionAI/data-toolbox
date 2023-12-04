@@ -196,12 +196,11 @@ class RpForumsRoleplayTask(BaseTask):
                 continue
 
             # Update the system prompt by filling in the template strings.
-            turns[0].utterance = PromptManager.fill_response_style_length(
-                turns[0].utterance, self.full_post)
+            turns = self.fill_response_template_strs(turns, generation=self.full_post)
 
             yield Episode(
                 turns=turns,
-                identifier=f"rp-{thread.source_file}-{thread.thread_name}"
+                identifier=f"rpforums-{thread.source_file}-{thread.thread_name}"
             )
 
 def _failed_cleaning(message: str) -> bool:

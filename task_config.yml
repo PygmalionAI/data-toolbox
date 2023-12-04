@@ -7,10 +7,17 @@ AiroborosInstructionFollowingTask:
     - ExactDedupFilter
     - LlmSlopFilter
     - RefusalFilter
+# CAI
+CharacterAiRoleplayTask:
+  custom_prompts:
+  dataset_name: "characterai"
+  filters:
+    - ExactDedupFilter
+  timestamp_cutoff: -1
 # RP forums
 RpForumsRoleplayTask:
   custom_prompts:
-  dataset_name: "rp_forums"
+  dataset_name: "rpforums"
   filters:
     - ExactDedupFilter
     - LowQualityRpFilter

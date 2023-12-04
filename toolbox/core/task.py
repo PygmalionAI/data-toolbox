@@ -1,7 +1,8 @@
 from typing import Optional
 
 from .filters import BaseFilter
-from .turns import Episode
+from .turns import Episode, Turn
+from ..utils import PromptManager
 
 class BaseTask:
     '''Base task class. Relies on config fed into this task.'''
@@ -26,3 +27,14 @@ class BaseTask:
             if not filter.should_keep(example):
                 return False
         return True
+    
+    def fill_response_template_strs(
+        self,
+        turns: list[Turn],
+        generation: Optional[str] = None
+    ) -> list[Turn]:
+        # Update the system prompt by filling in the template strings.
+        generation = turns[-1].utterance if generation is None else generation
+        turns[0].utterance = PromptManager.fill_response_style_length(
+            turns[0].utterance, generation)
+        return turns
