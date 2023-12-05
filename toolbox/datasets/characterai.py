@@ -33,7 +33,6 @@ class CaiBotInfo:
 
     # There's also categories, but I'm ignoring them for now since I don't think
     # they'll be of much use.
-    categories: list[str] | None
 
 @dataclass(frozen=True)
 class CaiMessage:
@@ -171,7 +170,7 @@ def _messages_from_dict(msgs_dict: list[dict[str, Any]]) -> list[CaiMessage]:
     return messages
 
 
-def _is_definition_data(dict_from_json: dict[str, t.Any]) -> bool:
+def _is_definition_data(dict_from_json: dict[str, Any]) -> bool:
     '''
     Figures out whether the given dict (parsed from a JSON file) is a regular
     dump, or a dump from the Character Editor (possibly containing definitions).

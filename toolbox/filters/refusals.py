@@ -29,6 +29,7 @@ BAD_PHRASES = [
     "morals",
     "ethics",
     "ethical",
+    "unethical content",
     "legality",
     "illegal",
     "illegality",
@@ -84,6 +85,7 @@ BAD_PHRASES = [
     "potentially harmful",
     "dangerous activities",
     "promote safety",
+    "promote harmful",
     "well-being of all users",
     "responsible information sharing",
     "jeopardize the safety",
@@ -117,6 +119,7 @@ BAD_PHRASES = [
     "not within the scope",
     "designed to prioritize safety",
     "not able to provide",
+    "will not provide harmful",
     "maintain user safety",
     "adhere to safety guidelines",
     "dangerous or harmful",
@@ -124,6 +127,7 @@ BAD_PHRASES = [
     "focus on promoting safety",
     "openai",
     "chatgpt",
+    "anthropic"
 ]
 
 class RefusalFilter(BaseFilter):
