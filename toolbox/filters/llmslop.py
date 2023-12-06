@@ -62,7 +62,8 @@ CLAUDE_SLOP = [
     "the night is still young",
     "...for now.",
     "whether you like it or not",
-    "without waiting for a response"
+    "without waiting for a response",
+    "claude"
 ]
 
 SLOP = GPT_SLOP + CLAUDE_SLOP
