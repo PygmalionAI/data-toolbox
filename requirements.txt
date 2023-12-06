@@ -1,8 +1,7 @@
-colorama
 ftfy
 markdownify
 pyyaml
+langdetect
 scikit-learn
 tqdm
 ujson
-zstandard
