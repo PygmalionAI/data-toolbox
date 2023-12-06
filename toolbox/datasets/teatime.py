@@ -7,6 +7,7 @@ from typing import Generator
 
 import ujson
 
+from common import MessageAndRole
 from ..core import BaseDataset
 from ..utils import get_path_for
 
@@ -15,14 +16,9 @@ LOG = logging.getLogger(__name__)
 # I can't believe I have to do this here
 HANGUL_PATTERN = re.compile(r"[\uac00-\ud7af]*")
 
-@dataclass
-class TeatimeMessage:
-    message: str
-    role: str
-
 @dataclass(frozen=True)
 class TeatimeChat:
-    messages: list[TeatimeMessage]
+    messages: list[MessageAndRole]
     model: str
     extracted_from: str
 
@@ -48,7 +44,7 @@ class TeatimeDataset(BaseDataset[TeatimeChat]):
                     # Check for NaN
                     if type(m["content"]) != float:
                         m["content"] = _fix_mangled_encoding(m["content"])
-                    message = TeatimeMessage(message=m["content"], role=m["role"])
+                    message = MessageAndRole(message=m["content"], role=m["role"])
                     messages.append(message)
 
                 yield TeatimeChat(

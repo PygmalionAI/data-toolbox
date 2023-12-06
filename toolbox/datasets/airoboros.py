@@ -6,17 +6,11 @@ from typing import Generator
 
 import ujson
 
+from common import SimpleReplyDataInstance
 from ..core import BaseDataset
 from ..utils import get_path_for
 
 LOG = logging.getLogger(__name__)
-
-# NOTE(TG): Putting this by itself here for now, but will bring it to a common
-# file soon.
-@dataclass(frozen=True)
-class SimpleReplyDataInstance:
-    prompt: str
-    generation: str
 
 class AiroborosDataset(BaseDataset[SimpleReplyDataInstance]):
     '''

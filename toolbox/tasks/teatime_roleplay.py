@@ -3,8 +3,6 @@ import re
 
 from typing import Generator, Optional
 
-import ftfy
-
 from ..core import (
     BaseFilter,
     BaseTask,
@@ -12,7 +10,7 @@ from ..core import (
     Turn,
     TurnKind
 )
-from ..datasets import TeatimeDataset, TeatimeMessage
+from ..datasets import MessageAndRole, TeatimeDataset
 from ..utils import PromptManager, fix_style_and_encoding_issues
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +55,7 @@ class TeatimeRoleplayTask(BaseTask):
                 combined_message = chat.messages[0].message.rstrip() + "\n" \
                     + chat.messages[1].message.lstrip()
                 
-                sys_message = TeatimeMessage(
+                sys_message = MessageAndRole(
                     message=combined_message,
                     role="system"
                 )
@@ -152,7 +150,7 @@ class TeatimeRoleplayTask(BaseTask):
                 identifier=chat_identifier
             )
 
-def _skip_criteria(message: TeatimeMessage) -> bool:
+def _skip_criteria(message: MessageAndRole) -> bool:
     '''
     Attempts to determine whether a message should be skipped following certain
     criteria.
