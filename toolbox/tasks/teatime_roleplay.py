@@ -145,10 +145,13 @@ class TeatimeRoleplayTask(BaseTask):
 
             chat_identifier = f"teatime-{chat.extracted_from}-{self.file_counters[chat.extracted_from]}"
 
-            yield Episode(
+            episode = Episode(
                 turns=turns,
                 identifier=chat_identifier
             )
+            if self.should_keep(episode):
+                # Passed through filters!
+                yield episode
 
 def _skip_criteria(message: MessageAndRole) -> bool:
     '''

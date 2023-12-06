@@ -68,10 +68,13 @@ class CharacterAiRoleplayTask(BaseTask):
             turns = self.fill_response_template_strs(turns)
 
             # Fetch episode
-            yield Episode(
+            episode = Episode(
                 turns=turns,
                 identifier=f"characterai-{conversation.identifier}"
             )
+            if self.should_keep(episode):
+                # Passed through filters!
+                yield episode
 
 def _replace_placeholders_in(utterance: str, char_name: str) -> str:
     '''

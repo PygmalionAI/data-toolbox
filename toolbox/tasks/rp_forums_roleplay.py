@@ -198,10 +198,13 @@ class RpForumsRoleplayTask(BaseTask):
             # Update the system prompt by filling in the template strings.
             turns = self.fill_response_template_strs(turns, generation=self.full_post)
 
-            yield Episode(
+            episode = Episode(
                 turns=turns,
                 identifier=f"rpforums-{thread.source_file}-{thread.thread_name}"
             )
+            if self.should_keep(episode):
+                # Passed through filters!
+                yield episode
 
 def _failed_cleaning(message: str) -> bool:
     '''

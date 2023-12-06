@@ -1,12 +1,11 @@
 import logging
 import os
 
-from dataclasses import dataclass
 from typing import Generator
 
 import ujson
 
-from common import SimpleReplyDataInstance
+from .common import SimpleReplyDataInstance
 from ..core import BaseDataset
 from ..utils import get_path_for
 

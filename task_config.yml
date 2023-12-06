@@ -7,6 +7,14 @@ AiroborosInstructionFollowingTask:
     - ExactDedupFilter
     - LlmSlopFilter
     - RefusalFilter
+# AI Town
+AiTownRoleplayTask:
+  custom_prompts:
+  dataset_name: "aitown"
+  filters:
+    - ExactDedupFilter
+    - LlmSlopFilter
+    - RefusalFilter
 # CAI
 CharacterAiRoleplayTask:
   custom_prompts:

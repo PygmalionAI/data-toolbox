@@ -7,7 +7,7 @@ from typing import Generator
 
 import ujson
 
-from common import MessageAndRole
+from .common import MessageAndRole
 from ..core import BaseDataset
 from ..utils import get_path_for
 

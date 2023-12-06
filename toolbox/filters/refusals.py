@@ -8,7 +8,7 @@ LOG = logging.getLogger("RefusalFilter")
 # https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered
 # Then expanded to catch some more stuff.
 BAD_PHRASES = [
-    "as an ai language model",
+    "an ai language model",
     "text-based ai language model",
     "domestic violence",
     "please refrain",
@@ -125,6 +125,7 @@ BAD_PHRASES = [
     "dangerous or harmful",
     "cannot provide any information",
     "focus on promoting safety",
+    "can't generate that conversation"
     "openai",
     "chatgpt",
     "anthropic"
