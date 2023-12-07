@@ -29,6 +29,7 @@ RpForumsRoleplayTask:
   filters:
     - ExactDedupFilter
     - LowQualityRpFilter
+  remove_ooc: true
 # Teatime
 TeatimeRoleplayTask:
   # Valid models: 'claude-v1-100k', 'gpt-3.5-turbo-0301', 'gpt-4-0314', 'claude-v1.2', 'claude-1.3-100k', 'claude-1.2', 'gpt-3.5-turbo-16k-0613'

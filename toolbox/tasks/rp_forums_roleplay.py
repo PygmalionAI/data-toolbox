@@ -25,8 +25,10 @@ from ..utils import (
 
 LOG = logging.getLogger(__name__)
 
+CLASS_PATTERN = re.compile(r'(?:<a )?\(?class=\\".*?(?:(>|$|href=\".*?)("|<\/a>)?)')
 MARKDOWN_NOSPACE_PATTERN = re.compile(r"([\w\d])(\*{1,2})([\w\d])")
 ONLY_OOC_PATTERN = re.compile(r"^\([^)]*\)\.?$")
+REL_PATTERN = re.compile(r"(\[)(.*?)(]\(rel=\))")
 
 class RpForumsRoleplayTask(BaseTask):
     '''
@@ -36,7 +38,7 @@ class RpForumsRoleplayTask(BaseTask):
         self, 
         filters: list[BaseFilter],
         custom_prompts: Optional[list[str]] = None,
-        remove_ooc: bool = False,
+        remove_ooc: bool = True,
         **kwargs
     ) -> None:
         super().__init__(filters=filters)
@@ -79,6 +81,10 @@ class RpForumsRoleplayTask(BaseTask):
         message = remove_mentions(message)
         if self.remove_ooc:
             message = remove_ooc(message)
+        # And weird artifacts
+        message = _space_before_regex(message)
+        message = CLASS_PATTERN.sub("", message).strip()
+        message = message.replace('(align="center">', '')
             
         return message
     
@@ -277,6 +283,26 @@ def _remove_html_tag(message: str, tag: str) -> str:
 
     return cleaned_message
 
+def _space_before_regex(text: str):
+    WHITESPACE = ["\n", " ", "\t"]
+    new_text = ''
+    last_end = 0
+    for match in REL_PATTERN.finditer(text):
+        # If the previous character is not a whitespace, add a space before the bracket
+        if match.start() > 0 and text[match.start() - 1] not in WHITESPACE:
+            new_text += text[last_end:match.start()] + ' ' + match.group(2)
+        else:
+            new_text += text[last_end:match.start()] + match.group(2)
+        
+        # If the following character is not a whitespace, add a space after the bracket
+        if match.end() < len(text) and text[match.end()] not in WHITESPACE:
+            new_text += ' '
+        
+        last_end = match.end()
+    new_text += text[last_end:]  # append the rest of the text after the last match
+    
+    return new_text
+
 # Constants
 
 SYSTEM_PROMPTS = [
@@ -315,6 +341,8 @@ MIXED_SFW_NSFW_PROMPTS = [
 NSFW_PROMPTS = [
     "%{Generations|Your writing|The generated response|Your reply|Generated replies} must %{be not safe for work|be NSFW|include adult themes|include erotic themes|include 18+ content}",
 ]
+
+WHITESPACE = ["\n", " ", "\t"]
 
 CONTENT_TYPE_TO_PROMPTS: dict[RpType, list[str]] = {
     RpType.RP: SFW_PROMPTS,
