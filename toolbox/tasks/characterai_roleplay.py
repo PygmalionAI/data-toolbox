@@ -39,8 +39,16 @@ class CharacterAiRoleplayTask(BaseTask):
                 continue
 
             # If conversations are past the timestamp cutoff, we skip them.
-            if conversation.timestamp != -1 and conversation.timestamp > self.timestamp_cutoff:
+            if self.timestamp_cutoff != -1 and conversation.timestamp > self.timestamp_cutoff:
                 LOG.debug(f"Skipping conversation {conversation.identifier} because it is past the timestamp cutoff.")
+                continue
+
+            if len(conversation.messages) < 2:
+                LOG.debug(f"Skipping conversation {conversation.identifier} because it has less than 3 messages.")
+                continue
+
+            if len(set([m.is_human for m in conversation.messages])) == 1:
+                LOG.debug(f"Skipping conversation {conversation.identifier} because it has only one speaker.")
                 continue
 
             sys_prompt = self.prompts.sample_prompt()
