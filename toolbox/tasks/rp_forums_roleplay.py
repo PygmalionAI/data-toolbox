@@ -95,6 +95,7 @@ class RpForumsRoleplayTask(BaseTask):
         self.current_kind = TurnKind.USER
 
     def __iter__(self) -> Generator[Episode, None, None]:
+        LOG.info("Processing data for task 'RpForumsRoleplayTask'.")
         for thread in RpForumsDataset():
             # Set up a buffer for keeping track of authors.
             # If two posts are made by the author in a row, chain it. This way

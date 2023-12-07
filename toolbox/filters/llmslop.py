@@ -87,6 +87,6 @@ class LlmSlopFilter(BaseFilter):
                 # Go through the slop
                 for phrase in SLOP:
                     if phrase in message.lower():
-                        LOG.info(f"Episode {episode.identifier} dropped due to detected slop '{phrase}' in turn {i}!")
+                        LOG.debug(f"Episode {episode.identifier} dropped due to detected slop '{phrase}' in turn {i}!")
                         return False
         return True

@@ -29,6 +29,7 @@ class AiroborosInstructionFollowingTask(BaseTask):
         self.prompts = PromptManager(**kwargs)
         
     def __iter__(self) -> Generator[Episode, None, None]:
+        LOG.info("Processing data for task AiroborosInstructionFollowingTask.")
         for idx, example in enumerate(AiroborosDataset()):
             # Throw out any responses containing "Airoboros"
             if "airoboros" in example.generation.lower():

@@ -58,7 +58,7 @@ class LowQualityRpFilter(BaseFilter):
         # If the ratio of low-quality messages is greater than the threshold,
         # drop the episode.
         if low_quality_messages / len(episode.turns) >= THRESHOLD:
-            LOG.info(f"Episode {episode.identifier} dropped due to signs of low-quality RP!")
+            LOG.debug(f"Episode {episode.identifier} dropped due to signs of low-quality RP!")
             return False
         
         return True

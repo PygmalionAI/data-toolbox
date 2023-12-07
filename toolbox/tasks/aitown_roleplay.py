@@ -34,6 +34,7 @@ class AiTownRoleplayTask(BaseTask):
         }
 
     def __iter__(self) -> Generator[Episode, None, None]:
+        LOG.info("Processing data for task 'AiTownRoleplayTask'.")
         for idx, example in enumerate(AiTownDataset()):
             conversation = example.conversation
 

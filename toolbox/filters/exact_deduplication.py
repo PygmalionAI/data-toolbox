@@ -36,7 +36,7 @@ class ExactDedupFilter(BaseFilter):
         # this means that the episode is unique.
         if hash in self.hashmap:
             duped_identifier = self.hashmap[hash]
-            LOG.info(f"Episode {episode.identifier} dropped due to being a duplication of episode {duped_identifier}!")
+            LOG.debug(f"Episode {episode.identifier} dropped due to being a duplication of episode {duped_identifier}!")
             return False
         
         self.hashmap[hash] = episode.identifier

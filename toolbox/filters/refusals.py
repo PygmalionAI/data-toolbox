@@ -151,6 +151,6 @@ class RefusalFilter(BaseFilter):
                 # Go through the list of bad phrases
                 for phrase in BAD_PHRASES:
                     if phrase in message.lower():
-                        LOG.info(f"Episode {episode.identifier} dropped due to potential refusal/bias (key term: {phrase}) in turn {i}!")
+                        LOG.debug(f"Episode {episode.identifier} dropped due to potential refusal/bias (key term: {phrase}) in turn {i}!")
                         return False       
         return True

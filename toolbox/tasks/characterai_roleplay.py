@@ -33,6 +33,7 @@ class CharacterAiRoleplayTask(BaseTask):
         self.timestamp_cutoff = timestamp_cutoff
 
     def __iter__(self) -> Generator[Episode, None, None]:
+        LOG.info("Processing data for task 'CharacterAiRoleplayTask'.")
         for conversation in CharacterAiDataset():
             if conversation.bot.description is None:
                 LOG.debug(f"Skipping conversation {conversation.identifier} because it has no persona data.")

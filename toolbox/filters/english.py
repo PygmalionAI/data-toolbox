@@ -32,7 +32,7 @@ class EnglishFilter(BaseFilter):
                 num_non_english += 1
         
         if num_non_english / len(episode.turns) >= DETECTOR_THRESHOLD:
-            LOG.info(f"Episode {episode.identifier} dropped due to majority of conversation not being in English!")
+            LOG.debug(f"Episode {episode.identifier} dropped due to majority of conversation not being in English!")
             return False
 
         return True

@@ -41,6 +41,7 @@ class TeatimeRoleplayTask(BaseTask):
         self.file_counters: dict[str, int] = {}
 
     def __iter__(self) -> Generator[Episode, None, None]:
+        LOG.info("Processing data for task 'TeatimeRoleplayTask'.")
         for chat in TeatimeDataset():
             # If a chat isn't in the "allowed models", we skip it.
             if chat.model not in self.allowed_models:

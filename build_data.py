@@ -16,10 +16,12 @@ def main() -> None:
     args = _parse_args_from_argv()
     logging.basicConfig(
         format='[%(asctime)s] [%(levelname)s] %(message)s',
-        level=logging.INFO,
+        level=logging.DEBUG if args.verbose else logging.INFO,
     )
 
     random.seed(args.seed)
+
+    print("Beginning dataset compilation...")
 
     # Generate tasks and filters by loading from config file.
     with open(args.config, "r") as f:
@@ -96,6 +98,12 @@ def _parse_args_from_argv() -> argparse.Namespace:
         type=int,
         default=42,
         help="The seed to use when applying random chance to anything."
+    )
+
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging (warning: will fill up your terminal!)"
     )
 
     return parser.parse_args()

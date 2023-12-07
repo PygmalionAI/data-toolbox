@@ -27,7 +27,7 @@ The usual:
 Processing the data is all done through the `build_data.py` file. Here are the arguments that can be specified:
 
 ```
-usage: build_data.py [-h] --tasks TASKS --config CONFIG --output-file OUTPUT_FILE --format FORMAT [--max-length MAX_LENGTH] [--seed SEED]
+usage: build_data.py [-h] --tasks TASKS --config CONFIG --output-file OUTPUT_FILE --format FORMAT [--max-length MAX_LENGTH] [--seed SEED] [--verbose]
 
 options:
   -h, --help            show this help message and exit
@@ -39,6 +39,7 @@ options:
   --max-length MAX_LENGTH
                         The number of tokens (exact or approximate depending on settings) to cap conversations to. Set to -1 (default) to disable.
   --seed SEED           The seed to use when applying random chance to anything.
+  --verbose             Enable verbose logging (warning: will fill up your terminal!)
 ```
 
 **TODO: Further explanation of these options**
