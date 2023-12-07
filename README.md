@@ -22,6 +22,27 @@ The usual:
 
 `pip3 install -r requirements.txt`
 
+## Processing
+
+Processing the data is all done through the `build_data.py` file. Here are the arguments that can be specified:
+
+```
+usage: build_data.py [-h] --tasks TASKS --config CONFIG --output-file OUTPUT_FILE --format FORMAT [--max-length MAX_LENGTH] [--seed SEED]
+
+options:
+  -h, --help            show this help message and exit
+  --tasks TASKS         The tasks to build data for, comma-separated.
+  --config CONFIG       The path to the task configuration file.
+  --output-file OUTPUT_FILE
+                        The JSONL file to write the data to.
+  --format FORMAT       The format to represent the data in.
+  --max-length MAX_LENGTH
+                        The number of tokens (exact or approximate depending on settings) to cap conversations to. Set to -1 (default) to disable.
+  --seed SEED           The seed to use when applying random chance to anything.
+```
+
+**TODO: Further explanation of these options**
+
 ## Configuration
 **TODO**
 

@@ -35,7 +35,7 @@ def main() -> None:
         kwargs = task_configs[task]
         # Add in filters
         kwargs["filters"] = [NAME_TO_FILTER_MAPPING[f]() for f in kwargs["filters"]]
-        all_tasks.append(NAME_TO_TASK_MAPPING[task](**kwargs))
+        all_tasks.append(NAME_TO_TASK_MAPPING[task.strip()](**kwargs))
 
     for task in all_tasks:
         for episode in task:
@@ -88,14 +88,14 @@ def _parse_args_from_argv() -> argparse.Namespace:
         "--max-length",
         type=int,
         default=-1,
-        help="The number of tokens (exact or approximate depending on settings) to cap conversations to. Set to -1 (default) to disable.)"
+        help="The number of tokens (exact or approximate depending on settings) to cap conversations to. Set to -1 (default) to disable."
     )
 
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="The number of tokens (exact or approximate depending on settings) to cap conversations to."
+        help="The seed to use when applying random chance to anything."
     )
 
     return parser.parse_args()
