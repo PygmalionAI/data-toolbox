@@ -10,6 +10,8 @@ GPT_SLOP = [
     "i'm sorry, but",
     "however, it is important to note",
     "in conclusion,"
+    "openai",
+    "chatgpt"
 ]
 
 # NOTE(TG): There's a lot of common phrases in here. Remove some?

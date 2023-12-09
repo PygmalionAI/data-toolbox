@@ -21,6 +21,9 @@ CharacterAiRoleplayTask:
   dataset_name: "characterai"
   filters:
     - ExactDedupFilter
+    - LlmSlopFilter
+    - RefusalFilter
+    - SimilarityFilter
   timestamp_cutoff: -1
 # Pyg-submitted Claude logs
 PygClaudeRoleplayTask:
