@@ -22,6 +22,14 @@ CharacterAiRoleplayTask:
   filters:
     - ExactDedupFilter
   timestamp_cutoff: -1
+# Pyg-submitted Claude logs
+PygClaudeRoleplayTask:
+  custom_prompts:
+  dataset_name: "pyg-claude"
+  filters:
+    - ExactDedupFilter
+    - LlmSlopFilter
+    - RefusalFilter
 # RP forums
 RpForumsRoleplayTask:
   custom_prompts:

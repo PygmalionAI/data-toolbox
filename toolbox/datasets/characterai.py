@@ -11,6 +11,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Generator
 
+from .common import MessageWithHumanBool
 from ..core import BaseDataset
 from ..utils import get_path_for
 
@@ -35,14 +36,9 @@ class CaiBotInfo:
     # they'll be of much use.
 
 @dataclass(frozen=True)
-class CaiMessage:
-    is_human: bool
-    text: str
-
-@dataclass(frozen=True)
 class CaiChat:
     # First message is always the bot's greeting.
-    messages: list[CaiMessage]
+    messages: list[MessageWithHumanBool]
     bot: CaiBotInfo
     identifier: str
     timestamp: int
@@ -158,11 +154,11 @@ def _bot_info_from_dict(info_dict: dict[str, Any]) -> CaiBotInfo:
     )
 
 
-def _messages_from_dict(msgs_dict: list[dict[str, Any]]) -> list[CaiMessage]:
+def _messages_from_dict(msgs_dict: list[dict[str, Any]]) -> list[MessageWithHumanBool]:
     '''Builds an array of messages from an entry from the `histories` JSON.'''
-    messages: list[CaiMessage] = []
+    messages: list[MessageWithHumanBool] = []
     for raw_message in msgs_dict:
-        message = CaiMessage(
+        message = MessageWithHumanBool(
             text=raw_message["text"],
             is_human=raw_message["src"]["is_human"],
         )
