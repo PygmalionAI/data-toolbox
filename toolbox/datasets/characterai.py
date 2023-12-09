@@ -159,7 +159,7 @@ def _messages_from_dict(msgs_dict: list[dict[str, Any]]) -> list[MessageWithHuma
     messages: list[MessageWithHumanBool] = []
     for raw_message in msgs_dict:
         message = MessageWithHumanBool(
-            text=raw_message["text"],
+            message=raw_message["text"],
             is_human=raw_message["src"]["is_human"],
         )
         messages.append(message)

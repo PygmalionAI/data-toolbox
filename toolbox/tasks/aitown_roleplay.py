@@ -39,7 +39,7 @@ class AiTownRoleplayTask(BaseTask):
             conversation = example.conversation
 
             if len(conversation) < 3:
-                LOG.debug(f"Skipping conversation {idx} because it has less than three messages.")
+                LOG.debug(f"Skipping conversation aitown-{idx} because it has less than three messages.")
                 continue
 
             # Process the system prompt first, which is always the first message.
