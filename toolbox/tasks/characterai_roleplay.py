@@ -66,7 +66,7 @@ class CharacterAiRoleplayTask(BaseTask):
             for message in conversation.messages:
                 turn = Turn(
                     utterance=_replace_placeholders_in(
-                        message.text,
+                        message.message,
                         conversation.bot.name
                     ),
                     kind=TurnKind.USER if message.is_human else TurnKind.MODEL,
