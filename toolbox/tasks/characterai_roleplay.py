@@ -69,7 +69,7 @@ class CharacterAiRoleplayTask(BaseTask):
                 # Basic filtering
                 message = fix_style_and_encoding_issues(message.message)
                 message = message.replace("  ", " ").strip()
-                message = _replace_placeholders_in(message)
+                message = _replace_placeholders_in(message, conversation.bot.name)
                 
                 turn = Turn(
                     utterance=message,
