@@ -16,7 +16,7 @@ class SimilarityFilter(BaseFilter):
     '''
     def __init__(self) -> None:
         # Init method is required.
-        self.threshold = 0.75 # TODO(TG): Make this configurable.
+        self.threshold = 0.6 # TODO(TG): Make this configurable.
         self.vectorizer = CountVectorizer()
 
     def _calculate_similarity_scores(self, strings: list[str]) -> Any:
