@@ -67,12 +67,12 @@ class CharacterAiRoleplayTask(BaseTask):
             # user together.
             for message in conversation.messages:
                 # Basic filtering
-                message = fix_style_and_encoding_issues(message.message)
-                message = message.replace("  ", " ").strip()
-                message = _replace_placeholders_in(message, conversation.bot.name)
+                cleaned_message = fix_style_and_encoding_issues(message.message)
+                cleaned_message = cleaned_message.replace("  ", " ").strip()
+                cleaned_message = _replace_placeholders_in(cleaned_message, conversation.bot.name)
                 
                 turn = Turn(
-                    utterance=message,
+                    utterance=cleaned_message,
                     kind=TurnKind.USER if message.is_human else TurnKind.MODEL,
                     name="You" if message.is_human else conversation.bot.name
                 )
