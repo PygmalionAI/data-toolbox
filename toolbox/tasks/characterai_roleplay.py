@@ -10,7 +10,7 @@ from ..core import (
     TurnKind
 )
 from ..datasets import CharacterAiDataset
-from ..utils import PromptManager
+from ..utils import PromptManager, fix_style_and_encoding_issues
 
 LOG = logging.getLogger(__name__)
 
@@ -63,12 +63,16 @@ class CharacterAiRoleplayTask(BaseTask):
                     kind=TurnKind.SYSTEM
                 )
             ]
+            # TODO(TG): Further clean data by chaining messages from the same
+            # user together.
             for message in conversation.messages:
+                # Basic filtering
+                message = fix_style_and_encoding_issues(message.message)
+                message = message.replace("  ", " ").strip()
+                message = _replace_placeholders_in(message)
+                
                 turn = Turn(
-                    utterance=_replace_placeholders_in(
-                        message.message,
-                        conversation.bot.name
-                    ),
+                    utterance=message,
                     kind=TurnKind.USER if message.is_human else TurnKind.MODEL,
                     name="You" if message.is_human else conversation.bot.name
                 )
