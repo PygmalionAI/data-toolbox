@@ -10,6 +10,10 @@ class MessageAndRole:
     role: str
 
 @dataclass
+class MessageAndRoleConversation:
+    conversation: list[MessageAndRole]
+
+@dataclass
 class MessageWithHumanBool:
     message: str
     is_human: bool
@@ -18,4 +22,3 @@ class MessageWithHumanBool:
 class SimpleReplyDataInstance:
     prompt: str
     generation: str
-    

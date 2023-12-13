@@ -1,5 +1,11 @@
 ---
 # Airoboros
+AesirRoleplayTask:
+  custom_prompts:
+  dataset_name: "aesir"
+  filters:
+    - ExactDedupFilter
+# Airoboros
 AiroborosInstructionFollowingTask:
   custom_prompts:
   dataset_name: "airoboros"

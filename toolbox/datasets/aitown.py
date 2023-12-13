@@ -1,20 +1,15 @@
 import logging
 import os
 
-from dataclasses import dataclass
 from typing import Generator
 
 import ujson
 
-from .common import MessageAndRole
+from .common import MessageAndRole, MessageAndRoleConversation
 from ..core import BaseDataset
 from ..utils import get_path_for
 
 LOG = logging.getLogger(__name__)
-
-@dataclass(frozen=True)
-class AiTownConversation:
-    conversation: list[MessageAndRole]
 
 class AiTownDataset(BaseDataset[MessageAndRole]):
     '''
@@ -22,7 +17,7 @@ class AiTownDataset(BaseDataset[MessageAndRole]):
     https://huggingface.co/datasets/recursal/ai-town-filtered
     We use conversations.jsonl here, not the ChatML version.
     '''
-    def __iter__(self) -> Generator[AiTownConversation, None, None]:
+    def __iter__(self) -> Generator[MessageAndRoleConversation, None, None]:
         root_path = get_path_for("ai_town")
         file_path = os.path.join(root_path, "conversations.jsonl")
 
@@ -35,4 +30,4 @@ class AiTownDataset(BaseDataset[MessageAndRole]):
                         role=e["sender"]
                     ) for e in example
                 ]
-                yield AiTownConversation(conversation=conversation)
+                yield MessageAndRoleConversation(conversation=conversation)
