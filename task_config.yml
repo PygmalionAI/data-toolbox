@@ -26,6 +26,7 @@ CharacterAiRoleplayTask:
   custom_prompts:
   dataset_name: "characterai"
   filters:
+    - EnglishFilter
     - ExactDedupFilter
     - LlmSlopFilter
     - RefusalFilter

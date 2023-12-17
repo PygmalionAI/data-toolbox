@@ -1,4 +1,5 @@
 import logging
+import re
 
 from typing import Generator, Optional
 
@@ -13,6 +14,8 @@ from ..datasets import CharacterAiDataset
 from ..utils import PromptManager, fix_style_and_encoding_issues
 
 LOG = logging.getLogger(__name__)
+
+WEIRD_DASH_PATTERN = re.compile(r"^\s?[—-]+\s*", flags=re.MULTILINE)
 
 class CharacterAiRoleplayTask(BaseTask):
     '''
@@ -70,6 +73,17 @@ class CharacterAiRoleplayTask(BaseTask):
                 cleaned_message = fix_style_and_encoding_issues(message.message)
                 cleaned_message = cleaned_message.replace("  ", " ").strip()
                 cleaned_message = _replace_placeholders_in(cleaned_message, conversation.bot.name)
+                # Deal with odd escape sequences.
+                cleaned_message = cleaned_message.replace(r"\\n", "\n")
+                cleaned_message = cleaned_message.replace(r"\\~", "~")
+                cleaned_message = cleaned_message.replace(r"\\-", "-")
+                # And spaces before newlines...
+                cleaned_message = re.sub(r" *\n", "\n", cleaned_message)
+                # And other weird things.
+                cleaned_message = cleaned_message.replace("…", "...")
+                #cleaned_message = cleaned_message.replace("... ...", "...")
+                cleaned_message = WEIRD_DASH_PATTERN.sub("", cleaned_message)
+                cleaned_message = cleaned_message.replace("—", "-")
                 
                 turn = Turn(
                     utterance=cleaned_message,
