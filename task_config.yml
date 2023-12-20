@@ -32,6 +32,13 @@ CharacterAiRoleplayTask:
     - RefusalFilter
     - SimilarityFilter
   timestamp_cutoff: -1
+# OpenCAI
+OpenCaiRoleplayTask:
+  custom_prompts:
+  dataset_name: "opencai"
+  filters:
+    - EnglishFilter
+    - ExactDedupFilter
 # Pyg-submitted Claude logs
 PygClaudeRoleplayTask:
   custom_prompts:

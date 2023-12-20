@@ -5,7 +5,7 @@ import ftfy
 
 EXCESSIVE_CHARS_PATTERN = re.compile(r"(\.|\-|\*|!)\1{3,}")
 EXTRA_NEWLINE_PATTERN = re.compile(r"\n{2,}")
-LINKS_PATTERN = re.compile(r"https?(?::\/\/|%3A%2F%2F).+?(\s|$)")
+LINKS_PATTERN = re.compile(r"https?(?::\\?\/\\?\/|%3A%2F%2F).+?(\s|$)")
 MARKDOWN_IMAGE_EMBED_PATTERN = re.compile(r"!\[.*?\]\(.*?\)\n*")
 # Gaze upon my works ye mighty and despair
 MENTION_PATTERN = re.compile(r"(?<!\w)([^\S\r\n]|^)*@[^\W\s]+?(?=(,|\.|\?|~|!|\s|:|$))", flags=re.MULTILINE)
