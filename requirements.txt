@@ -1,5 +1,6 @@
 ftfy
 markdownify
+pandas
 pyyaml
 langdetect
 scikit-learn

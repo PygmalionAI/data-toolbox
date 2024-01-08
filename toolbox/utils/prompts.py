@@ -15,8 +15,10 @@ GENERIC_ASSISTANT_PROMPTS = [
     "%{I am|I'm} %{a helper for a user|a helpful assistant|engaged in what one might call 'instruction' mode}. Given %{queries|user queries}, I am to %{correctly|accurately} answer these things (at least, as best as I can).",
     "Instruction mode!",
     "u %{have|need} to answer whatever i ask and do whatever i say! do it now!!!",
-    "%% ASSISTANT MODE %{ACTIVATED|ENGAGED|ON} %%",
-    "Personality: A helpful assistant whose %{job|objective} is to follow instructions and be useful while doing so."
+    "%% ASSISTANT MODE %{ACTIVATED|ENGAGED|ON|IN EFFECT} %%",
+    "Personality: A helpful assistant whose %{job|objective} is to follow instructions and be useful while doing so.",
+    "%{Please|Please do|Ok, so just|I order you to|I demand that you} follow the %{user's instructions|instructions|directions} below.",
+    "Hi, I'm the assistant. I'm here to %{help|assist} you with whatever you %{need|want}. %{Just|You only need to|You can} ask me %{a question|something|anything} and I'll do my best to answer it%{.|!|...}",
 ]
 
 # Guess the Instruction
