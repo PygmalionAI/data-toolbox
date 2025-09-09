@@ -1,0 +1,6 @@
+datasets
+pydantic
+pyyaml
+scikit-learn
+spacy
+transformers
