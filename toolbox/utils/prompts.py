@@ -15,8 +15,8 @@ def _prompt_params_sanity_checks(
     generic_prompt_type: str | None = None,
 ) -> tuple[list[str] | None, str | None]:
     """
-    Internal method to ensure that the prompt parameters fed into the `generate_prompt` method are valid.
-    Helps clean up the actual `generate_prompt` method.
+    Internal method to ensure that the prompt parameters fed into the `generate_sysprompt` method are valid.
+    Helps clean up the actual `generate_sysprompt` method.
     """
     # Custom prompts and generic prompt type are mutually exclusive.
     if custom_prompts is not None and generic_prompt_type:
@@ -51,7 +51,7 @@ def _prompt_params_sanity_checks(
 
     return custom_prompts, generic_prompt_type
 
-def _gen_dynamic_prompt(prompts: list[str]) -> str:
+def gen_dynamic_prompt(prompts: list[str]) -> str:
     """
     Randomly generate a dynamic prompt from a prompt template string.
     E.g. "Hello %{there|world}!" could become "Hello there!" or "Hello world!".
@@ -94,9 +94,9 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
     def replace_style(response: str) -> str:
         instructions = []
         if _has_matching_pairs_of("*", response):
-            instructions.append(_gen_dynamic_prompt(ASTERISK_PROMPTS))
+            instructions.append(gen_dynamic_prompt(ASTERISK_PROMPTS))
         if _has_matching_pairs_of('"', response):
-            instructions.append(_gen_dynamic_prompt(QUOTE_PROMPTS))
+            instructions.append(gen_dynamic_prompt(QUOTE_PROMPTS))
 
         random.shuffle(instructions)
         return ". ".join(instructions)
@@ -106,7 +106,7 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
 
         # Paragraph instructions.
         if avg_paragraph_count > 1:
-            instructions.append(_gen_dynamic_prompt(PARAGRAPH_COUNT_PROMPTS) \
+            instructions.append(gen_dynamic_prompt(PARAGRAPH_COUNT_PROMPTS) \
             .replace("{{PARAGRAPH_COUNT}}", str(avg_paragraph_count)))
         else:
             instructions.append(random.choice(SINGLE_PARAGRAPH_PROMPTS))
@@ -114,7 +114,7 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
         # Word count based length instructions.
         # Being a bit fancy here, but whatever.
         if avg_word_count >= 192:
-            instructions.append(_gen_dynamic_prompt(VERY_LONG_REPLY_PROMPTS))
+            instructions.append(gen_dynamic_prompt(VERY_LONG_REPLY_PROMPTS))
         else:
             for count, prompts in [
                 (16, SHORT_REPLY_PROMPTS),
@@ -122,7 +122,7 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
                 (192, LONG_REPLY_PROMPTS)
             ]:
                 if avg_word_count < count:
-                    instructions.append(_gen_dynamic_prompt(prompts))
+                    instructions.append(gen_dynamic_prompt(prompts))
                     break
 
         random.shuffle(instructions)
@@ -152,7 +152,7 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
 
     return prompt
 
-def generate_prompt(
+def generate_sysprompt(
     conversations: list[dict],
     task_name: str,
     custom_prompts: list[str] | None = None,
@@ -167,9 +167,9 @@ def generate_prompt(
     )
 
     if custom_prompts is not None:
-        selected_prompt = _gen_dynamic_prompt(custom_prompts)
+        selected_prompt = gen_dynamic_prompt(custom_prompts)
     else:
-        selected_prompt = _gen_dynamic_prompt(GENERIC_PROMPT_MAP[generic_prompt_type])
+        selected_prompt = gen_dynamic_prompt(GENERIC_PROMPT_MAP[generic_prompt_type])
 
     # Response style and length instructions are calculated based on the *average* word and paragraph counts.
     selected_prompt = _fill_response_placeholders(selected_prompt, conversations)
@@ -198,9 +198,9 @@ GENERIC_ASSISTANT_PROMPTS = [
 ]
 
 # Mapping to select generic prompts.
-# Currently only has "assistant" prompts, but will be expanded later.
+# Currently only has "instruct" prompts, but will be expanded later.
 GENERIC_PROMPT_MAP = {
-    "assistant": GENERIC_ASSISTANT_PROMPTS,
+    "instruct": GENERIC_ASSISTANT_PROMPTS,
 }
 
 # Paragraph, sentence or phrase prompts.

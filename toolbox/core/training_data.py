@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 
 from datasets import Dataset, load_dataset
@@ -58,14 +59,29 @@ class ShareGptHuggingFaceData(TrainingData):
             if not c.get('prefix', False):
                 c['name'] = ""
             if not c.get('loss', False):
-                c['loss'] = c['from'] == 'human'
+                c['loss'] = c['from'] not in ['human', 'system']
         new_example.append(c)
 
         return {'conversations': new_example}
+    
+    def filter(self, fn, **kwargs) -> None:
+        """
+        A wrapper around `self.dataset.filter` to allow for easy filtering of the dataset.
+        """
+        self.dataset = self.dataset.filter(fn, **kwargs)
+    
+    def map(self, fn, **kwargs) -> None:
+        """
+        A wrapper around `self.dataset.map` to allow for easy mapping of functions to the dataset.
+        """
+        self.dataset = self.dataset.map(fn, **kwargs)
 
     def to_hf_dataset(self) -> None:
         """
         Add the `loss` and `name` fields to the HF dataset, if they are not already present.
         """
-        cols_to_remove = [c for c in self.dataset.column_names if c != "conversations"]
-        self.dataset = self.dataset.map(self._add_loss_and_name, remove_columns=cols_to_remove, description=f"Converting {self.dataset_name} to internal format.")
+        self.dataset = self.dataset.map(
+            self._add_loss_and_name,
+            num_proc=os.cpu_count(),
+            description=f"Converting {self.dataset_name} to internal format."
+        )
