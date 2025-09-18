@@ -9,7 +9,7 @@ class Filter(ABC):
         This class cannot and should not be instantiated directly. Instead, subclasses should be created
         for each specific filter type.
         """
-        pass
+        self.shorthand = "" # Placeholder for the shorthand alias of the filter, to be set by subclasses.
 
     @abstractmethod
     def __call__(self, dataset: Dataset) -> Dataset:
@@ -17,4 +17,4 @@ class Filter(ABC):
         Apply the filter to the dataset and return the filtered dataset.
         This should likely use the `Dataset.filter` method internally.
         """
-        pass
+        raise NotImplementedError("Subclasses are required to implement the __call__ method.")
