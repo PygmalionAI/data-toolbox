@@ -2,12 +2,15 @@ import hashlib
 
 from abc import ABC, abstractmethod
 
-from training_data import TrainingData
 from datasets import Dataset
+
+from .training_data import TrainingData
 
 ID_HASH_LEN = 16
 
 class Task(ABC):
+    # Shorthand name for easy reference to the task type in configuration.
+    TASK_SHORTHAND: str = ""
     def __init__(self, dataset: TrainingData, task_type: str, **kwargs) -> None:
         """
         The Task is designed to take in a collection of data (fed in as TrainingData objects) and
@@ -19,9 +22,6 @@ class Task(ABC):
         """
         self.dataset = dataset
         self.task_type = task_type
-        # Placeholder for the shorthand alias of the task, to be set by subclasses.
-        # This serves as an easy-to-remember alias for the task name.
-        self.task_shorthand = ""
 
     def _generate_identifier(self, example: dict) -> str:
         """

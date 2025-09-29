@@ -23,7 +23,6 @@ class AppleFilter(Filter):
         dataset = dataset.filter(
             lambda x: all('apple' not in c['value'].lower() for c in x['conversations']),
             num_proc=os.cpu_count(),
-            description="Applying AppleFilter..."
         )
         LOG.info(f"Removed {orig_dataset_len - len(dataset)} examples from dataset.")
 

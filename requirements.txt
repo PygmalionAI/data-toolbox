@@ -3,4 +3,5 @@ pydantic
 pyyaml
 scikit-learn
 spacy
+tqdm
 transformers

@@ -14,6 +14,7 @@ class BuzzData(ShareGptHuggingFaceData):
             split (str): The split of the dataset to use (e.g. "train", "test", "validation"). Default is "train".
         """
         super().__init__("H-D-T/Buzz-V1.2", split=split)
+
         # Flags for whether certain types of data are currently excluded from the dataset.
         # This is necessary because we must keep one Buzz task may want to exclude certain sources, while another may not.
         # Because we only have one TrainingData object per set of Tasks, we need to have a mechanism to reload the full
@@ -37,7 +38,7 @@ class BuzzData(ShareGptHuggingFaceData):
         """
         # Combine all RegEx patterns to exclude.
         self.excluded_synthetic_data = exclude_synthetic_data
-        combined_patterns = [re.compile(p) for p in sources_to_exclude] or []
+        combined_patterns = [re.compile(p) for p in sources_to_exclude] if sources_to_exclude else []
         if exclude_synthetic_data:
             combined_patterns.extend(SYNTHETIC_PATTERNS)
         
@@ -46,13 +47,19 @@ class BuzzData(ShareGptHuggingFaceData):
             self.dataset = load_dataset("H-D-T/Buzz-V1.2", split=self.split)
             self.to_hf_dataset()
 
+        # Ensure there are at least 2 messages in the conversation.
+        self.dataset = self.dataset.filter(
+            lambda x: len(x['conversations']) > 1,
+            num_proc=os.cpu_count()
+        )
+
         # Filter the dataset based on the combined patterns.
         if combined_patterns:
             self.dataset = self.dataset.filter(
-                lambda x: any(p.search(x['source']) for p in combined_patterns),
+                lambda x: not any(p.search(x['source']) for p in combined_patterns),
                 num_proc=os.cpu_count(),
-                description="Excluding specified sources from Buzz dataset."
             )
+
         self.sources_excluded = combined_patterns
         self.first_load = False
 
@@ -68,7 +75,7 @@ SYNTHETIC_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"^mistral",
     r"^palm",
     r"quanta",
-    r"synthia",
+    r"^synthia",
     r"coder",
     r"-nectar$",
     r"^hotdog",

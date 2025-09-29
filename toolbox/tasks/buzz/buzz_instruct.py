@@ -4,9 +4,11 @@ from datasets import Dataset
 
 from .buzz import BuzzData
 from ...core import Task
-from ...utils import generate_prompt, gen_dynamic_prompt
+from ...utils import gen_dynamic_prompt
 
 class BuzzInstructTask(Task):
+    TASK_SHORTHAND = "buzz_instruct"
+
     def __init__(
         self,
         dataset: BuzzData,
@@ -24,11 +26,10 @@ class BuzzInstructTask(Task):
         """
         super().__init__(dataset, task_type="instruct")
 
-        self.task_shorthand = "buzz_instruct"
         self.exclude_synthetic_data = exclude_synthetic_data
         self.sources_to_exclude = sources_to_exclude
 
-    def _process_example(self, example):
+    def _process_example(self, example: dict) -> dict:
         # Different sources require different treatments.
         source = example['source'].lower()
         conversations = example['conversations']
@@ -59,8 +60,9 @@ class BuzzInstructTask(Task):
         # TODO(TG): Parse the question and answer from extractor-00000-of-00001 properly.
         # Right now it's just a big mess, and it's most likely synthetic so I'm not gonna touch it right now.
         elif "know_sql" in source:
-            conversations[1]['value'] = gen_dynamic_prompt(KNOW_SQL_USER_PROMPT) + "\n" + conversations[1]['value']
-        
+            current_text = conversations[1]['value']
+            conversations[1]['value'] = gen_dynamic_prompt(KNOW_SQL_USER_PROMPT) + "\n" + current_text
+    
         for c in conversations:
             # Replace any raw "\n" (they're in there) with actual newlines.
             c['value'] = c['value'].replace("\\n", "\n").strip()
@@ -71,7 +73,7 @@ class BuzzInstructTask(Task):
                 c['loss'] = c['from'] not in ['human', 'system']
 
         # Build identifier and return.
-        example = self._generate_identifier({'conversations': conversations}, self.dataset.dataset_name)
+        example = self._generate_identifier({'conversations': conversations})
         return example
 
     def generate_examples(self) -> Dataset:
@@ -84,8 +86,8 @@ class BuzzInstructTask(Task):
         return self.dataset.map(
             self._process_example,
             num_proc=os.cpu_count(),
-            description="Processing BuzzInstructTask..."
-        )   
+            remove_columns=['source', 'stack'],
+        )
 
 SQL_TABLE_PROMPTS = [
     "%{Below|Below this|below|below this|Above|Above this|above|above this} is %{an|a} %{SQL|sql} %{table creation|table-making|table-creation|command which makes an SQL table|command which makes an sql table}.",

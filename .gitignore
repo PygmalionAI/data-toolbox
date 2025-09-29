@@ -10,6 +10,7 @@
 /dist/*
 /build_data.py
 
-# Large/binary files.
+# Repo folders/files.
 /data/*
 !/data/.keep
+/configs/*
