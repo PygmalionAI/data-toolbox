@@ -51,6 +51,7 @@ def main(config_path: str = None) -> None:
         config_dict = safe_load(f)
 
     LOG.info(f"Loaded config at {os.path.basename(config_path)}")
+
     # Parse both the compile config (CompileConfig) and task config (list of TaskConfigs)
     compile_config = CompileConfig(**config_dict.get("compile_config", {}))
     task_configs = [TaskConfig(**tc) for tc in config_dict.get("task_configs", [])]

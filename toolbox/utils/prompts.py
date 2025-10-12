@@ -132,7 +132,7 @@ def _fill_response_placeholders(prompt: str, conversations: list[dict[str, str |
     # NOTE(TG): This will likely falter if model outputs are wildly different.
     last_loss_msg_idx = next(
         (i for i in reversed(range(len(conversations))) if conversations[i].get('loss', True)),
-        default=len(conversations) - 1
+        len(conversations) - 1
     )
     prompt = prompt.replace("{{RESPONSE_STYLE_STR}}", replace_style(conversations[last_loss_msg_idx]['value']))
 
@@ -198,9 +198,9 @@ GENERIC_ASSISTANT_PROMPTS = [
 ]
 
 # Mapping to select generic prompts.
-# Currently only has "instruct" prompts, but will be expanded later.
+# Currently only has "assistant" prompts, but will be expanded later.
 GENERIC_PROMPT_MAP = {
-    "instruct": GENERIC_ASSISTANT_PROMPTS,
+    "assistant": GENERIC_ASSISTANT_PROMPTS,
 }
 
 # Paragraph, sentence or phrase prompts.

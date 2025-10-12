@@ -88,7 +88,6 @@ class ShareGptHuggingFaceData(TrainingData):
         # NOTE(TG): Disabled for now, shit's broke (at least for Buzz) and I have no clue why.
         #self.dataset = self.dataset.map(
         #    self._add_loss_and_name,
-        #    num_proc=os.cpu_count()
-        #
+        #    num_proc=os.cpu_count(),
         #)
         pass
