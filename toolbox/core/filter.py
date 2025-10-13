@@ -3,13 +3,15 @@ from abc import ABC, abstractmethod
 from datasets import Dataset
 
 class Filter(ABC):
+    FILTER_SHORTHAND = "UNSET_SHORTHAND" # Subclasses should override this with a shorthand name.
+    
     def __init__(self) -> None:
         """
         The Filter class is designed to filter out low-quality or unwanted examples from a Dataset.
         This class cannot and should not be instantiated directly. Instead, subclasses should be created
         for each specific filter type.
         """
-        self.shorthand = "" # Placeholder for the shorthand alias of the filter, to be set by subclasses.
+        pass
 
     @abstractmethod
     def __call__(self, dataset: Dataset) -> Dataset:

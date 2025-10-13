@@ -8,12 +8,12 @@ from ..core import Filter
 LOG = logging.getLogger("AppleFilter")
 
 class AppleFilter(Filter):
+    FILTER_SHORTHAND = "apple_filter"
     def __init__(self) -> None:
         """
         A test Filter which removes any examples which contain the word "apple" in any of the messages.
         """
         super().__init__()
-        self.shorthand = "apple_filter"
 
     def __call__(self, dataset: Dataset) -> Dataset:
         """
